@@ -7,6 +7,7 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.Html;
 import android.text.TextUtils;
 import android.view.View;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.cabe.app.novel.R;
@@ -19,10 +20,13 @@ import com.google.gson.reflect.TypeToken;
 
 public class NovelContentActivity extends BaseActivity {
     private SwipeRefreshLayout swipeLayout;
-    private View btnPre;
-    private View btnNext;
+    private ScrollView viewScroll;
     private TextView tvTitle;
     private TextView tvContent;
+    private View btnPre;
+    private View btnNext;
+    private View btnPreBottom;
+    private View btnNextBottom;
 
     private NovelContent curContent;
     @Override
@@ -39,10 +43,13 @@ public class NovelContentActivity extends BaseActivity {
 
     private void initView() {
         swipeLayout = (SwipeRefreshLayout) findViewById(R.id.activity_novel_content_swipe);
-        btnPre = findViewById(R.id.activity_novel_content_preview);
-        btnNext = findViewById(R.id.activity_novel_content_next);
+        viewScroll = (ScrollView) findViewById(R.id.activity_novel_content_scroll);
         tvTitle = (TextView) findViewById(R.id.activity_novel_content_title);
         tvContent = (TextView) findViewById(R.id.activity_novel_content_info);
+        btnPre = findViewById(R.id.activity_novel_content_preview);
+        btnNext = findViewById(R.id.activity_novel_content_next);
+        btnPreBottom = findViewById(R.id.activity_novel_content_preview_btoom);
+        btnNextBottom = findViewById(R.id.activity_novel_content_next_bottom);
 
         swipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -52,13 +59,20 @@ public class NovelContentActivity extends BaseActivity {
                 }
             }
         });
+
+        btnPre.setVisibility(View.INVISIBLE);
+        btnNext.setVisibility(View.INVISIBLE);
+        btnPreBottom.setVisibility(View.INVISIBLE);
+        btnNextBottom.setVisibility(View.INVISIBLE);
     }
 
     private void updateView(NovelContent content) {
         if(content == null) return;
 
-        btnPre.setVisibility(content.preUrl.endsWith("html") ? View.VISIBLE : View.INVISIBLE);
-        btnNext.setVisibility(content.nextUrl.endsWith("html") ? View.VISIBLE : View.INVISIBLE);
+        btnPre.setVisibility(content.preUrl != null && content.preUrl.endsWith("html") ? View.VISIBLE : View.INVISIBLE);
+        btnNext.setVisibility(content.nextUrl != null && content.nextUrl.endsWith("html") ? View.VISIBLE : View.INVISIBLE);
+        btnPreBottom.setVisibility(content.preUrl != null && content.preUrl.endsWith("html") ? View.VISIBLE : View.INVISIBLE);
+        btnNextBottom.setVisibility(content.nextUrl != null && content.nextUrl.endsWith("html") ? View.VISIBLE : View.INVISIBLE);
         tvTitle.setText(content.title);
         tvContent.setText(Html.fromHtml(content.content));
     }
@@ -73,6 +87,12 @@ public class NovelContentActivity extends BaseActivity {
             }
             @Override
             public void load(CacheSource from, NovelContent content) {
+                btnPre.setVisibility(View.VISIBLE);
+                btnNext.setVisibility(View.VISIBLE);
+                btnPreBottom.setVisibility(View.VISIBLE);
+                btnNextBottom.setVisibility(View.VISIBLE);
+                viewScroll.fullScroll(ScrollView.FOCUS_UP);
+
                 NovelContent cacheContent = new NovelContent();
                 cacheContent.title = content.title;
                 cacheContent.url = content.url;

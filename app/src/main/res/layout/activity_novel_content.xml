@@ -3,9 +3,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_novel_content_swipe"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="#E0E2C0">
 
     <ScrollView
+        android:id="@+id/activity_novel_content_scroll"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scrollbars="vertical" >
@@ -31,7 +33,7 @@
                     android:textSize="14dp"
                     android:textColor="#666666"
                     android:text="上一章"
-                    android:background="@drawable/bg_list_item_white" />
+                    android:background="@drawable/bg_list_item" />
 
                 <TextView
                     android:id="@+id/activity_novel_content_next"
@@ -44,7 +46,7 @@
                     android:textSize="14dp"
                     android:textColor="#666666"
                     android:text="下一章"
-                    android:background="@drawable/bg_list_item_white" />
+                    android:background="@drawable/bg_list_item" />
 
             </LinearLayout>
 
@@ -84,7 +86,7 @@
                     android:textSize="14dp"
                     android:textColor="#666666"
                     android:text="上一章"
-                    android:background="@drawable/bg_list_item_white" />
+                    android:background="@drawable/bg_list_item" />
 
                 <TextView
                     android:id="@+id/activity_novel_content_next_bottom"
@@ -97,7 +99,7 @@
                     android:textSize="14dp"
                     android:textColor="#666666"
                     android:text="下一章"
-                    android:background="@drawable/bg_list_item_white" />
+                    android:background="@drawable/bg_list_item" />
 
             </LinearLayout>
 
