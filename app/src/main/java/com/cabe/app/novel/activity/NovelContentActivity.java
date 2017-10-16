@@ -21,7 +21,6 @@ import com.google.gson.reflect.TypeToken;
 public class NovelContentActivity extends BaseActivity {
     private SwipeRefreshLayout swipeLayout;
     private ScrollView viewScroll;
-    private TextView tvTitle;
     private TextView tvContent;
     private View btnPre;
     private View btnNext;
@@ -44,7 +43,6 @@ public class NovelContentActivity extends BaseActivity {
     private void initView() {
         swipeLayout = (SwipeRefreshLayout) findViewById(R.id.activity_novel_content_swipe);
         viewScroll = (ScrollView) findViewById(R.id.activity_novel_content_scroll);
-        tvTitle = (TextView) findViewById(R.id.activity_novel_content_title);
         tvContent = (TextView) findViewById(R.id.activity_novel_content_info);
         btnPre = findViewById(R.id.activity_novel_content_preview);
         btnNext = findViewById(R.id.activity_novel_content_next);
@@ -69,11 +67,11 @@ public class NovelContentActivity extends BaseActivity {
     private void updateView(NovelContent content) {
         if(content == null) return;
 
+        setTitle(content.title);
         btnPre.setVisibility(content.preUrl != null && content.preUrl.endsWith("html") ? View.VISIBLE : View.INVISIBLE);
         btnNext.setVisibility(content.nextUrl != null && content.nextUrl.endsWith("html") ? View.VISIBLE : View.INVISIBLE);
         btnPreBottom.setVisibility(content.preUrl != null && content.preUrl.endsWith("html") ? View.VISIBLE : View.INVISIBLE);
         btnNextBottom.setVisibility(content.nextUrl != null && content.nextUrl.endsWith("html") ? View.VISIBLE : View.INVISIBLE);
-        tvTitle.setText(content.title);
         tvContent.setText(Html.fromHtml(content.content));
     }
 

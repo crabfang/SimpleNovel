@@ -46,6 +46,7 @@ public class HomeActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
         initView();
+        setTitle("简易小说");
 
         waiting = new ProgressDialog(this);
         waiting.setMessage("请稍候");
@@ -228,9 +229,9 @@ public class HomeActivity extends BaseActivity {
 
             Glide.with(context).load(itemData.picUrl).into(holder.pic);
             holder.tvTitle.setText(itemData.title);
-            holder.tvAuthor.setText(String.valueOf("作者：" + itemData.title));
-            holder.tvType.setText(String.valueOf("类型：" + itemData.author));
-            holder.tvWords.setText(String.valueOf("字数：" + itemData.type));
+            holder.tvAuthor.setText(String.valueOf("作者：" + itemData.author));
+            holder.tvType.setText(String.valueOf("类型：" + itemData.type));
+            holder.tvWords.setText(String.valueOf("字数：" + itemData.wordSize));
             holder.tvState.setText(String.valueOf("状态：" + itemData.state));
             holder.tvSource.setText(String.valueOf("来源：" + UrlUtils.getHostName(itemData.url)));
             holder.itemView.setOnClickListener(new View.OnClickListener() {

@@ -8,6 +8,8 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -29,7 +31,6 @@ public class NovelDetailActivity extends BaseActivity {
     protected static String TAG = "";
     public static String CUR_NOVEL_DETAIL_KEY = "";
 
-    private TextView tvTitle;
     private TextView tvTips;
     private SwipeRefreshLayout listSwipe;
 
@@ -42,6 +43,7 @@ public class NovelDetailActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         TAG = getClass().getSimpleName();
+        setBackable(true);
         setContentView(R.layout.activity_novel_detail);
         initView();
         loadNovelInfo();
@@ -65,8 +67,26 @@ public class NovelDetailActivity extends BaseActivity {
         }
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_novel_detail, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_novel_detail_order:
+                actionOrderReverse();
+                return true;
+            case R.id.menu_novel_detail_source:
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
     private void initView() {
-        tvTitle = (TextView) findViewById(R.id.activity_novel_detail_title);
         tvTips = (TextView) findViewById(R.id.activity_novel_detail_tips);
         listSwipe = (SwipeRefreshLayout) findViewById(R.id.activity_novel_detail_swipe);
         RecyclerView listRecycler = (RecyclerView) findViewById(R.id.activity_novel_detail_list);
@@ -74,25 +94,21 @@ public class NovelDetailActivity extends BaseActivity {
         GridLayoutManager manager = new GridLayoutManager(context, 2);
         listRecycler.setLayoutManager(manager);
 
-        tvTitle.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                flagReverse = !flagReverse;
-                adapter.notifyDataSetChanged();
-            }
-        });
         listSwipe.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 loadNovelInfo();
             }
         });
+
+        if(novelInfo != null) {
+            setTitle(novelInfo.title);
+        }
     }
 
     private void updateView(NovelDetail detail) {
         if(detail == null) return;
 
-        tvTitle.setText(detail.title);
         tvTips.setText(detail.getTips());
         adapter.setData(detail.list);
         adapter.updateLastInfo(lastContent);
@@ -122,6 +138,11 @@ public class NovelDetailActivity extends BaseActivity {
     private void gotoContent(NovelContent content) {
         Intent intent = NovelContentActivity.create(context, content);
         startActivity(intent);
+    }
+
+    private void actionOrderReverse() {
+        flagReverse = !flagReverse;
+        adapter.notifyDataSetChanged();
     }
 
     private class MyAdapter extends RecyclerView.Adapter<MyHolder> {

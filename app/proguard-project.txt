@@ -1,0 +1,195 @@
+# To enable ProGuard in your project, edit project.properties
+# to define the proguard.config property as described in that file.
+#
+# Add project specific ProGuard rules here.
+# By default, the flags in this file are appended to flags specified
+# in ${sdk.dir}/tools/proguard/proguard-android.txt
+# You can edit the include path and order by changing the ProGuard
+# include property in project.properties.
+#
+# For more details, see
+#   http://developer.android.com/guide/developing/tools/proguard.html
+
+# Add any project specific keep options here:
+
+# If your project uses WebView with JS, uncomment the following
+# and specify the fully qualified class name to the JavaScript interface
+# class:
+#/*-keepclassmembers class fqcn.of.javascript.interface.for.webview {*/
+#   /*public *;*/
+#/*}*/
+
+#保持行号
+-renamesourcefileattribute SourceFile
+-keepattributes SourceFile,LineNumberTable
+-optimizationpasses 5
+-dontusemixedcaseclassnames
+-dontpreverify
+-dontwarn
+-dontskipnonpubliclibraryclasses
+-dontskipnonpubliclibraryclassmembers
+-optimizations !code/simplification/arithmetic,!field/*,!class/merging/*
+-dontwarn com.tendcloud.tenddata.**
+
+-dontwarn android.support.**
+-assumenosideeffects class android.util.Log{ public static *** d(...); public static *** i(...); public static *** v(...); public static *** e(...);}
+
+-ignorewarnings
+
+#-dump bin/class_files.txt
+#-printseeds bin/seeds.txt
+#-printusage bin/unused.txt
+#-printmapping bin/mapping.txt
+
+-dump build/class_files.txt
+-printseeds build/seeds.txt
+-printusage build/unused.txt
+-printmapping build/mapping.txt
+
+-keep public class * extends android.app.Activity
+-keep public class * extends android.app.Application
+-keep public class * extends android.app.Service
+-keep public class * extends android.content.BroadcastReceiver
+-keep public class * extends android.content.ContentProvider
+-keep public class * extends android.app.backup.BackupAgentHelper
+-keep public class * extends android.preference.Preference
+-keep public class com.android.vending.licensing.ILicensingService
+-keep public class * extends android.view.View
+-keep public class * extends android.support.v4.app.Fragment
+-keep public class * extends android.app.Fragment
+
+-keep class android.support.v4.app.** { *; }
+-keep interface android.support.v4.app.** { *; }
+
+-keep class android.support.v13.app.** { *; }
+-keep interface android.support.v13.app.** { *; }
+
+-keep class android.support.v7.app.** { *; }
+-keep interface android.support.v7.app.** { *; }
+-keep class android.support.v7.widget.** { *; }
+
+-keep class android.support.v7.view.** { *; }
+-keep class android.support.v7.internal.widget.** { *; }
+-keep class android.support.v7.internal.view.** { *; }
+-keep class android.support.v7.internal.view.menu.** { *; }
+-keep interface android.support.v7.internal.view.menu.** { *; }
+
+-keepattributes *Annotation*
+
+-keepclassmembers class * {
+   public <init>(org.json.JSONObject);
+}
+
+-keepclasseswithmembernames class * {
+    native <methods>;
+}
+
+-keepclasseswithmembers class * {
+    public <init>(android.content.Context, android.util.AttributeSet);
+}
+
+-keepclasseswithmembers class * {
+    public <init>(android.content.Context, android.util.AttributeSet, int);
+}
+
+-keepclassmembers class * extends android.app.Activity {
+   public void *(android.view.View);
+}
+
+-keepclassmembers enum * {
+    public static **[] values();
+    public static ** valueOf(java.lang.String);
+}
+
+-keep class * implements android.os.Parcelable {
+  public static final android.os.Parcelable$Creator *;
+}
+
+##---------------Begin: proguard configuration for Gson  ----------
+# Gson uses generic type information stored in a class file when working with fields. Proguard
+# removes such information by default, so configure it to keep all of it.
+-keepattributes Signature
+
+# For using GSON @Expose annotation
+-keepattributes *Annotation*
+
+##---------------End: proguard configuration for Gson  ----------
+
+# butterknife
+-keep class butterknife.** { *; }
+-dontwarn butterknife.internal.**
+-keep class **$$ViewBinder { *; }
+
+-keepclasseswithmembernames class * {
+    @butterknife.* <fields>;
+}
+
+-keepclasseswithmembernames class * {
+    @butterknife.* <methods>;
+}
+# end butterknife
+
+#start eventbus
+-keepclassmembers class ** {
+public void onEvent(*);
+}
+
+-keepclassmembers class ** {
+public void onEventMainThread(**);
+}
+
+-keepclassmembers class * extends de.greenrobot.event.util.ThrowableFailureEvent {
+    <init>(java.lang.Throwable);
+}
+#end eventbus
+
+#---retrofit start
+-dontwarn retrofit.**
+-keep class retrofit.** { *; }
+-dontwarn retrofit.appengine.UrlFetchClient
+
+-dontwarn okio.**
+-dontwarn rx.**
+
+-dontwarn com.squareup.okhttp.**
+-keep class com.squareup.okhttp.** { *; }
+-keep interface com.squareup.okhttp.** { *; }
+
+-keepclasseswithmembers class * {
+    @retrofit.http.* <methods>;
+}
+#--- retrofit end
+
+#--- rxjava start
+-keep class rx.schedulers.Schedulers {
+    public static <methods>;
+}
+-keep class rx.schedulers.ImmediateScheduler {
+    public <methods>;
+}
+-keep class rx.schedulers.TestScheduler {
+    public <methods>;
+}
+-keep class rx.schedulers.Schedulers {
+    public static ** test();
+}
+-keepclassmembers class rx.internal.util.unsafe.*ArrayQueue*Field* {
+    long producerIndex;
+    long consumerIndex;
+}
+-keepclassmembers class rx.internal.util.unsafe.BaseLinkedQueueProducerNodeRef {
+    long producerNode;
+    long consumerNode;
+}
+
+#--- rxjava end
+
+-keep class org.mozilla.javascript.**
+-keep class com.cabe.cigarette.sx.app.usecase.**
+-keepclassmembers class com.cabe.cigarette.sx.app.utils.JSUtils { *; }
+-keep class org.jsoup.**
+
+-keep class net.youmi.android.**
+-keep class com.googlecode.**
+-keepclassmembers class com.googlecode.** { *; }
+-keepclassmembers class net.youmi.android.** { *; }
