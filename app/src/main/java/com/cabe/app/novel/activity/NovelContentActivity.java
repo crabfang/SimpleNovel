@@ -30,6 +30,12 @@ public class NovelContentActivity extends BaseActivity {
     private View btnNextBottom;
 
     private NovelContent curContent;
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
