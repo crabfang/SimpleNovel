@@ -213,7 +213,7 @@ public class NovelDetailActivity extends BaseActivity {
                 tips = "(继续)";
             }
             holder.title.setText(String.valueOf(tips + content.title));
-            holder.title.setTextColor(content.flagLast ? 0xFFF51E51 : 0xFF34488A);
+            holder.title.setTextColor(content.equals(lastContent) ? 0xFFF51E51 : 0xFF34488A);
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

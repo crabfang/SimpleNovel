@@ -16,11 +16,13 @@ import com.cabe.app.novel.model.NovelContent;
 import com.cabe.app.novel.utils.DiskUtils;
 import com.cabe.lib.cache.CacheSource;
 import com.cabe.lib.cache.interactor.ViewPresenter;
+import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 public class NovelContentActivity extends BaseActivity {
     private SwipeRefreshLayout swipeLayout;
     private ScrollView viewScroll;
+    private TextView tvTitle;
     private TextView tvContent;
     private View btnPre;
     private View btnNext;
@@ -34,7 +36,16 @@ public class NovelContentActivity extends BaseActivity {
         setContentView(R.layout.activity_novel_content);
         initView();
 
-        NovelContent novelContent = getExtraGson(new TypeToken<NovelContent>(){});
+        NovelContent novelContent = null;
+        if(savedInstanceState == null) {
+            novelContent = getExtraGson(new TypeToken<NovelContent>(){});
+        } else {
+            String novelGson = DiskUtils.getData(NovelDetailActivity.CUR_NOVEL_DETAIL_KEY);
+            if(!TextUtils.isEmpty(novelGson)) {
+                novelContent = new Gson().fromJson(novelGson, NovelContent.class);
+            }
+        }
+
         if(novelContent != null && !TextUtils.isEmpty(novelContent.url)) {
             loadContent(novelContent.url);
         }
@@ -43,6 +54,7 @@ public class NovelContentActivity extends BaseActivity {
     private void initView() {
         swipeLayout = (SwipeRefreshLayout) findViewById(R.id.activity_novel_content_swipe);
         viewScroll = (ScrollView) findViewById(R.id.activity_novel_content_scroll);
+        tvTitle = (TextView) findViewById(R.id.activity_novel_content_title);
         tvContent = (TextView) findViewById(R.id.activity_novel_content_info);
         btnPre = findViewById(R.id.activity_novel_content_preview);
         btnNext = findViewById(R.id.activity_novel_content_next);
@@ -67,11 +79,13 @@ public class NovelContentActivity extends BaseActivity {
     private void updateView(NovelContent content) {
         if(content == null) return;
 
-        setTitle(content.title);
         btnPre.setVisibility(content.preUrl != null && content.preUrl.endsWith("html") ? View.VISIBLE : View.INVISIBLE);
         btnNext.setVisibility(content.nextUrl != null && content.nextUrl.endsWith("html") ? View.VISIBLE : View.INVISIBLE);
         btnPreBottom.setVisibility(content.preUrl != null && content.preUrl.endsWith("html") ? View.VISIBLE : View.INVISIBLE);
         btnNextBottom.setVisibility(content.nextUrl != null && content.nextUrl.endsWith("html") ? View.VISIBLE : View.INVISIBLE);
+
+        setTitle(content.title);
+        tvTitle.setText(content.title);
         tvContent.setText(Html.fromHtml(content.content));
     }
 
