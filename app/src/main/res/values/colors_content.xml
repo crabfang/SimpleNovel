@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="activity_content_bg">#E0E2C0</color>
+    <color name="activity_content_theme">#333333</color>
+    <color name="activity_content_operate">#666666</color>
+</resources>

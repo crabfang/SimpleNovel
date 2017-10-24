@@ -4,7 +4,7 @@
     android:id="@+id/activity_novel_content_swipe"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#E0E2C0">
+    android:background="@color/activity_content_bg">
 
     <ScrollView
         android:id="@+id/activity_novel_content_scroll"
@@ -32,8 +32,8 @@
                     android:onClick="actionPreview"
                     android:paddingLeft="10dp"
                     android:textSize="14dp"
-                    android:textColor="#666666"
-                    android:text="上一章"
+                    android:textColor="@color/activity_content_operate"
+                    android:text="@string/activity_content_btn_pre"
                     android:background="@drawable/bg_list_item" />
 
                 <TextView
@@ -45,8 +45,8 @@
                     android:onClick="actionNext"
                     android:paddingRight="10dp"
                     android:textSize="14dp"
-                    android:textColor="#666666"
-                    android:text="下一章"
+                    android:textColor="@color/activity_content_operate"
+                    android:text="@string/activity_content_btn_next"
                     android:background="@drawable/bg_list_item" />
 
             </LinearLayout>
@@ -60,8 +60,8 @@
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
                 android:gravity="center"
-                android:textSize="28dp"
-                android:textColor="#333333"
+                android:textSize="24dp"
+                android:textColor="@color/activity_content_theme"
                 tools:text="@string/app_name" />
 
             <TextView
@@ -74,7 +74,7 @@
                 android:layout_marginBottom="10dp"
                 android:lineSpacingExtra="2dp"
                 android:textSize="20dp"
-                android:textColor="#333333"
+                android:textColor="@color/activity_content_theme"
                 tools:text="@string/app_name" />
 
             <android.support.v4.widget.Space
@@ -96,8 +96,8 @@
                     android:onClick="actionPreview"
                     android:paddingLeft="10dp"
                     android:textSize="14dp"
-                    android:textColor="#666666"
-                    android:text="上一章"
+                    android:textColor="@color/activity_content_operate"
+                    android:text="@string/activity_content_btn_pre"
                     android:background="@drawable/bg_list_item" />
 
                 <TextView
@@ -109,8 +109,8 @@
                     android:onClick="actionNext"
                     android:paddingRight="10dp"
                     android:textSize="14dp"
-                    android:textColor="#666666"
-                    android:text="下一章"
+                    android:textColor="@color/activity_content_operate"
+                    android:text="@string/activity_content_btn_next"
                     android:background="@drawable/bg_list_item" />
 
             </LinearLayout>

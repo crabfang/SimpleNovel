@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">SimpleNovel</string>
+
+    <string name="activity_content_btn_pre">上一章</string>
+    <string name="activity_content_btn_next">下一章</string>
 </resources>

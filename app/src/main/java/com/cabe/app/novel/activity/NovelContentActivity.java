@@ -2,10 +2,14 @@ package com.cabe.app.novel.activity;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AppCompatDelegate;
 import android.text.Html;
 import android.text.TextUtils;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -54,6 +58,23 @@ public class NovelContentActivity extends BaseActivity {
 
         if(novelContent != null && !TextUtils.isEmpty(novelContent.url)) {
             loadContent(novelContent.url);
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_novel_content, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_novel_content_theme:
+                actionSwitchTheme();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 
@@ -125,6 +146,12 @@ public class NovelContentActivity extends BaseActivity {
                 swipeLayout.setRefreshing(false);
             }
         });
+    }
+
+    private void actionSwitchTheme() {
+        int currentNightMode = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        getDelegate().setLocalNightMode(currentNightMode == Configuration.UI_MODE_NIGHT_NO
+                ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO);
     }
 
     public void actionPreview(View view) {
