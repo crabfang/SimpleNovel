@@ -3,5 +3,5 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item android:id="@+id/menu_novel_content_theme"
         android:title="夜间模式"
-        app:showAsAction="always"/>
+        app:showAsAction="never"/>
 </menu>

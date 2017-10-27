@@ -19,6 +19,8 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,12 +36,20 @@ public class NovelDetailUseCase extends HttpCacheUseCase<NovelDetail> {
         if(TextUtils.isEmpty(url)) {
             throw RxException.build(HttpExceptionCode.HTTP_STATUS_LOCAL_REQUEST_NONE, null);
         }
+        if(!url.endsWith("/")) {
+            url += "/";
+        }
         this.novelUrl = url;
 
         String[] group = UrlUtils.splitUrl(url);
         RequestParams params = new RequestParams();
         params.host = group[0] + "/";
         params.path = group.length > 1 ? group[1] : "";
+        try {
+            params.path = URLEncoder.encode(params.path, "utf-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
         params.requestMethod = RequestParams.REQUEST_METHOD_GET;
 
         setRequestParams(params);

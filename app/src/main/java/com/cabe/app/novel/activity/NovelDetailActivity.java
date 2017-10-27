@@ -33,6 +33,7 @@ public class NovelDetailActivity extends BaseActivity {
 
     private TextView tvTips;
     private SwipeRefreshLayout listSwipe;
+    private RecyclerView listRecycler;
 
     private NovelInfo novelInfo;
     private NovelContent lastContent;
@@ -79,6 +80,12 @@ public class NovelDetailActivity extends BaseActivity {
             case R.id.menu_novel_detail_order:
                 actionOrderReverse();
                 return true;
+            case R.id.menu_novel_detail_scroll_top:
+                actionScrollTop();
+                return true;
+            case R.id.menu_novel_detail_location:
+                actionLocationIndex();
+                return true;
             case R.id.menu_novel_detail_source:
                 return true;
             default:
@@ -89,7 +96,7 @@ public class NovelDetailActivity extends BaseActivity {
     private void initView() {
         tvTips = (TextView) findViewById(R.id.activity_novel_detail_tips);
         listSwipe = (SwipeRefreshLayout) findViewById(R.id.activity_novel_detail_swipe);
-        RecyclerView listRecycler = (RecyclerView) findViewById(R.id.activity_novel_detail_list);
+        listRecycler = (RecyclerView) findViewById(R.id.activity_novel_detail_list);
         listRecycler.setAdapter(adapter);
         GridLayoutManager manager = new GridLayoutManager(context, 2);
         listRecycler.setLayoutManager(manager);
@@ -145,6 +152,17 @@ public class NovelDetailActivity extends BaseActivity {
         adapter.notifyDataSetChanged();
     }
 
+    private void actionLocationIndex() {
+        int curIndex = adapter.getCurPosition();
+        if(curIndex >= 0) {
+            listRecycler.smoothScrollToPosition(adapter.getRealPosition(curIndex));
+        }
+    }
+
+    private void actionScrollTop() {
+        listRecycler.smoothScrollToPosition(0);
+    }
+
     private class MyAdapter extends RecyclerView.Adapter<MyHolder> {
         private NovelContent lastContent;
         private List<NovelContent> data;
@@ -155,6 +173,14 @@ public class NovelDetailActivity extends BaseActivity {
                 lastContent.flagLast = true;
                 notifyDataSetChanged();
             }
+        }
+
+        private int getCurPosition() {
+            int cur = -1;
+            if(data != null && lastContent != null) {
+                cur = data.lastIndexOf(lastContent);
+            }
+            return cur;
         }
 
         private void setData(List<NovelContent> data) {
