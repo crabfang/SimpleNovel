@@ -45,6 +45,7 @@ public class HomeActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
+        setBackable(false);
         initView();
         setTitle("简易小说");
 

@@ -24,6 +24,8 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 public class NovelContentActivity extends BaseActivity {
+    private static String KEY_NOVEL_CONTENT_ID = "keyNovelContentID";
+
     private SwipeRefreshLayout swipeLayout;
     private ScrollView viewScroll;
     private TextView tvTitle;
@@ -33,11 +35,13 @@ public class NovelContentActivity extends BaseActivity {
     private View btnPreBottom;
     private View btnNextBottom;
 
+    private String keyNovelContent;
     private NovelContent curContent;
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+        outState.putString(KEY_NOVEL_CONTENT_ID, keyNovelContent);
     }
 
     @Override
@@ -49,8 +53,12 @@ public class NovelContentActivity extends BaseActivity {
         NovelContent novelContent = null;
         if(savedInstanceState == null) {
             novelContent = getExtraGson(new TypeToken<NovelContent>(){});
+            if(novelContent != null) {
+                keyNovelContent = TAG + novelContent.title + novelContent.url;
+            }
         } else {
-            String novelGson = DiskUtils.getData(NovelDetailActivity.CUR_NOVEL_DETAIL_KEY);
+            keyNovelContent = savedInstanceState.getString(KEY_NOVEL_CONTENT_ID);
+            String novelGson = DiskUtils.getData(keyNovelContent);
             if(!TextUtils.isEmpty(novelGson)) {
                 novelContent = new Gson().fromJson(novelGson, NovelContent.class);
             }
@@ -137,7 +145,7 @@ public class NovelContentActivity extends BaseActivity {
                 cacheContent.url = content.url;
                 cacheContent.preUrl = content.preUrl;
                 cacheContent.nextUrl = content.nextUrl;
-                DiskUtils.saveData(NovelDetailActivity.CUR_NOVEL_DETAIL_KEY, cacheContent.toGson());
+                DiskUtils.saveData(keyNovelContent, cacheContent.toGson());
                 curContent = content;
                 updateView(content);
             }

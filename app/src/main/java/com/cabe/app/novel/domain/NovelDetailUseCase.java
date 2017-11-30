@@ -43,13 +43,15 @@ public class NovelDetailUseCase extends HttpCacheUseCase<NovelDetail> {
 
         String[] group = UrlUtils.splitUrl(url);
         RequestParams params = new RequestParams();
-        params.host = group[0] + "/";
-        params.path = group.length > 1 ? group[1] : "";
+        String host = group[0] + "/";
+        String path = group.length > 1 ? group[1] : "";
         try {
-            params.path = URLEncoder.encode(params.path, "utf-8");
+            path = URLEncoder.encode(path, "utf-8");
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
+        params.host = host;
+        params.path = path;
         params.requestMethod = RequestParams.REQUEST_METHOD_GET;
 
         setRequestParams(params);

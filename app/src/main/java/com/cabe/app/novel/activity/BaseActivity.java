@@ -2,7 +2,6 @@ package com.cabe.app.novel.activity;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.AppCompatDelegate;
@@ -10,7 +9,6 @@ import android.text.TextUtils;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import com.cabe.app.novel.R;
 import com.cabe.app.novel.model.BaseObject;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -19,14 +17,17 @@ import com.google.gson.reflect.TypeToken;
  * 作者：沈建芳 on 2017/10/9 16:55
  */
 public abstract class BaseActivity extends AppCompatActivity {
+    protected String TAG = "BaseActivity";
     public final static String KEY_EXTRA_GSON = "extraGson";
 
     protected Context context;
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
+        TAG = getClass().getSimpleName();
         super.onCreate(savedInstanceState);
-        initExtra();
+        initExtra(savedInstanceState);
         context = this;
+        setBackable(true);
     }
 
     @Override
@@ -43,7 +44,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         actionBar.setDisplayHomeAsUpEnabled(backable);
     }
 
-    protected void initExtra() {}
+    protected void initExtra(Bundle savedInstanceState) {}
 
     protected <T extends BaseObject> T getExtraGson(TypeToken<T> token) {
         T data = null;

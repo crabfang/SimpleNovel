@@ -28,23 +28,28 @@ import com.google.gson.reflect.TypeToken;
 import java.util.List;
 
 public class NovelDetailActivity extends BaseActivity {
-    protected static String TAG = "";
-    public static String CUR_NOVEL_DETAIL_KEY = "";
+    private static String KEY_FLAG_SORT_REVERSE = "keyFlagSortReverse";
 
     private TextView tvTips;
     private SwipeRefreshLayout listSwipe;
     private RecyclerView listRecycler;
 
+    private String keyNovelDetail = "";
     private NovelInfo novelInfo;
     private NovelContent lastContent;
     private MyAdapter adapter = new MyAdapter();
 
     private boolean flagReverse = true;
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(KEY_FLAG_SORT_REVERSE, flagReverse);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        TAG = getClass().getSimpleName();
-        setBackable(true);
         setContentView(R.layout.activity_novel_detail);
         initView();
         loadNovelInfo();
@@ -53,7 +58,7 @@ public class NovelDetailActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        String novelGson = DiskUtils.getData(CUR_NOVEL_DETAIL_KEY);
+        String novelGson = DiskUtils.getData(keyNovelDetail);
         if(!TextUtils.isEmpty(novelGson)) {
             lastContent = new Gson().fromJson(novelGson, NovelContent.class);
             adapter.updateLastInfo(lastContent);
@@ -61,10 +66,13 @@ public class NovelDetailActivity extends BaseActivity {
     }
 
     @Override
-    protected void initExtra() {
+    protected void initExtra(Bundle savedInstanceState) {
         novelInfo = getExtraGson(new TypeToken<NovelInfo>(){});
         if(novelInfo != null) {
-            CUR_NOVEL_DETAIL_KEY = TAG + "#" + novelInfo.title + "#" + novelInfo.url;
+            keyNovelDetail = TAG + "#" + novelInfo.title + "#" + novelInfo.url;
+        }
+        if(savedInstanceState != null) {
+            flagReverse = savedInstanceState.getBoolean(KEY_FLAG_SORT_REVERSE);
         }
     }
 
@@ -243,7 +251,7 @@ public class NovelDetailActivity extends BaseActivity {
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    DiskUtils.saveData(CUR_NOVEL_DETAIL_KEY, content.toGson());
+                    DiskUtils.saveData(keyNovelDetail, content.toGson());
                     gotoContent(content);
                 }
             });
