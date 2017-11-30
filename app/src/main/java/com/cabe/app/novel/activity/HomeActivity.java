@@ -68,12 +68,17 @@ public class HomeActivity extends BaseActivity {
         recyclerView.setAdapter(adapter);
         adapter.setItemClickListener(new AdapterClickListener() {
             @Override
-            public void itemOnClick(NovelInfo novelInfo) {
-                setTopNovel(novelInfo);
+            public void itemOnClick(final NovelInfo novelInfo) {
                 Intent intent = NovelDetailActivity.create(context, novelInfo);
                 if(intent != null) {
                     startActivity(intent);
                 }
+                localSwipe.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        setTopNovel(novelInfo);
+                    }
+                }, 200);
             }
             @Override
             public void itemOnLongClick(final NovelInfo novelInfo) {
