@@ -46,6 +46,10 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     protected void initExtra(Bundle savedInstanceState) {}
 
+    protected String getExtraString(String key) {
+        return getIntent().getStringExtra(key);
+    }
+
     protected <T extends BaseObject> T getExtraGson(TypeToken<T> token) {
         T data = null;
         String extraGson = getIntent().getStringExtra(KEY_EXTRA_GSON);

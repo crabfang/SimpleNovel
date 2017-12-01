@@ -151,7 +151,7 @@ public class NovelDetailActivity extends BaseActivity {
     }
 
     private void gotoContent(NovelContent content) {
-        Intent intent = NovelContentActivity.create(context, content);
+        Intent intent = NovelContentActivity.create(context, content, keyNovelDetail);
         startActivity(intent);
     }
 

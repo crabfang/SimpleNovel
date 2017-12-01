@@ -25,6 +25,7 @@ import com.google.gson.reflect.TypeToken;
 
 public class NovelContentActivity extends BaseActivity {
     private static String KEY_NOVEL_CONTENT_ID = "keyNovelContentID";
+    private static String KEY_NOVEL_CONTENT_LAST = "keyNovelContentLast";
 
     private SwipeRefreshLayout swipeLayout;
     private ScrollView viewScroll;
@@ -53,9 +54,7 @@ public class NovelContentActivity extends BaseActivity {
         NovelContent novelContent = null;
         if(savedInstanceState == null) {
             novelContent = getExtraGson(new TypeToken<NovelContent>(){});
-            if(novelContent != null) {
-                keyNovelContent = TAG + novelContent.title + novelContent.url;
-            }
+            keyNovelContent = getExtraString(KEY_NOVEL_CONTENT_LAST);
         } else {
             keyNovelContent = savedInstanceState.getString(KEY_NOVEL_CONTENT_ID);
             String novelGson = DiskUtils.getData(keyNovelContent);
@@ -174,11 +173,12 @@ public class NovelContentActivity extends BaseActivity {
         loadContent(curContent.nextUrl);
     }
 
-    public static Intent create(Context context, NovelContent novelContent) {
+    public static Intent create(Context context, NovelContent novelContent, String novelKey) {
         Intent intent = new Intent(context, NovelContentActivity.class);
         if(novelContent != null) {
             intent.putExtra(KEY_EXTRA_GSON, novelContent.toGson());
         }
+        intent.putExtra(NovelContentActivity.KEY_NOVEL_CONTENT_LAST, novelKey);
         return intent;
     }
 }
