@@ -3,6 +3,7 @@ package com.cabe.app.novel.activity;
 import android.app.Application;
 
 import com.cabe.lib.cache.disk.DiskCacheManager;
+import com.pgyersdk.crash.PgyCrashManager;
 
 /**
  * 作者：沈建芳 on 2017/10/11 11:17
@@ -12,5 +13,6 @@ public class MyApp extends Application {
     public void onCreate() {
         super.onCreate();
         DiskCacheManager.DISK_CACHE_PATH = getExternalCacheDir().toString();
+        PgyCrashManager.register(this);
     }
 }

@@ -193,3 +193,6 @@ public void onEventMainThread(**);
 -keep class com.googlecode.**
 -keepclassmembers class com.googlecode.** { *; }
 -keepclassmembers class net.youmi.android.** { *; }
+
+-dontwarn com.pgyersdk.**
+-keep class com.pgyersdk.** { *; }

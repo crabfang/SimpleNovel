@@ -9,12 +9,15 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.cabe.app.novel.R;
@@ -25,6 +28,8 @@ import com.cabe.app.novel.model.NovelInfo;
 import com.cabe.app.novel.utils.UrlUtils;
 import com.cabe.lib.cache.CacheSource;
 import com.cabe.lib.cache.interactor.ViewPresenter;
+import com.pgyersdk.feedback.PgyFeedback;
+import com.pgyersdk.update.PgyUpdateManager;
 
 import java.util.List;
 
@@ -53,18 +58,40 @@ public class HomeActivity extends BaseActivity {
         waiting.setMessage("请稍候");
 
         loadLocal();
+
+        PgyUpdateManager.setIsForced(false);
+        PgyUpdateManager.register(this);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_novel_home, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_novel_home_feedback:
+                PgyFeedback.getInstance().showDialog(HomeActivity.this);
+                return true;
+            case R.id.menu_novel_home_about:
+                Toast.makeText(this, "敬请期待", Toast.LENGTH_SHORT).show();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private void initView() {
-        searchInput = (EditText) findViewById(R.id.activity_home_search_input);
-        localSwipe = (SwipeRefreshLayout) findViewById(R.id.activity_home_local_swipe);
+        searchInput = findViewById(R.id.activity_home_search_input);
+        localSwipe = findViewById(R.id.activity_home_local_swipe);
         localSwipe.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 loadLocal();
             }
         });
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.activity_home_local_list);
+        RecyclerView recyclerView = findViewById(R.id.activity_home_local_list);
         recyclerView.setAdapter(adapter);
         adapter.setItemClickListener(new AdapterClickListener() {
             @Override
@@ -103,7 +130,7 @@ public class HomeActivity extends BaseActivity {
             }
         });
 
-        recyclerSearch = (RecyclerView) findViewById(R.id.activity_home_search_list);
+        recyclerSearch = findViewById(R.id.activity_home_search_list);
         recyclerSearch.setAdapter(adapterSearch);
         adapterSearch.setItemClickListener(new AdapterClickListener() {
             @Override
@@ -117,12 +144,13 @@ public class HomeActivity extends BaseActivity {
             public void itemOnLongClick(NovelInfo novelInfo) {
             }
         });
-
     }
 
     private void hiddenKeyboard() {
         InputMethodManager inputMethodManager = ((InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE));
-        inputMethodManager.hideSoftInputFromWindow(searchInput.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+        if(inputMethodManager != null) {
+            inputMethodManager.hideSoftInputFromWindow(searchInput.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+        }
     }
 
     private void loadLocal() {
@@ -270,13 +298,13 @@ public class HomeActivity extends BaseActivity {
         private TextView tvSource;
         private MyHolder(View itemView) {
             super(itemView);
-            pic = (ImageView) itemView.findViewById(R.id.item_home_local_novel_pic);
-            tvTitle = (TextView) itemView.findViewById(R.id.item_home_local_novel_title);
-            tvAuthor = (TextView) itemView.findViewById(R.id.item_home_local_novel_author);
-            tvType = (TextView) itemView.findViewById(R.id.item_home_local_novel_type);
-            tvWords = (TextView) itemView.findViewById(R.id.item_home_local_novel_words);
-            tvState = (TextView) itemView.findViewById(R.id.item_home_local_novel_state);
-            tvSource = (TextView) itemView.findViewById(R.id.item_home_local_novel_source);
+            pic = itemView.findViewById(R.id.item_home_local_novel_pic);
+            tvTitle = itemView.findViewById(R.id.item_home_local_novel_title);
+            tvAuthor = itemView.findViewById(R.id.item_home_local_novel_author);
+            tvType = itemView.findViewById(R.id.item_home_local_novel_type);
+            tvWords = itemView.findViewById(R.id.item_home_local_novel_words);
+            tvState = itemView.findViewById(R.id.item_home_local_novel_state);
+            tvSource = itemView.findViewById(R.id.item_home_local_novel_source);
         }
     }
 

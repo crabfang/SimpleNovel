@@ -12,6 +12,7 @@ import android.widget.Toast;
 import com.cabe.app.novel.model.BaseObject;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.pgyersdk.crash.PgyCrashManager;
 
 /**
  * 作者：沈建芳 on 2017/10/9 16:55
@@ -28,12 +29,14 @@ public abstract class BaseActivity extends AppCompatActivity {
         initExtra(savedInstanceState);
         context = this;
         setBackable(true);
+        PgyCrashManager.register(this);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         context = null;
+        PgyCrashManager.unregister();
     }
 
     protected void setBackable(boolean backable) {
