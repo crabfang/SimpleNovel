@@ -1,6 +1,7 @@
 package com.cabe.app.novel.domain;
 
 import com.cabe.app.novel.model.NovelInfo;
+import com.cabe.app.novel.retrofit.MyHttpManager;
 import com.cabe.lib.cache.exception.HttpExceptionCode;
 import com.cabe.lib.cache.exception.RxException;
 import com.cabe.lib.cache.http.RequestParams;
@@ -13,6 +14,8 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -26,17 +29,21 @@ public class SearchUseCase extends HttpCacheUseCase<List<NovelInfo>> {
         super(new TypeToken<List<NovelInfo>>(){}, null);
 
         RequestParams params = new RequestParams();
-        params.host = ServiceConfig.HOST_SEARCH;
-        params.path = "cse/search";
+        params.host = ServiceConfig.HOST;
+        params.path = "/modules/article/search.php";
         params.requestMethod = RequestParams.REQUEST_METHOD_GET;
 
         Map<String, String> query = new HashMap<>();
-        query.put("q", key);
-        query.put("entry", "1");
-        query.put("s", "15335760241487373577");
+        try {
+            query.put("searchkey", URLEncoder.encode(key, "gb2312"));
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        query.put("searchtype", "keywords");
         params.query = query;
         setRequestParams(params);
 
+        setHttpManager(new MyHttpManager<>(getTypeToken()));
         getHttpRepository().setResponseTransformer(new HttpStringTransformer<List<NovelInfo>>() {
             @Override
             public List<NovelInfo> buildData(String responseStr) {
@@ -53,13 +60,13 @@ public class SearchUseCase extends HttpCacheUseCase<List<NovelInfo>> {
     private List<NovelInfo> parserHtmlForList(Document doc) {
         List<NovelInfo> novelist = null;
         try {
-            Elements divEs = doc.select("div.result-item");
-            if (divEs != null && divEs.size() > 0) {
+            Elements trs = doc.select("tr");
+            if (trs != null && trs.size() > 0) {
                 novelist = new ArrayList<>();
 
-                for(int i=0;i<divEs.size();i++) {
-                    Element div = divEs.get(i);
-                    NovelInfo result = getSearchResult(div);
+                for(int i=1;i<trs.size();i++) {
+                    Element trItem = trs.get(i);
+                    NovelInfo result = getSearchResult(trItem);
                     novelist.add(result);
                 }
             }
@@ -74,43 +81,24 @@ public class SearchUseCase extends HttpCacheUseCase<List<NovelInfo>> {
         if (e != null) {
             novelInfo = new NovelInfo();
 
-            Elements imgEs = e.select("img.result-game-item-pic-link-img");
-            if(imgEs != null && imgEs.size() > 0) {
-                novelInfo.picUrl = imgEs.get(0).attr("src");
-            }
-            Elements titleEs = e.select("a.result-game-item-title-link");
-            if(titleEs != null && titleEs.size() > 0) {
-                Element aE = titleEs.get(0);
-                novelInfo.url = aE.attr("href");
-                novelInfo.title = aE.attr("title");
-            }
-            Elements authorEs = e.select("a.result-game-item-info-tag-item");
-            if(authorEs != null && authorEs.size() > 0) {
-                novelInfo.author = authorEs.get(0).html();
-            }
-            Elements infoEs = e.select("p.result-game-item-info-tag");
-            if(infoEs != null && infoEs.size() > 0) {
-                Element typeE = infoEs.get(1);
-                novelInfo.type = parseInfo(typeE);
+            Elements tdEs = e.select("td");
+            if(tdEs != null && tdEs.size() == 6) {
+                Element tdTitle = tdEs.get(0).child(0);
+                novelInfo.title = tdTitle.text();
 
-                Element wordE = infoEs.get(2);
-                novelInfo.wordSize = parseInfo(wordE);
+                Element aUrl = tdEs.get(1).child(0);
+                novelInfo.url = aUrl.attr("href");
 
-                Element stateE = infoEs.get(3);
-                novelInfo.state = parseInfo(stateE);
+                Element tdAuthor = tdEs.get(2);
+                novelInfo.author = tdAuthor.text();
+
+                Element tdWord = tdEs.get(3);
+                novelInfo.wordSize = tdWord.text();
+
+                Element tdState = tdEs.get(5);
+                novelInfo.state = tdState.text();
             }
         }
         return novelInfo;
-    }
-
-    private String parseInfo(Element element) {
-        String info = null;
-        if(element != null) {
-            Elements spanEs = element.select("span.result-game-item-info-tag-title");
-            if(spanEs != null && spanEs.size() > 0) {
-                info = spanEs.get(1).html();
-            }
-        }
-        return info;
     }
 }
