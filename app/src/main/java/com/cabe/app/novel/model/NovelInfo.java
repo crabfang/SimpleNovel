@@ -6,7 +6,7 @@ package com.cabe.app.novel.model;
 public class NovelInfo extends BaseObject {
     public String title;
     public String url;
-    public String picUrl;
+    public String picUrl = "https://www.x23us.com/modules/article/images/nocover.jpg";
     public String author;
     public String type;
     public String wordSize;
