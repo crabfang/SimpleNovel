@@ -196,3 +196,6 @@ public void onEventMainThread(**);
 
 -dontwarn com.pgyersdk.**
 -keep class com.pgyersdk.** { *; }
+
+-keep class com.google.gson.**
+-keep class com.cabe.app.novel.model.* { *; }
