@@ -3,7 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/activity_novel_detail_swipe"
+    android:id="@+id/activity_novel_list_swipe"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/white">
@@ -23,7 +23,7 @@
             android:background="@android:color/white">
 
             <TextView
-                android:id="@+id/activity_novel_detail_tips"
+                android:id="@+id/activity_novel_list_tips"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="#999999"
@@ -33,12 +33,12 @@
         </LinearLayout>
 
         <android.support.v7.widget.RecyclerView
-            android:id="@+id/activity_novel_detail_list"
+            android:id="@+id/activity_novel_list_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scrollbars="vertical"
             app:layoutManager="GridLayoutManager"
-            tools:listitem="@layout/item_novel_detail_info"/>
+            tools:listitem="@layout/item_novel_list_info"/>
 
     </LinearLayout>
 

@@ -19,7 +19,8 @@ import rx.Observable;
 /**
  * 作者：沈建芳 on 2018/6/29 17:25
  */
-public class MyHttpManager<T> implements HttpCacheRepository<String, T> {private String encode;
+public class MyHttpManager<T> implements HttpCacheRepository<String, T> {
+    private String encode;
     private TypeToken<T> typeToken;
     private Converter converter = null;
     private Observable.Transformer<String, T> transformer = null;

@@ -21,11 +21,11 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.cabe.app.novel.R;
+import com.cabe.app.novel.domain.ekxs.Search42kxsUseCase;
 import com.cabe.app.novel.domain.LocalNovelsUseCase;
-import com.cabe.app.novel.domain.SearchUseCase;
+import com.cabe.app.novel.domain.x23us.Search4X23USUseCase;
 import com.cabe.app.novel.model.LocalNovelList;
 import com.cabe.app.novel.model.NovelInfo;
-import com.cabe.app.novel.utils.UrlUtils;
 import com.cabe.lib.cache.CacheSource;
 import com.cabe.lib.cache.interactor.ViewPresenter;
 import com.pgyersdk.feedback.PgyFeedback;
@@ -96,7 +96,7 @@ public class HomeActivity extends BaseActivity {
         adapter.setItemClickListener(new AdapterClickListener() {
             @Override
             public void itemOnClick(final NovelInfo novelInfo) {
-                Intent intent = NovelDetailActivity.create(context, novelInfo);
+                Intent intent = NovelListActivity.create(context, novelInfo);
                 if(intent != null) {
                     startActivity(intent);
                 }
@@ -207,7 +207,36 @@ public class HomeActivity extends BaseActivity {
         waiting.show();
         hiddenKeyboard();
         String inputStr = searchInput.getText().toString();
-        SearchUseCase searchUseCase = new SearchUseCase(inputStr);
+        search42kxs(inputStr);
+    }
+
+    private void search4x23us(final String keyWord) {
+        Search4X23USUseCase searchUseCase = new Search4X23USUseCase(keyWord);
+        searchUseCase.execute(new ViewPresenter<List<NovelInfo>>() {
+            @Override
+            public void error(CacheSource from, int code, String info) {
+                toast(info);
+            }
+            @Override
+            public void load(CacheSource from, List<NovelInfo> data) {
+                if(!data.isEmpty()) {
+                    adapterSearch.setData(data);
+                    recyclerSearch.setVisibility(View.VISIBLE);
+                }
+            }
+            @Override
+            public void complete(CacheSource from) {
+                if(adapterSearch.getItemCount() == 0) {
+                    search42kxs(keyWord);
+                } else {
+                    waiting.dismiss();
+                }
+            }
+        });
+    }
+
+    private void search42kxs(final String keyWord) {
+        Search42kxsUseCase searchUseCase = new Search42kxsUseCase(keyWord);
         searchUseCase.execute(new ViewPresenter<List<NovelInfo>>() {
             @Override
             public void error(CacheSource from, int code, String info) {
@@ -261,13 +290,13 @@ public class HomeActivity extends BaseActivity {
             final NovelInfo itemData = getItemData(position);
             if(itemData == null) return;
 
-            Glide.with(context).load(itemData.picUrl).into(holder.pic);
+            Glide.with(context).load(itemData.getPicUrl()).into(holder.pic);
             holder.tvTitle.setText(itemData.title);
             holder.tvAuthor.setText(String.valueOf("作者：" + itemData.author));
             holder.tvType.setText(String.valueOf("类型：" + itemData.type));
             holder.tvWords.setText(String.valueOf("字数：" + itemData.wordSize));
             holder.tvState.setText(String.valueOf("状态：" + itemData.state));
-            holder.tvSource.setText(String.valueOf("来源：" + UrlUtils.getHostName(itemData.url)));
+            holder.tvSource.setText(String.valueOf("来源：" + itemData.source));
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

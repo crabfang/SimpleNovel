@@ -1,6 +1,8 @@
-package com.cabe.app.novel.domain;
+package com.cabe.app.novel.domain.ekxs;
 
+import com.cabe.app.novel.domain.ServiceConfig;
 import com.cabe.app.novel.model.NovelInfo;
+import com.cabe.app.novel.model.SourceType;
 import com.cabe.app.novel.retrofit.MyHttpManager;
 import com.cabe.lib.cache.exception.HttpExceptionCode;
 import com.cabe.lib.cache.exception.RxException;
@@ -24,13 +26,13 @@ import java.util.Map;
 /**
  * 作者：沈建芳 on 2017/10/9 16:30
  */
-public class SearchUseCase extends HttpCacheUseCase<List<NovelInfo>> {
-    public SearchUseCase(String key) {
+public class Search42kxsUseCase extends HttpCacheUseCase<List<NovelInfo>> {
+    public Search42kxsUseCase(String key) {
         super(new TypeToken<List<NovelInfo>>(){}, null);
 
         RequestParams params = new RequestParams();
-        params.host = ServiceConfig.HOST;
-        params.path = "/modules/article/search.php";
+        params.host = ServiceConfig.HOST_2KXS;
+        params.path = "modules/article/search.php";
         params.requestMethod = RequestParams.REQUEST_METHOD_GET;
 
         Map<String, String> query = new HashMap<>();
@@ -60,14 +62,17 @@ public class SearchUseCase extends HttpCacheUseCase<List<NovelInfo>> {
     private List<NovelInfo> parserHtmlForList(Document doc) {
         List<NovelInfo> novelist = null;
         try {
-            Elements trs = doc.select("tr");
-            if (trs != null && trs.size() > 0) {
+            Elements tBody = doc.select("tbody");
+            if (tBody != null && tBody.size() > 0) {
                 novelist = new ArrayList<>();
 
-                for(int i=1;i<trs.size();i++) {
-                    Element trItem = trs.get(i);
+                for(int i=1;i<tBody.get(0).children().size();i++) {
+                    Element trItem = tBody.get(0).child(i);
                     NovelInfo result = getSearchResult(trItem);
-                    novelist.add(result);
+                    if(result != null) {
+                        result.source = SourceType.EKXS;
+                        novelist.add(result);
+                    }
                 }
             }
         } catch (Exception e) {

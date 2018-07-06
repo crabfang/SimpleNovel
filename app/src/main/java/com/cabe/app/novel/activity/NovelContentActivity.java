@@ -15,8 +15,10 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.cabe.app.novel.R;
-import com.cabe.app.novel.domain.NovelContentUseCase;
+import com.cabe.app.novel.domain.ekxs.NovelContent42kxsUseCase;
+import com.cabe.app.novel.domain.x23us.NovelContent4X23USUseCase;
 import com.cabe.app.novel.model.NovelContent;
+import com.cabe.app.novel.model.SourceType;
 import com.cabe.app.novel.utils.DiskUtils;
 import com.cabe.lib.cache.CacheSource;
 import com.cabe.lib.cache.interactor.ViewPresenter;
@@ -38,6 +40,7 @@ public class NovelContentActivity extends BaseActivity {
 
     private String keyNovelContent;
     private NovelContent curContent;
+    private SourceType curSouce;
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -54,12 +57,14 @@ public class NovelContentActivity extends BaseActivity {
         NovelContent novelContent = null;
         if(savedInstanceState == null) {
             novelContent = getExtraGson(new TypeToken<NovelContent>(){});
+            curSouce = novelContent.source;
             keyNovelContent = getExtraString(KEY_NOVEL_CONTENT_LAST);
         } else {
             keyNovelContent = savedInstanceState.getString(KEY_NOVEL_CONTENT_ID);
             String novelGson = DiskUtils.getData(keyNovelContent);
             if(!TextUtils.isEmpty(novelGson)) {
                 novelContent = new Gson().fromJson(novelGson, NovelContent.class);
+                curSouce = novelContent.source;
             }
         }
 
@@ -86,10 +91,10 @@ public class NovelContentActivity extends BaseActivity {
     }
 
     private void initView() {
-        swipeLayout = (SwipeRefreshLayout) findViewById(R.id.activity_novel_content_swipe);
-        viewScroll = (ScrollView) findViewById(R.id.activity_novel_content_scroll);
-        tvTitle = (TextView) findViewById(R.id.activity_novel_content_title);
-        tvContent = (TextView) findViewById(R.id.activity_novel_content_info);
+        swipeLayout = findViewById(R.id.activity_novel_content_swipe);
+        viewScroll = findViewById(R.id.activity_novel_content_scroll);
+        tvTitle = findViewById(R.id.activity_novel_content_title);
+        tvContent = findViewById(R.id.activity_novel_content_info);
         btnPre = findViewById(R.id.activity_novel_content_preview);
         btnNext = findViewById(R.id.activity_novel_content_next);
         btnPreBottom = findViewById(R.id.activity_novel_content_preview_btoom);
@@ -125,8 +130,7 @@ public class NovelContentActivity extends BaseActivity {
 
     private void loadContent(String url) {
         swipeLayout.setRefreshing(true);
-        NovelContentUseCase useCase = new NovelContentUseCase(url);
-        useCase.execute(new ViewPresenter<NovelContent>() {
+        ViewPresenter<NovelContent> presenter = new ViewPresenter<NovelContent>() {
             @Override
             public void error(CacheSource from, int code, String info) {
                 toast(info);
@@ -152,7 +156,14 @@ public class NovelContentActivity extends BaseActivity {
             public void complete(CacheSource from) {
                 swipeLayout.setRefreshing(false);
             }
-        });
+        };
+        if(curSouce == SourceType.X23US) {
+            NovelContent4X23USUseCase useCase = new NovelContent4X23USUseCase(url);
+            useCase.execute(presenter);
+        } else if(curSouce == SourceType.EKXS) {
+            NovelContent42kxsUseCase useCase = new NovelContent42kxsUseCase(url);
+            useCase.execute(presenter);
+        }
     }
 
     private void actionSwitchTheme() {

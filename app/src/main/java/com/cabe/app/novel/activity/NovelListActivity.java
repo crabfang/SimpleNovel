@@ -15,10 +15,12 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.cabe.app.novel.R;
-import com.cabe.app.novel.domain.NovelDetailUseCase;
+import com.cabe.app.novel.domain.ekxs.NovelList42KXSUseCase;
+import com.cabe.app.novel.domain.x23us.NovelList4X23USUseCase;
 import com.cabe.app.novel.model.NovelContent;
-import com.cabe.app.novel.model.NovelDetail;
+import com.cabe.app.novel.model.NovelList;
 import com.cabe.app.novel.model.NovelInfo;
+import com.cabe.app.novel.model.SourceType;
 import com.cabe.app.novel.utils.DiskUtils;
 import com.cabe.lib.cache.CacheSource;
 import com.cabe.lib.cache.interactor.ViewPresenter;
@@ -27,7 +29,7 @@ import com.google.gson.reflect.TypeToken;
 
 import java.util.List;
 
-public class NovelDetailActivity extends BaseActivity {
+public class NovelListActivity extends BaseActivity {
     private static String KEY_FLAG_SORT_REVERSE = "keyFlagSortReverse";
 
     private TextView tvTips;
@@ -50,7 +52,7 @@ public class NovelDetailActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_novel_detail);
+        setContentView(R.layout.activity_novel_list);
         initView();
         loadNovelInfo();
     }
@@ -102,9 +104,9 @@ public class NovelDetailActivity extends BaseActivity {
     }
 
     private void initView() {
-        tvTips = (TextView) findViewById(R.id.activity_novel_detail_tips);
-        listSwipe = (SwipeRefreshLayout) findViewById(R.id.activity_novel_detail_swipe);
-        listRecycler = (RecyclerView) findViewById(R.id.activity_novel_detail_list);
+        tvTips = findViewById(R.id.activity_novel_list_tips);
+        listSwipe = findViewById(R.id.activity_novel_list_swipe);
+        listRecycler = findViewById(R.id.activity_novel_list_list);
         listRecycler.setAdapter(adapter);
         GridLayoutManager manager = new GridLayoutManager(context, 2);
         listRecycler.setLayoutManager(manager);
@@ -121,7 +123,7 @@ public class NovelDetailActivity extends BaseActivity {
         }
     }
 
-    private void updateView(NovelDetail detail) {
+    private void updateView(NovelList detail) {
         if(detail == null) return;
 
         tvTips.setText(detail.getTips());
@@ -132,10 +134,9 @@ public class NovelDetailActivity extends BaseActivity {
     private void loadNovelInfo() {
         if(novelInfo != null) {
             listSwipe.setRefreshing(true);
-            NovelDetailUseCase useCase = new NovelDetailUseCase(novelInfo.url);
-            useCase.execute(new ViewPresenter<NovelDetail>() {
+            ViewPresenter<NovelList> presenter = new ViewPresenter<NovelList>() {
                 @Override
-                public void load(CacheSource from, NovelDetail data) {
+                public void load(CacheSource from, NovelList data) {
                     updateView(data);
                 }
                 @Override
@@ -146,7 +147,14 @@ public class NovelDetailActivity extends BaseActivity {
                 public void complete(CacheSource from) {
                     listSwipe.setRefreshing(false);
                 }
-            });
+            };
+            if(novelInfo.source == SourceType.X23US) {
+                NovelList4X23USUseCase useCase = new NovelList4X23USUseCase(novelInfo.url);
+                useCase.execute(presenter);
+            } else if(novelInfo.source == SourceType.EKXS) {
+                NovelList42KXSUseCase useCase = new NovelList42KXSUseCase(novelInfo.url);
+                useCase.execute(presenter);
+            }
         }
     }
 
@@ -233,7 +241,7 @@ public class NovelDetailActivity extends BaseActivity {
         }
         @Override
         public MyHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View itemView = LayoutInflater.from(context).inflate(R.layout.item_novel_detail_info, parent, false);
+            View itemView = LayoutInflater.from(context).inflate(R.layout.item_novel_list_info, parent, false);
             return new MyHolder(itemView);
         }
 
@@ -262,12 +270,12 @@ public class NovelDetailActivity extends BaseActivity {
         private TextView title;
         private MyHolder(View itemView) {
             super(itemView);
-            title = (TextView) itemView.findViewById(R.id.item_novel_detail_info);
+            title = itemView.findViewById(R.id.item_novel_list_info);
         }
     }
 
     public static Intent create(Context context, NovelInfo novelInfo) {
-        Intent intent = new Intent(context, NovelDetailActivity.class);
+        Intent intent = new Intent(context, NovelListActivity.class);
         if(novelInfo != null) {
             intent.putExtra(KEY_EXTRA_GSON, novelInfo.toGson());
         }

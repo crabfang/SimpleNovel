@@ -45,7 +45,7 @@
             android:screenOrientation="portrait"
             android:windowSoftInputMode="stateAlwaysHidden" />
         <activity
-            android:name=".activity.NovelDetailActivity"
+            android:name=".activity.NovelListActivity"
             android:screenOrientation="portrait" />
         <activity android:name=".activity.NovelContentActivity"
             android:screenOrientation="portrait" />

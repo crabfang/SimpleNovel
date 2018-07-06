@@ -7,7 +7,7 @@
     android:orientation="vertical" >
 
     <TextView
-        android:id="@+id/item_novel_detail_info"
+        android:id="@+id/item_novel_list_info"
         android:layout_width="match_parent"
         android:layout_height="40dp"
         android:paddingLeft="6dp"

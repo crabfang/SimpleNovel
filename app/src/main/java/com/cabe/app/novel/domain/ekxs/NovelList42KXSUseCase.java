@@ -1,9 +1,10 @@
-package com.cabe.app.novel.domain;
+package com.cabe.app.novel.domain.ekxs;
 
 import android.text.TextUtils;
 
 import com.cabe.app.novel.model.NovelContent;
-import com.cabe.app.novel.model.NovelDetail;
+import com.cabe.app.novel.model.NovelList;
+import com.cabe.app.novel.model.SourceType;
 import com.cabe.app.novel.utils.UrlUtils;
 import com.cabe.lib.cache.exception.HttpExceptionCode;
 import com.cabe.lib.cache.exception.RxException;
@@ -28,10 +29,10 @@ import java.util.List;
  *
  * 作者：沈建芳 on 2017/10/9 16:30
  */
-public class NovelDetailUseCase extends HttpCacheUseCase<NovelDetail> {
+public class NovelList42KXSUseCase extends HttpCacheUseCase<NovelList> {
     private String novelUrl;
-    public NovelDetailUseCase(String url) {
-        super(new TypeToken<NovelDetail>() {}, null);
+    public NovelList42KXSUseCase(String url) {
+        super(new TypeToken<NovelList>() {}, null);
 
         if(TextUtils.isEmpty(url)) {
             throw RxException.build(HttpExceptionCode.HTTP_STATUS_LOCAL_REQUEST_NONE, null);
@@ -53,38 +54,33 @@ public class NovelDetailUseCase extends HttpCacheUseCase<NovelDetail> {
 
         setRequestParams(params);
 
-        HttpCacheRepository<String, NovelDetail> httpRepository = getHttpRepository();
+        HttpCacheRepository<String, NovelList> httpRepository = getHttpRepository();
         if(httpRepository instanceof HttpStringCacheManager) {
-            HttpStringCacheManager<NovelDetail> httpManager = (HttpStringCacheManager<NovelDetail>) httpRepository;
+            HttpStringCacheManager<NovelList> httpManager = (HttpStringCacheManager<NovelList>) httpRepository;
             httpManager.setStringEncode("gbk");
         }
-        httpRepository.setResponseTransformer(new HttpStringTransformer<NovelDetail>() {
+        httpRepository.setResponseTransformer(new HttpStringTransformer<NovelList>() {
             @Override
-            public NovelDetail buildData(String responseStr) {
+            public NovelList buildData(String responseStr) {
                 Document docL = Jsoup.parse(responseStr);
                 return parserHtmlForList(docL);
             }
         });
     }
 
-    private NovelDetail parserHtmlForList(Document doc) {
-        NovelDetail novelDetail = null;
+    private NovelList parserHtmlForList(Document doc) {
+        NovelList novelDetail = null;
         try {
-            novelDetail = new NovelDetail();
-            Elements titleEs = doc.select("dd > h1");
+            novelDetail = new NovelList();
+            Elements titleEs = doc.select("div#title > h1");
             if(titleEs != null && titleEs.size() > 0) {
                 novelDetail.title = titleEs.get(0).text();
             }
-            Elements subTitleEs = doc.select("dd > h3");
-            if(subTitleEs != null && subTitleEs.size() > 0) {
-                String text = subTitleEs.get(0).text();
-                String[] group = parseSubTitle(text);
-                if(group != null) {
-                    novelDetail.author = group[0];
-                    novelDetail.lastModify = group[1];
-                }
+            Elements authorEs = doc.select("div#title > address > a");
+            if(authorEs != null && authorEs.size() > 0) {
+                novelDetail.author = authorEs.get(0).text();
             }
-            Elements listEs = doc.select("td.L > a");
+            Elements listEs = doc.select("dl.book > dd > a");
             if(listEs != null && listEs.size() > 0) {
                 List<NovelContent> list = new ArrayList<>();
                 for(int i=0;i<listEs.size();i++) {
@@ -93,6 +89,7 @@ public class NovelDetailUseCase extends HttpCacheUseCase<NovelDetail> {
                     Element element = listEs.get(i);
                     content.title = element.text();
                     content.url = novelUrl + element.attr("href");
+                    content.source = SourceType.EKXS;
                     list.add(content);
                 }
                 novelDetail.list = list;
@@ -101,25 +98,5 @@ public class NovelDetailUseCase extends HttpCacheUseCase<NovelDetail> {
             e.printStackTrace();
         }
         return novelDetail;
-    }
-
-    private String[] parseSubTitle(String text) {
-        String[] group = text.split("  ");
-
-        if(group.length > 1) {
-            String[] authorGroup = group[0].split("：");
-            String[] modifyGroup = group[1].split("：");
-
-            String author = "";
-            String modify = "";
-            if(authorGroup.length > 1) {
-                author = authorGroup[1];
-            }
-            if(modifyGroup.length > 1) {
-                modify = modifyGroup[1];
-            }
-            return new String[] { author, modify };
-        }
-        return null;
     }
 }

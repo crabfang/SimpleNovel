@@ -1,8 +1,9 @@
-package com.cabe.app.novel.domain;
+package com.cabe.app.novel.domain.ekxs;
 
 import android.text.TextUtils;
 
 import com.cabe.app.novel.model.NovelContent;
+import com.cabe.app.novel.model.SourceType;
 import com.cabe.app.novel.utils.UrlUtils;
 import com.cabe.lib.cache.exception.HttpExceptionCode;
 import com.cabe.lib.cache.exception.RxException;
@@ -15,16 +16,17 @@ import com.google.gson.reflect.TypeToken;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 /**
  *
  * 作者：沈建芳 on 2017/10/9 16:30
  */
-public class NovelContentUseCase extends HttpCacheUseCase<NovelContent> {
+public class NovelContent42kxsUseCase extends HttpCacheUseCase<NovelContent> {
     private String url;
-    private String host = ServiceConfig.HOST;
-    public NovelContentUseCase(String url) {
+    private String host;
+    public NovelContent42kxsUseCase(String url) {
         super(new TypeToken<NovelContent>() {}, null);
 
         if(TextUtils.isEmpty(url)) {
@@ -60,22 +62,43 @@ public class NovelContentUseCase extends HttpCacheUseCase<NovelContent> {
         try {
             content = new NovelContent();
             content.url = url;
-            Elements titleEs = doc.select("dd > h1");
+            Elements titleEs = doc.select("h2");
             if(titleEs != null && titleEs.size() > 0) {
-                content.title = titleEs.get(0).text();
+                String title = titleEs.get(0).text();
+                if(title.startsWith("正文")) {
+                    title = title.replace("正文 ", "");
+                }
+                content.title = title;
             }
-            Elements preEs = doc.select("a:contains(上一页)");
-            if(preEs != null && preEs.size() > 0) {
-                content.preUrl = host + preEs.get(0).attr("href");
+            Elements bottomEs = doc.select("div.thumb").first().select("a");
+            Element preE = bottomEs.get(0);
+            if(preE != null) {
+                String href = preE.attr("href");
+                if(!TextUtils.isEmpty(href) && href.endsWith("html")) {
+                    content.preUrl = host + href;
+                }
             }
-            Elements nextEs = doc.select("a:contains(下一页)");
-            if(nextEs != null && nextEs.size() > 0) {
-                content.nextUrl = host + nextEs.get(0).attr("href");
+            Element nextE = bottomEs.get(4);
+            if(nextE != null) {
+                String href = nextE.attr("href");
+                if(!TextUtils.isEmpty(href) && href.endsWith("html")) {
+                    content.nextUrl = host + href;
+                }
             }
-            Elements contentEs = doc.select("dd#contents");
+            Elements contentEs = doc.select("p.Text");
             if(contentEs != null && contentEs.size() > 0) {
-                content.content = contentEs.get(0).html();
+                Element pE = contentEs.first();
+                String contentHtml = pE.html();
+                int indexContent = contentHtml.indexOf("</script>");
+                if(indexContent < 0) {
+                    indexContent = 0;
+                } else {
+                    indexContent += 9;
+                }
+                String contentVal = contentHtml.substring(indexContent);
+                content.content = contentVal;
             }
+            content.source = SourceType.EKXS;
         } catch (Exception e) {
             e.printStackTrace();
         }

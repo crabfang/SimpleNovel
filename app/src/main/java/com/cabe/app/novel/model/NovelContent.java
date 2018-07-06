@@ -12,6 +12,7 @@ public class NovelContent extends BaseObject {
     public String preUrl;
     public String nextUrl;
     public boolean flagLast;
+    public SourceType source = SourceType.X23US;
 
     @Override
     public boolean equals(Object obj) {
