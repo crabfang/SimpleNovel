@@ -1,6 +1,8 @@
 package com.cabe.app.novel.activity;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -12,6 +14,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import com.cabe.app.novel.R;
@@ -96,6 +99,9 @@ public class NovelListActivity extends BaseActivity {
             case R.id.menu_novel_detail_location:
                 actionLocationIndex();
                 return true;
+            case R.id.menu_novel_detail_search:
+                actionSearch();
+                return true;
             case R.id.menu_novel_detail_source:
                 return true;
             default:
@@ -163,6 +169,34 @@ public class NovelListActivity extends BaseActivity {
         startActivity(intent);
     }
 
+    private void searchKey(String key) {
+        int position = adapter.indexPosition(key);
+        if(position >= 0) {
+            listRecycler.smoothScrollToPosition(adapter.getRealPosition(position));
+        }
+    }
+
+    private void actionSearch() {
+        final EditText input = new EditText(this);
+        input.setHint("请输入章节号");
+        new AlertDialog.Builder(this)
+                .setTitle("查找章节")
+                .setView(input)
+                .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        searchKey(input.getText().toString());
+                    }
+                })
+                .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                }).show();
+    }
+
     private void actionOrderReverse() {
         flagReverse = !flagReverse;
         adapter.notifyDataSetChanged();
@@ -189,6 +223,19 @@ public class NovelListActivity extends BaseActivity {
                 lastContent.flagLast = true;
                 notifyDataSetChanged();
             }
+        }
+
+        private int indexPosition(String key) {
+            int index = 0;
+            if(data != null) {
+                for(NovelContent content : data) {
+                    if(content.title.contains(key)) {
+                        break;
+                    }
+                    index ++;
+                }
+            }
+            return index;
         }
 
         private int getCurPosition() {

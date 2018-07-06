@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -327,6 +328,7 @@ public class HomeActivity extends BaseActivity {
             holder.tvWords.setText(String.valueOf("字数：" + itemData.wordSize));
             holder.tvState.setText(String.valueOf("状态：" + itemData.state));
             holder.tvSource.setText(String.valueOf("来源：" + itemData.source));
+            holder.tvType.setVisibility(TextUtils.isEmpty(itemData.type) ? View.GONE : View.VISIBLE);
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

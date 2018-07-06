@@ -148,6 +148,7 @@ public class NovelContentActivity extends BaseActivity {
                 cacheContent.url = content.url;
                 cacheContent.preUrl = content.preUrl;
                 cacheContent.nextUrl = content.nextUrl;
+                cacheContent.source = curSouce;
                 DiskUtils.saveData(keyNovelContent, cacheContent.toGson());
                 curContent = content;
                 updateView(content);
