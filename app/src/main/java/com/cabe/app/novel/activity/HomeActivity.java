@@ -28,9 +28,10 @@ import com.cabe.app.novel.model.LocalNovelList;
 import com.cabe.app.novel.model.NovelInfo;
 import com.cabe.lib.cache.CacheSource;
 import com.cabe.lib.cache.interactor.ViewPresenter;
-import com.pgyersdk.feedback.PgyFeedback;
+import com.pgyersdk.feedback.PgyerFeedbackManager;
 import com.pgyersdk.update.PgyUpdateManager;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class HomeActivity extends BaseActivity {
@@ -40,6 +41,7 @@ public class HomeActivity extends BaseActivity {
     private EditText searchInput;
     private SwipeRefreshLayout localSwipe;
     private RecyclerView recyclerSearch;
+    private View btnClose;
 
     private MyAdapter adapter = new MyAdapter();
     private MyAdapter adapterSearch = new MyAdapter();
@@ -59,8 +61,7 @@ public class HomeActivity extends BaseActivity {
 
         loadLocal();
 
-        PgyUpdateManager.setIsForced(false);
-        PgyUpdateManager.register(this);
+        new PgyUpdateManager.Builder().register();
     }
 
     @Override
@@ -73,7 +74,19 @@ public class HomeActivity extends BaseActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_novel_home_feedback:
-                PgyFeedback.getInstance().showDialog(HomeActivity.this);
+                new PgyerFeedbackManager.PgyerFeedbackBuilder()
+                        .setShakeInvoke(false)       //fasle 则不触发摇一摇，最后需要调用 invoke 方法
+                        // true 设置需要调用 register 方法使摇一摇生效
+                        .setDisplayType(PgyerFeedbackManager.TYPE.DIALOG_TYPE)   //设置以Dialog 的方式打开
+                        .setColorDialogTitle("#FF0000")    //设置Dialog 标题的字体颜色，默认为颜色为#ffffff
+                        .setColorTitleBg("#FF0000")        //设置Dialog 标题栏的背景色，默认为颜色为#2E2D2D
+                        .setBarBackgroundColor("#FF0000")      // 设置顶部按钮和底部背景色，默认颜色为 #2E2D2D
+                        .setBarButtonPressedColor("#FF0000")        //设置顶部按钮和底部按钮按下时的反馈色 默认颜色为 #383737
+                        .setColorPickerBackgroundColor("#FF0000")   //设置颜色选择器的背景色,默认颜色为 #272828
+                        .setMoreParam("KEY1","VALUE1") //自定义的反馈数据
+                        .setMoreParam("KEY2","VALUE2") //自定义的反馈数据
+                        .builder()
+                        .invoke();
                 return true;
             case R.id.menu_novel_home_about:
                 Toast.makeText(this, "敬请期待", Toast.LENGTH_SHORT).show();
@@ -85,13 +98,15 @@ public class HomeActivity extends BaseActivity {
     private void initView() {
         searchInput = findViewById(R.id.activity_home_search_input);
         localSwipe = findViewById(R.id.activity_home_local_swipe);
+        RecyclerView recyclerView = findViewById(R.id.activity_home_local_list);
+        btnClose = findViewById(R.id.activity_home_search_btn_close);
+
         localSwipe.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 loadLocal();
             }
         });
-        RecyclerView recyclerView = findViewById(R.id.activity_home_local_list);
         recyclerView.setAdapter(adapter);
         adapter.setItemClickListener(new AdapterClickListener() {
             @Override
@@ -137,13 +152,19 @@ public class HomeActivity extends BaseActivity {
             public void itemOnClick(NovelInfo novelInfo) {
                 addLocalNovel(novelInfo);
                 recyclerSearch.smoothScrollToPosition(0);
-                recyclerSearch.setVisibility(View.GONE);
+                showSearchView(false);
                 searchInput.setText("");
             }
             @Override
             public void itemOnLongClick(NovelInfo novelInfo) {
             }
         });
+    }
+
+    private void showSearchView(boolean show) {
+        int visibility = show ? View.VISIBLE : View.GONE;
+        recyclerSearch.setVisibility(visibility);
+        btnClose.setVisibility(visibility);
     }
 
     private void hiddenKeyboard() {
@@ -203,11 +224,15 @@ public class HomeActivity extends BaseActivity {
         }
     }
 
+    public void onClose(View view) {
+        showSearchView(false);
+    }
+
     public void onSearch(View view) {
         waiting.show();
         hiddenKeyboard();
         String inputStr = searchInput.getText().toString();
-        search42kxs(inputStr);
+        search4x23us(inputStr);
     }
 
     private void search4x23us(final String keyWord) {
@@ -221,16 +246,12 @@ public class HomeActivity extends BaseActivity {
             public void load(CacheSource from, List<NovelInfo> data) {
                 if(!data.isEmpty()) {
                     adapterSearch.setData(data);
-                    recyclerSearch.setVisibility(View.VISIBLE);
+                    showSearchView(true);
                 }
             }
             @Override
             public void complete(CacheSource from) {
-                if(adapterSearch.getItemCount() == 0) {
-                    search42kxs(keyWord);
-                } else {
-                    waiting.dismiss();
-                }
+                search42kxs(keyWord);
             }
         });
     }
@@ -245,8 +266,8 @@ public class HomeActivity extends BaseActivity {
             @Override
             public void load(CacheSource from, List<NovelInfo> data) {
                 if(!data.isEmpty()) {
-                    adapterSearch.setData(data);
-                    recyclerSearch.setVisibility(View.VISIBLE);
+                    adapterSearch.addData(data);
+                    showSearchView(true);
                 }
             }
             @Override
@@ -264,6 +285,15 @@ public class HomeActivity extends BaseActivity {
         }
         public void setData(List<NovelInfo> list) {
             novelList = list;
+            notifyDataSetChanged();
+        }
+        public void addData(List<NovelInfo> list) {
+            if(novelList == null) {
+                novelList = new ArrayList<>();
+            }
+            if(list != null) {
+                novelList.addAll(list);
+            }
             notifyDataSetChanged();
         }
         @Override

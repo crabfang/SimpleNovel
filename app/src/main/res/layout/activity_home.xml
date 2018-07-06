@@ -24,7 +24,7 @@
 
         <TextView
             android:id="@+id/activity_home_search_btn"
-            android:layout_width="100dp"
+            android:layout_width="60dp"
             android:layout_height="match_parent"
             android:layout_alignParentRight="true"
             android:paddingLeft="10dp"
@@ -64,6 +64,18 @@
             app:layoutManager="LinearLayoutManager"
             tools:listitem="@layout/item_home_local_novel"
             android:background="@android:color/white" />
+
+        <TextView
+            android:id="@+id/activity_home_search_btn_close"
+            android:layout_width="60dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_marginTop="20dp"
+            android:gravity="center"
+            android:visibility="gone"
+            android:onClick="onClose"
+            android:text="关闭"
+            android:background="@drawable/bg_round_btn" />
 
     </RelativeLayout>
 

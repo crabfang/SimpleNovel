@@ -13,6 +13,6 @@ public class MyApp extends Application {
     public void onCreate() {
         super.onCreate();
         DiskCacheManager.DISK_CACHE_PATH = getExternalCacheDir().toString();
-        PgyCrashManager.register(this);
+        PgyCrashManager.register();
     }
 }

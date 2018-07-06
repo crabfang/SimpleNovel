@@ -29,7 +29,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         initExtra(savedInstanceState);
         context = this;
         setBackable(true);
-        PgyCrashManager.register(this);
+        PgyCrashManager.register();
     }
 
     @Override
