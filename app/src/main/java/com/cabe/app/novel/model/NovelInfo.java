@@ -1,11 +1,14 @@
 package com.cabe.app.novel.model;
 
+import android.text.TextUtils;
+
 /**
  * 作者：沈建芳 on 2017/10/9 16:21
  */
 public class NovelInfo extends BaseObject {
     public String title;
     public String url;
+    public String picUrl;
     public String author;
     public String type;
     public String wordSize;
@@ -13,6 +16,8 @@ public class NovelInfo extends BaseObject {
     public SourceType source = SourceType.X23US;
 
     public String getPicUrl() {
+        if(!TextUtils.isEmpty(picUrl)) return picUrl;
+
         return source == null ? "" : source.getPicUrl();
     }
 

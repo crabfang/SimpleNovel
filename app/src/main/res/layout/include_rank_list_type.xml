@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.cabe.app.novel.widget.FlowRadioGroup
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/activity_rank_list_type"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:minHeight="40dp"
+    android:orientation="horizontal" >
+
+    <RadioButton
+        android:id="@+id/activity_rank_list_type_xh"
+        style="@style/rank_type_text"
+        android:checked="true"
+        android:text="玄幻" />
+
+    <RadioButton
+        android:id="@+id/activity_rank_list_type_wx"
+        style="@style/rank_type_text"
+        android:text="武侠" />
+
+    <RadioButton
+        android:id="@+id/activity_rank_list_type_ds"
+        style="@style/rank_type_text"
+        android:text="都市" />
+
+    <RadioButton
+        android:id="@+id/activity_rank_list_type_yq"
+        style="@style/rank_type_text"
+        android:text="言情" />
+
+    <RadioButton
+        android:id="@+id/activity_rank_list_type_ls"
+        style="@style/rank_type_text"
+        android:text="历史" />
+
+    <RadioButton
+        android:id="@+id/activity_rank_list_type_wy"
+        style="@style/rank_type_text"
+        android:text="网游" />
+
+    <RadioButton
+        android:id="@+id/activity_rank_list_type_kh"
+        style="@style/rank_type_text"
+        android:text="科幻" />
+
+    <RadioButton
+        android:id="@+id/activity_rank_list_type_zt"
+        style="@style/rank_type_text"
+        android:text="侦探" />
+
+    <RadioButton
+        android:id="@+id/activity_rank_list_type_tr"
+        style="@style/rank_type_text"
+        android:text="同人" />
+
+    <RadioButton
+        android:id="@+id/activity_rank_list_type_xy"
+        style="@style/rank_type_text"
+        android:text="悬疑" />
+
+</com.cabe.app.novel.widget.FlowRadioGroup>

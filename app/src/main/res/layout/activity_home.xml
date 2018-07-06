@@ -23,15 +23,27 @@
             android:gravity="center_vertical" />
 
         <TextView
-            android:id="@+id/activity_home_search_btn"
+            android:id="@+id/activity_home_btn_search"
+            android:layout_width="60dp"
+            android:layout_height="match_parent"
+            android:layout_toLeftOf="@id/activity_home_btn_rank"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:gravity="center"
+            android:onClick="onSearch"
+            android:text="搜索"
+            android:background="@drawable/bg_round_btn" />
+
+        <TextView
+            android:id="@+id/activity_home_btn_rank"
             android:layout_width="60dp"
             android:layout_height="match_parent"
             android:layout_alignParentRight="true"
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
             android:gravity="center"
-            android:onClick="onSearch"
-            android:text="搜索"
+            android:onClick="onRank"
+            android:text="排行"
             android:background="@drawable/bg_round_btn" />
 
     </RelativeLayout>
@@ -50,7 +62,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scrollbars="vertical"
-                app:layoutManager="LinearLayoutManager"
+                app:layoutManager="android.support.v7.widget.LinearLayoutManager"
                 tools:listitem="@layout/item_home_local_novel" />
 
         </android.support.v4.widget.SwipeRefreshLayout>
@@ -61,7 +73,7 @@
             android:layout_height="match_parent"
             android:visibility="gone"
             android:scrollbars="vertical"
-            app:layoutManager="LinearLayoutManager"
+            app:layoutManager="android.support.v7.widget.LinearLayoutManager"
             tools:listitem="@layout/item_home_local_novel"
             android:background="@android:color/white" />
 

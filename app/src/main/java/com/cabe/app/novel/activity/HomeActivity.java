@@ -29,6 +29,7 @@ import com.cabe.app.novel.model.LocalNovelList;
 import com.cabe.app.novel.model.NovelInfo;
 import com.cabe.lib.cache.CacheSource;
 import com.cabe.lib.cache.interactor.ViewPresenter;
+import com.google.gson.Gson;
 import com.pgyersdk.feedback.PgyerFeedbackManager;
 import com.pgyersdk.update.PgyUpdateManager;
 
@@ -36,6 +37,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class HomeActivity extends BaseActivity {
+    private final int REQUEST_CODE_RANK = 0x101;
     private LocalNovelList localNovelList;
     private LocalNovelsUseCase useCase = new LocalNovelsUseCase();
 
@@ -162,6 +164,20 @@ public class HomeActivity extends BaseActivity {
         });
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(resultCode != RESULT_OK) return;
+
+        if(requestCode == REQUEST_CODE_RANK) {
+            String jsonStr = data.getStringExtra(BaseActivity.KEY_EXTRA_GSON);
+            if(!TextUtils.isEmpty(jsonStr)) {
+                NovelInfo novelInfo = new Gson().fromJson(jsonStr, NovelInfo.class);
+                addLocalNovel(novelInfo);
+            }
+        }
+    }
+
     private void showSearchView(boolean show) {
         int visibility = show ? View.VISIBLE : View.GONE;
         recyclerSearch.setVisibility(visibility);
@@ -234,6 +250,10 @@ public class HomeActivity extends BaseActivity {
         hiddenKeyboard();
         String inputStr = searchInput.getText().toString();
         search4x23us(inputStr);
+    }
+
+    public void onRank(View view) {
+        startActivityForResult(new Intent(this, RankActivity.class), REQUEST_CODE_RANK);
     }
 
     private void search4x23us(final String keyWord) {
