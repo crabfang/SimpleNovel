@@ -96,7 +96,7 @@ public class Rank42kxsUseCase extends HttpCacheUseCase<List<NovelInfo>> {
                 novelInfo.url = ServiceConfig.HOST_2KXS + groups[groups.length - 1] + "/";
             }
 
-            Elements authorEs = e.select("dd.text > a");
+            Elements authorEs = e.select("dd.text > p > a");
             if(authorEs != null && authorEs.size() > 0) {
                 novelInfo.author = authorEs.first().text();
             }
