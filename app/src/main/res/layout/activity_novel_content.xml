@@ -1,122 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v4.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_novel_content_swipe"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/activity_content_bg">
 
-    <ScrollView
-        android:id="@+id/activity_novel_content_scroll"
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/activity_novel_content_recycler"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:fillViewport="true"
-        android:scrollbars="vertical" >
+        app:layoutManager="android.support.v7.widget.LinearLayoutManager"
+        tools:listitem="@layout/item_novel_content" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical" >
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="40dp"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/activity_novel_content_preview"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:gravity="center_vertical"
-                    android:onClick="actionPreview"
-                    android:paddingLeft="10dp"
-                    android:textSize="14dp"
-                    android:textColor="@color/activity_content_operate"
-                    android:text="@string/activity_content_btn_pre"
-                    android:background="@drawable/bg_list_item" />
-
-                <TextView
-                    android:id="@+id/activity_novel_content_next"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:gravity="center_vertical|right"
-                    android:onClick="actionNext"
-                    android:paddingRight="10dp"
-                    android:textSize="14dp"
-                    android:textColor="@color/activity_content_operate"
-                    android:text="@string/activity_content_btn_next"
-                    android:background="@drawable/bg_list_item" />
-
-            </LinearLayout>
-
-            <TextView
-                android:id="@+id/activity_novel_content_title"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="10dp"
-                android:gravity="center"
-                android:textSize="24dp"
-                android:textColor="@color/activity_content_theme"
-                tools:text="@string/app_name" />
-
-            <TextView
-                android:id="@+id/activity_novel_content_info"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="10dp"
-                android:lineSpacingExtra="2dp"
-                android:textSize="20dp"
-                android:textColor="@color/activity_content_theme"
-                tools:text="@string/app_name" />
-
-            <android.support.v4.widget.Space
-                android:layout_width="1dp"
-                android:layout_height="0dp"
-                android:layout_weight="1" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="40dp"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/activity_novel_content_preview_btoom"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:gravity="center_vertical"
-                    android:onClick="actionPreview"
-                    android:paddingLeft="10dp"
-                    android:textSize="14dp"
-                    android:textColor="@color/activity_content_operate"
-                    android:text="@string/activity_content_btn_pre"
-                    android:background="@drawable/bg_list_item" />
-
-                <TextView
-                    android:id="@+id/activity_novel_content_next_bottom"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:gravity="center_vertical|right"
-                    android:onClick="actionNext"
-                    android:paddingRight="10dp"
-                    android:textSize="14dp"
-                    android:textColor="@color/activity_content_operate"
-                    android:text="@string/activity_content_btn_next"
-                    android:background="@drawable/bg_list_item" />
-
-            </LinearLayout>
-
-        </LinearLayout>
-
-    </ScrollView>
-
-</android.support.v4.widget.SwipeRefreshLayout>
+</FrameLayout>

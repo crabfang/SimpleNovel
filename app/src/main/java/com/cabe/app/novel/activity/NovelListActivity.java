@@ -35,6 +35,8 @@ import java.util.List;
 public class NovelListActivity extends BaseActivity {
     private static String KEY_FLAG_SORT_REVERSE = "keyFlagSortReverse";
 
+    public static NovelList novelList;
+
     private TextView tvTips;
     private SwipeRefreshLayout listSwipe;
     private RecyclerView listRecycler;
@@ -132,6 +134,7 @@ public class NovelListActivity extends BaseActivity {
     private void updateView(NovelList detail) {
         if(detail == null) return;
 
+        novelList = detail;
         tvTips.setText(detail.getTips());
         adapter.setData(detail.list);
         adapter.updateLastInfo(lastContent);

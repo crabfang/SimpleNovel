@@ -4,43 +4,31 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatDelegate;
-import android.text.Html;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.ScrollView;
-import android.widget.TextView;
+import android.view.ViewGroup;
 
 import com.cabe.app.novel.R;
-import com.cabe.app.novel.domain.ekxs.NovelContent42kxsUseCase;
-import com.cabe.app.novel.domain.x23us.NovelContent4X23USUseCase;
 import com.cabe.app.novel.model.NovelContent;
-import com.cabe.app.novel.model.SourceType;
 import com.cabe.app.novel.utils.DiskUtils;
-import com.cabe.lib.cache.CacheSource;
-import com.cabe.lib.cache.interactor.ViewPresenter;
+import com.cabe.app.novel.widget.NovelContentView;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+
+import java.util.List;
 
 public class NovelContentActivity extends BaseActivity {
     private static String KEY_NOVEL_CONTENT_ID = "keyNovelContentID";
     private static String KEY_NOVEL_CONTENT_LAST = "keyNovelContentLast";
 
-    private SwipeRefreshLayout swipeLayout;
-    private ScrollView viewScroll;
-    private TextView tvTitle;
-    private TextView tvContent;
-    private View btnPre;
-    private View btnNext;
-    private View btnPreBottom;
-    private View btnNextBottom;
-
+    private RecyclerView recyclerView;
+    private MyAdapter myAdapter;
     private String keyNovelContent;
-    private NovelContent curContent;
-    private SourceType curSouce;
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -52,25 +40,9 @@ public class NovelContentActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_novel_content);
+
         initView();
-
-        NovelContent novelContent = null;
-        if(savedInstanceState == null) {
-            novelContent = getExtraGson(new TypeToken<NovelContent>(){});
-            curSouce = novelContent.source;
-            keyNovelContent = getExtraString(KEY_NOVEL_CONTENT_LAST);
-        } else {
-            keyNovelContent = savedInstanceState.getString(KEY_NOVEL_CONTENT_ID);
-            String novelGson = DiskUtils.getData(keyNovelContent);
-            if(!TextUtils.isEmpty(novelGson)) {
-                novelContent = new Gson().fromJson(novelGson, NovelContent.class);
-                curSouce = novelContent.source;
-            }
-        }
-
-        if(novelContent != null && !TextUtils.isEmpty(novelContent.url)) {
-            loadContent(novelContent.url);
-        }
+        updateView(savedInstanceState);
     }
 
     @Override
@@ -91,80 +63,46 @@ public class NovelContentActivity extends BaseActivity {
     }
 
     private void initView() {
-        swipeLayout = findViewById(R.id.activity_novel_content_swipe);
-        viewScroll = findViewById(R.id.activity_novel_content_scroll);
-        tvTitle = findViewById(R.id.activity_novel_content_title);
-        tvContent = findViewById(R.id.activity_novel_content_info);
-        btnPre = findViewById(R.id.activity_novel_content_preview);
-        btnNext = findViewById(R.id.activity_novel_content_next);
-        btnPreBottom = findViewById(R.id.activity_novel_content_preview_btoom);
-        btnNextBottom = findViewById(R.id.activity_novel_content_next_bottom);
-
-        swipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+        recyclerView = findViewById(R.id.activity_novel_content_recycler);
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            private int prePosition = -1;
             @Override
-            public void onRefresh() {
-                if(curContent != null && !TextUtils.isEmpty(curContent.url)) {
-                    loadContent(curContent.url);
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+            }
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                int curIndex = ((LinearLayoutManager)recyclerView.getLayoutManager()).findFirstVisibleItemPosition();
+                if(prePosition != curIndex) {
+                    prePosition = curIndex;
+                    NovelContent novel = myAdapter.getNovelContent(curIndex);
+                    if(novel != null) {
+                        DiskUtils.saveData(keyNovelContent, novel.toGson());
+                        setTitle(novel.title);
+                    }
                 }
             }
         });
 
-        btnPre.setVisibility(View.INVISIBLE);
-        btnNext.setVisibility(View.INVISIBLE);
-        btnPreBottom.setVisibility(View.INVISIBLE);
-        btnNextBottom.setVisibility(View.INVISIBLE);
+        myAdapter = new MyAdapter();
+        recyclerView.setAdapter(myAdapter);
     }
 
-    private void updateView(NovelContent content) {
-        if(content == null) return;
-
-        btnPre.setVisibility(content.preUrl != null && content.preUrl.endsWith("html") ? View.VISIBLE : View.INVISIBLE);
-        btnNext.setVisibility(content.nextUrl != null && content.nextUrl.endsWith("html") ? View.VISIBLE : View.INVISIBLE);
-        btnPreBottom.setVisibility(content.preUrl != null && content.preUrl.endsWith("html") ? View.VISIBLE : View.INVISIBLE);
-        btnNextBottom.setVisibility(content.nextUrl != null && content.nextUrl.endsWith("html") ? View.VISIBLE : View.INVISIBLE);
-
-        setTitle(content.title);
-        tvTitle.setText(content.title);
-        tvContent.setText(Html.fromHtml(content.content));
-    }
-
-    private void loadContent(String url) {
-        swipeLayout.setRefreshing(true);
-        ViewPresenter<NovelContent> presenter = new ViewPresenter<NovelContent>() {
-            @Override
-            public void error(CacheSource from, int code, String info) {
-                toast(info);
+    private void updateView(Bundle savedInstanceState) {
+        NovelContent novelContent = null;
+        if(savedInstanceState == null) {
+            novelContent = getExtraGson(new TypeToken<NovelContent>(){});
+            keyNovelContent = getExtraString(KEY_NOVEL_CONTENT_LAST);
+        } else {
+            keyNovelContent = savedInstanceState.getString(KEY_NOVEL_CONTENT_ID);
+            String novelGson = DiskUtils.getData(keyNovelContent);
+            if(!TextUtils.isEmpty(novelGson)) {
+                novelContent = new Gson().fromJson(novelGson, NovelContent.class);
             }
-            @Override
-            public void load(CacheSource from, NovelContent content) {
-                btnPre.setVisibility(View.VISIBLE);
-                btnNext.setVisibility(View.VISIBLE);
-                btnPreBottom.setVisibility(View.VISIBLE);
-                btnNextBottom.setVisibility(View.VISIBLE);
-                viewScroll.fullScroll(ScrollView.FOCUS_UP);
-
-                NovelContent cacheContent = new NovelContent();
-                cacheContent.title = content.title;
-                cacheContent.url = content.url;
-                cacheContent.preUrl = content.preUrl;
-                cacheContent.nextUrl = content.nextUrl;
-                cacheContent.source = curSouce;
-                DiskUtils.saveData(keyNovelContent, cacheContent.toGson());
-                curContent = content;
-                updateView(content);
-            }
-            @Override
-            public void complete(CacheSource from) {
-                swipeLayout.setRefreshing(false);
-            }
-        };
-        if(curSouce == SourceType.X23US) {
-            NovelContent4X23USUseCase useCase = new NovelContent4X23USUseCase(url);
-            useCase.execute(presenter);
-        } else if(curSouce == SourceType.EKXS) {
-            NovelContent42kxsUseCase useCase = new NovelContent42kxsUseCase(url);
-            useCase.execute(presenter);
         }
+        int index = myAdapter.indexPosition(novelContent);
+        recyclerView.scrollToPosition(index);
     }
 
     private void actionSwitchTheme() {
@@ -173,16 +111,52 @@ public class NovelContentActivity extends BaseActivity {
                 ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO);
     }
 
-    public void actionPreview(View view) {
-        if(curContent == null) return;
+    private class MyAdapter extends RecyclerView.Adapter<MyViewHolder> {
+        @NonNull
+        @Override
+        public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            return new MyViewHolder(new NovelContentView(parent.getContext()));
+        }
 
-        loadContent(curContent.preUrl);
+        @Override
+        public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
+            holder.contentView.loadContent(getNovelContent(position));
+        }
+
+        @Override
+        public int getItemCount() {
+            return getNovelList() == null ? 0 : getNovelList().size();
+        }
+
+        private NovelContent getNovelContent(int position) {
+            NovelContent novel = null;
+            if(getNovelList() != null) {
+                if(position >= 0 && position < getNovelList().size()) {
+                    novel = getNovelList().get(position);
+                }
+            }
+            return novel;
+        }
+
+        private int indexPosition(NovelContent content) {
+            int index = 0;
+            if(getNovelList() != null && content != null) {
+                index = getNovelList().indexOf(content);
+            }
+            return index;
+        }
+
+        private List<NovelContent> getNovelList() {
+            return NovelListActivity.novelList == null ? null : NovelListActivity.novelList.list;
+        }
     }
 
-    public void actionNext(View view) {
-        if(curContent == null) return;
-
-        loadContent(curContent.nextUrl);
+    private class MyViewHolder extends RecyclerView.ViewHolder {
+        private NovelContentView contentView;
+        private MyViewHolder(NovelContentView itemView) {
+            super(itemView);
+            this.contentView = itemView;
+        }
     }
 
     public static Intent create(Context context, NovelContent novelContent, String novelKey) {
