@@ -13,7 +13,4 @@
     <item android:id="@+id/menu_novel_detail_search"
         android:title="搜索章节"
         app:showAsAction="never"/>
-    <item android:id="@+id/menu_novel_detail_source"
-        android:title="换源"
-        app:showAsAction="never"/>
 </menu>

@@ -85,7 +85,7 @@ public class NovelListActivity extends BaseActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_novel_detail, menu);
+        getMenuInflater().inflate(R.menu.menu_novel_list, menu);
         return true;
     }
 
@@ -103,8 +103,6 @@ public class NovelListActivity extends BaseActivity {
                 return true;
             case R.id.menu_novel_detail_search:
                 actionSearch();
-                return true;
-            case R.id.menu_novel_detail_source:
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
