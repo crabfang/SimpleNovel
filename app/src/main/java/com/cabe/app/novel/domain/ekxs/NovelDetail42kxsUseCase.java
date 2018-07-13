@@ -2,7 +2,6 @@ package com.cabe.app.novel.domain.ekxs;
 
 import android.text.TextUtils;
 
-import com.cabe.app.novel.domain.ServiceConfig;
 import com.cabe.app.novel.model.NovelInfo;
 import com.cabe.app.novel.model.SourceType;
 import com.cabe.app.novel.retrofit.MyHttpManager;
@@ -16,7 +15,6 @@ import com.google.gson.reflect.TypeToken;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.UnsupportedEncodingException;
@@ -63,7 +61,7 @@ public class NovelDetail42kxsUseCase extends HttpCacheUseCase<NovelInfo> {
             Elements picEs = doc.select("div.bortable > img");
             if(picEs != null && picEs.size() > 0) {
                 String picUrl = picEs.first().attr("src");
-                novel.picUrl = ServiceConfig.HOST_2KXS + picUrl.substring(1);
+                novel.picUrl = SourceType.EKXS.getHost() + picUrl.substring(1);
             }
 
             Elements titleEs = doc.select("div#title > h2 > a");

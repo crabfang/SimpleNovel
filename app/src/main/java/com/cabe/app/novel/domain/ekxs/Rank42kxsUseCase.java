@@ -1,6 +1,5 @@
 package com.cabe.app.novel.domain.ekxs;
 
-import com.cabe.app.novel.domain.ServiceConfig;
 import com.cabe.app.novel.model.NovelInfo;
 import com.cabe.app.novel.model.SourceType;
 import com.cabe.app.novel.retrofit.MyHttpManager;
@@ -29,7 +28,7 @@ public class Rank42kxsUseCase extends HttpCacheUseCase<List<NovelInfo>> {
         super(new TypeToken<List<NovelInfo>>(){}, null);
 
         RequestParams params = new RequestParams();
-        params.host = ServiceConfig.HOST_2KXS;
+        params.host = SourceType.EKXS.getHost();
         String path = sort + "/";
         try {
             path = URLEncoder.encode(path, "utf-8");
@@ -84,7 +83,7 @@ public class Rank42kxsUseCase extends HttpCacheUseCase<List<NovelInfo>> {
             Elements imgEs = e.select("img");
             if(imgEs != null && imgEs.size() > 0) {
                 String src = imgEs.first().attr("src");
-                novelInfo.picUrl = ServiceConfig.HOST_2KXS + src.substring(1);
+                novelInfo.picUrl = SourceType.EKXS.getHost() + src.substring(1);
             }
 
             Elements titleEs = e.select("h3.xstl > a");
@@ -93,7 +92,7 @@ public class Rank42kxsUseCase extends HttpCacheUseCase<List<NovelInfo>> {
 
                 String url = titleEs.first().attr("href");
                 String[] groups = url.split("/");
-                novelInfo.url = ServiceConfig.HOST_2KXS + groups[groups.length - 1] + "/";
+                novelInfo.url = SourceType.EKXS.getHost() + groups[groups.length - 1] + "/";
             }
 
             Elements authorEs = e.select("dd.text > p > a");

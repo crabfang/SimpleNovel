@@ -1,6 +1,5 @@
 package com.cabe.app.novel.domain.ekxs;
 
-import com.cabe.app.novel.domain.ServiceConfig;
 import com.cabe.app.novel.model.NovelInfo;
 import com.cabe.app.novel.model.SourceType;
 import com.cabe.app.novel.retrofit.MyHttpManager;
@@ -31,7 +30,7 @@ public class Search42kxsUseCase extends HttpCacheUseCase<List<NovelInfo>> {
         super(new TypeToken<List<NovelInfo>>(){}, null);
 
         RequestParams params = new RequestParams();
-        params.host = ServiceConfig.HOST_2KXS;
+        params.host = SourceType.EKXS.getHost();
         params.path = "modules/article/search.php";
         params.requestMethod = RequestParams.REQUEST_METHOD_GET;
 
@@ -60,31 +59,70 @@ public class Search42kxsUseCase extends HttpCacheUseCase<List<NovelInfo>> {
     }
 
     private List<NovelInfo> parserHtmlForList(Document doc) {
-        List<NovelInfo> novelist = null;
+        List<NovelInfo> novelList = null;
         try {
+            Elements borTable = doc.select("div.bortable");
+            if(borTable != null && borTable.size() > 0) {
+                novelList = new ArrayList<>();
+                NovelInfo novelInfo = parseSingle(borTable.first());
+                novelList.add(novelInfo);
+                return novelList;
+            }
             Elements tBody = doc.select("tbody");
             if (tBody != null && tBody.size() > 0) {
-                novelist = new ArrayList<>();
+                novelList = new ArrayList<>();
 
                 for(int i=1;i<tBody.get(0).children().size();i++) {
                     Element trItem = tBody.get(0).child(i);
                     NovelInfo result = getSearchResult(trItem);
                     if(result != null) {
-                        result.source = SourceType.EKXS;
-                        novelist.add(result);
+                        novelList.add(result);
                     }
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return novelist;
+        return novelList;
+    }
+
+    private NovelInfo parseSingle(Element e) {
+        NovelInfo novelInfo = null;
+        if(e != null) {
+            novelInfo = new NovelInfo();
+            novelInfo.source = SourceType.EKXS;
+
+            Elements ePic = e.select("div.wleft > img");
+            if(ePic != null && ePic.size() > 0) {
+                novelInfo.picUrl = SourceType.EKXS.getHost() + ePic.first().attr("src");
+            }
+            Elements tdTitle = e.select("div#title");
+            if(tdTitle != null) {
+                Elements aTitle = tdTitle.first().select("h2 > a");
+                if(aTitle != null && aTitle.size() > 0) {
+                    novelInfo.title = aTitle.text();
+                    novelInfo.url = aTitle.attr("href");
+                }
+                Elements aAuthor = tdTitle.first().select("h2 > em > a");
+                if(aAuthor != null && aAuthor.size() > 0) {
+                    novelInfo.author = aAuthor.text();
+                }
+            }
+            Elements ddBook = e.select("div.abook > dd");
+            if(ddBook != null && ddBook.size() > 10) {
+                novelInfo.type = ddBook.get(0).child(0).text();
+                novelInfo.wordSize = ddBook.get(1).child(0).text();
+                novelInfo.state = ddBook.get(9).child(0).text();
+            }
+        }
+        return novelInfo;
     }
 
     private NovelInfo getSearchResult(Element e) {
         NovelInfo novelInfo = null;
         if (e != null) {
             novelInfo = new NovelInfo();
+            novelInfo.source = SourceType.EKXS;
 
             Elements tdEs = e.select("td");
             if(tdEs != null && tdEs.size() == 6) {
