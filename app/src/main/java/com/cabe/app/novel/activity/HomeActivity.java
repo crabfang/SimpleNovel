@@ -4,11 +4,15 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.content.FileProvider;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -21,18 +25,25 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.cabe.app.novel.BuildConfig;
 import com.cabe.app.novel.R;
-import com.cabe.app.novel.domain.ekxs.Search42kxsUseCase;
 import com.cabe.app.novel.domain.LocalNovelsUseCase;
+import com.cabe.app.novel.domain.UpdateUseCase;
+import com.cabe.app.novel.domain.ekxs.Search42kxsUseCase;
 import com.cabe.app.novel.domain.x23us.Search4X23USUseCase;
 import com.cabe.app.novel.model.LocalNovelList;
 import com.cabe.app.novel.model.NovelInfo;
 import com.cabe.lib.cache.CacheSource;
 import com.cabe.lib.cache.interactor.ViewPresenter;
+import com.cabe.lib.cache.interactor.impl.SimpleViewPresenter;
 import com.google.gson.Gson;
 import com.pgyersdk.feedback.PgyerFeedbackManager;
+import com.pgyersdk.update.DownloadFileListener;
 import com.pgyersdk.update.PgyUpdateManager;
+import com.pgyersdk.update.UpdateManagerListener;
+import com.pgyersdk.update.javabean.AppBean;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -64,7 +75,17 @@ public class HomeActivity extends BaseActivity {
 
         loadLocal();
 
-        new PgyUpdateManager.Builder().register();
+        new UpdateUseCase().execute(new SimpleViewPresenter<AppBean>() {
+            @Override
+            public void error(CacheSource from, int code, String info) {
+                super.error(from, code, info);
+            }
+            @Override
+            public void load(CacheSource from, AppBean data) {
+                super.load(from, data);
+                showUpdateInfo(data);
+            }
+        });
     }
 
     @Override
@@ -178,10 +199,74 @@ public class HomeActivity extends BaseActivity {
         }
     }
 
+    private void showUpdateInfo(final AppBean appBean) {
+        if(appBean == null) return;
+
+        new AlertDialog.Builder(this)
+                .setTitle("版本更新")
+                .setMessage(appBean.getReleaseNote())
+                .setPositiveButton("更新", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        new PgyUpdateManager.Builder().setDownloadFileListener(new DownloadFileListener() {
+                            @Override
+                            public void downloadFailed() {
+                                toast("下载失败");
+                            }
+                            @Override
+                            public void downloadSuccessful(Uri uri) {
+                                toast("下载成功");
+                                Log.i(TAG, "downloadSuccessful : " + uri);
+                                actionInstallSpp(uri);
+                            }
+                            @Override
+                            public void onProgressUpdate(Integer... integers) {
+                                Log.i(TAG, "onProgressUpdate : " + integers[0]);
+                            }
+                        }).setUpdateManagerListener(new UpdateManagerListener() {
+                            @Override
+                            public void onNoUpdateAvailable() {
+                            }
+                            @Override
+                            public void onUpdateAvailable(AppBean appBean) {
+                            }
+                            @Override
+                            public void checkUpdateFailed(Exception e) {
+                            }
+                        }).setDeleteHistroyApk(true).register();
+                        PgyUpdateManager.downLoadApk(appBean.getDownloadURL());
+                        dialog.dismiss();
+                        toast("开始下载");
+                    }
+                })
+                .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                }).show();
+    }
+
     private void showSearchView(boolean show) {
         int visibility = show ? View.VISIBLE : View.GONE;
         recyclerSearch.setVisibility(visibility);
         btnClose.setVisibility(visibility);
+    }
+
+    private void actionInstallSpp(Uri uri) {
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        //判断是否是AndroidN以及更高的版本
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            String filePath = uri.toString().substring(7);
+            File apkFile = new File(filePath);
+            Uri contentUri = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".fileProvider", apkFile);
+            intent.setDataAndType(contentUri, "application/vnd.android.package-archive");
+        } else {
+            intent.setDataAndType(uri, "application/vnd.android.package-archive");
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        }
+        startActivity(intent);
     }
 
     private void hiddenKeyboard() {

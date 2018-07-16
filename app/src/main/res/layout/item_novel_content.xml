@@ -17,10 +17,12 @@
             android:layout_height="wrap_content"
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
+            android:paddingTop="20dp"
             android:layout_marginTop="10dp"
             android:layout_marginBottom="10dp"
             android:gravity="center"
-            android:textSize="24dp"
+            android:textStyle="bold"
+            android:textSize="26dp"
             android:textColor="@color/activity_content_theme"
             tools:text="@string/app_name" />
 
@@ -28,11 +30,11 @@
             android:id="@+id/fragment_novel_content_val"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:minHeight="400dp"
+            android:minHeight="800dp"
             android:paddingLeft="6dp"
             android:paddingRight="6dp"
             android:textSize="20dp"
-            android:textColor="#34488A"
+            android:textColor="@color/activity_content_theme"
             tools:text="SimpleNovel\nSimpleNovel"/>
 
     </LinearLayout>

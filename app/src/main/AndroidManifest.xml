@@ -4,6 +4,7 @@
     package="com.cabe.app.novel" >
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES"/>
 
     <!-- 蒲公英SDK============================ -->
     <!-- 必选 -->
@@ -14,9 +15,6 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" /> <!-- 读写sdcard，storage等等 -->
     <uses-permission android:name="android.permission.RECORD_AUDIO" /> <!-- 允许程序录制音频 -->
     <uses-permission android:name="android.permission.GET_TASKS"/>
-
-    <!-- 可选 -->
-    <uses-permission android:name="android.permission.READ_LOGS" /> <!-- 获取logcat日志 -->
 
     <application
         android:name=".activity.MyApp"
@@ -52,6 +50,15 @@
             android:screenOrientation="portrait" />
         <activity android:name=".activity.NovelContentActivity"
             android:screenOrientation="portrait" />
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="${applicationId}.fileProvider"
+            android:grantUriPermissions="true"
+            android:exported="false">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
     </application>
 
 </manifest>
