@@ -215,13 +215,14 @@ public class HomeActivity extends BaseActivity {
                             }
                             @Override
                             public void downloadSuccessful(Uri uri) {
+                                UpdateUseCase.updateUpdateBuild();
                                 toast("下载成功");
-                                Log.i(TAG, "downloadSuccessful : " + uri);
+                                Log.d(TAG, "downloadSuccessful : " + uri);
                                 actionInstallSpp(uri);
                             }
                             @Override
                             public void onProgressUpdate(Integer... integers) {
-                                Log.i(TAG, "onProgressUpdate : " + integers[0]);
+                                Log.d(TAG, "onProgressUpdate : " + integers[0]);
                             }
                         }).setUpdateManagerListener(new UpdateManagerListener() {
                             @Override

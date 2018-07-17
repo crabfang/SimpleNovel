@@ -22,9 +22,10 @@ import java.util.Map;
  * 作者：沈建芳 on 2018/7/16 20:24
  */
 public class UpdateUseCase extends HttpCacheUseCase<AppBean> {
-    public final static String KEY_LAST_PGYER_BUILD = "keyLastPgyerBuild";
+    private final static String KEY_LAST_PGYER_BUILD = "keyLastPgyerBuild";
     private final static String API_KEY = "38799a299871a7c3d5dc92586cdb1c7f";
     private final static String APP_KEY = "975f6c1c832cb41803173f43db393dce";
+    private static int curPygerBuild = 0;
     public UpdateUseCase() {
         super(new TypeToken<AppBean>() {}, null);
 
@@ -46,12 +47,12 @@ public class UpdateUseCase extends HttpCacheUseCase<AppBean> {
                 JsonObject json = new JsonParser().parse(responseStr).getAsJsonObject();
                 if(json != null && json.has("data")) {
                     JsonObject data = json.get("data").getAsJsonObject();
-                    int pgyerBuild = data.get("buildBuildVersion").getAsInt();
+                    curPygerBuild = data.get("buildBuildVersion").getAsInt();
 
                     String lastBuildStr = DiskUtils.getData(KEY_LAST_PGYER_BUILD);
                     if(!TextUtils.isEmpty(lastBuildStr)) {
                         int lastPygerBuild = Integer.parseInt(lastBuildStr);
-                        if(lastPygerBuild >= pgyerBuild) {
+                        if(lastPygerBuild >= curPygerBuild) {
                             throw new RxException(ExceptionCode.RX_EXCEPTION_DEFAULT, "没有新的更新");
                         }
                     }
@@ -76,5 +77,10 @@ public class UpdateUseCase extends HttpCacheUseCase<AppBean> {
                 return null;
             }
         });
+    }
+
+    public static void updateUpdateBuild() {
+        DiskUtils.saveData(KEY_LAST_PGYER_BUILD, String.valueOf(curPygerBuild));
+        curPygerBuild = 0;
     }
 }
