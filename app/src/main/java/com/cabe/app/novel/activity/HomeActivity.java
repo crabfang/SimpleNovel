@@ -22,7 +22,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.cabe.app.novel.BuildConfig;
@@ -113,7 +112,7 @@ public class HomeActivity extends BaseActivity {
                         .invoke();
                 return true;
             case R.id.menu_novel_home_about:
-                Toast.makeText(this, "敬请期待", Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(this, AboutActivity.class));
                 return true;
         }
         return super.onOptionsItemSelected(item);

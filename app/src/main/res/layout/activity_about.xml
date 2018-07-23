@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="vertical" >
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:text="        简易小说是一款整合多个网络平台的小说阅读工具，是作者空闲之余随便折腾的一个项目.该项目开源地址：https://github.com/crabfang/SimpleNovel，有兴趣的同学可以一起完善这个项目。当然，如果喜欢这个项目，也可以给作者打赏，下面是作者的微信、支付宝二维码，^_^"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:drawableTop="@drawable/qc_4_wechat"
+            android:gravity="center_horizontal"
+            android:text="wechat"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="40dp"
+            android:drawableTop="@drawable/qc_4_alipay"
+            android:gravity="center_horizontal"
+            android:text="alipay"/>
+
+    </LinearLayout>
+
+</ScrollView>

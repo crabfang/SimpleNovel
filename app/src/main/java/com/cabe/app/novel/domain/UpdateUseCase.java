@@ -3,6 +3,7 @@ package com.cabe.app.novel.domain;
 import android.net.Uri;
 import android.text.TextUtils;
 
+import com.cabe.app.novel.BuildConfig;
 import com.cabe.app.novel.utils.DiskUtils;
 import com.cabe.lib.cache.exception.ExceptionCode;
 import com.cabe.lib.cache.exception.RxException;
@@ -49,16 +50,16 @@ public class UpdateUseCase extends HttpCacheUseCase<AppBean> {
                     JsonObject data = json.get("data").getAsJsonObject();
                     curPygerBuild = data.get("buildBuildVersion").getAsInt();
 
+                    int versionCode = data.get("buildVersionNo").getAsInt();
                     String lastBuildStr = DiskUtils.getData(KEY_LAST_PGYER_BUILD);
                     if(!TextUtils.isEmpty(lastBuildStr)) {
                         int lastPygerBuild = Integer.parseInt(lastBuildStr);
-                        if(lastPygerBuild >= curPygerBuild) {
+                        if(versionCode <= BuildConfig.VERSION_CODE && lastPygerBuild >= curPygerBuild) {
                             throw new RxException(ExceptionCode.RX_EXCEPTION_DEFAULT, "没有新的更新");
                         }
                     }
 
                     String buildKey = data.get("buildKey").getAsString();
-                    int versionCode = data.get("buildVersionNo").getAsInt();
                     String versionName = data.get("buildVersion").getAsString();
                     String updateNote = data.get("buildUpdateDescription").getAsString();
                     String downloadUrl = Uri.parse("https://www.pgyer.com/apiv2/app/install")
