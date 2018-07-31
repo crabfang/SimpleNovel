@@ -217,7 +217,7 @@ public class HomeActivity extends BaseActivity {
                                 UpdateUseCase.updateUpdateBuild();
                                 toast("下载成功");
                                 Log.d(TAG, "downloadSuccessful : " + uri);
-                                actionInstallSpp(uri);
+                                actionInstallApp(uri);
                             }
                             @Override
                             public void onProgressUpdate(Integer... integers) {
@@ -253,8 +253,9 @@ public class HomeActivity extends BaseActivity {
         btnClose.setVisibility(visibility);
     }
 
-    private void actionInstallSpp(Uri uri) {
+    private void actionInstallApp(Uri uri) {
         Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         //判断是否是AndroidN以及更高的版本
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
@@ -264,7 +265,6 @@ public class HomeActivity extends BaseActivity {
             intent.setDataAndType(contentUri, "application/vnd.android.package-archive");
         } else {
             intent.setDataAndType(uri, "application/vnd.android.package-archive");
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         }
         startActivity(intent);
     }

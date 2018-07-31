@@ -54,7 +54,7 @@ public class UpdateUseCase extends HttpCacheUseCase<AppBean> {
                     String lastBuildStr = DiskUtils.getData(KEY_LAST_PGYER_BUILD);
                     if(!TextUtils.isEmpty(lastBuildStr)) {
                         int lastPygerBuild = Integer.parseInt(lastBuildStr);
-                        if(versionCode <= BuildConfig.VERSION_CODE && lastPygerBuild >= curPygerBuild) {
+                        if(versionCode <= BuildConfig.VERSION_CODE || lastPygerBuild >= curPygerBuild) {
                             throw new RxException(ExceptionCode.RX_EXCEPTION_DEFAULT, "没有新的更新");
                         }
                     }

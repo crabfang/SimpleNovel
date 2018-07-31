@@ -205,13 +205,25 @@ public class NovelListActivity extends BaseActivity {
 
     private void actionLocationIndex() {
         int curIndex = adapter.getCurPosition();
+        GridLayoutManager layoutManager = (GridLayoutManager) listRecycler.getLayoutManager();
+        int firstIndex = layoutManager.findFirstVisibleItemPosition();
+        int lastIndex = layoutManager.findLastVisibleItemPosition();
+        int visibilityCount = lastIndex - firstIndex;
+        int spanCount = layoutManager.getSpanCount();
+        if(curIndex < adapter.getItemCount() - visibilityCount) {
+            if(flagReverse) {
+                curIndex -= visibilityCount - spanCount;
+            } else {
+                curIndex += visibilityCount - spanCount;
+            }
+        }
         if(curIndex >= 0) {
-            listRecycler.smoothScrollToPosition(adapter.getRealPosition(curIndex));
+            listRecycler.scrollToPosition(adapter.getRealPosition(curIndex));
         }
     }
 
     private void actionScrollTop() {
-        listRecycler.smoothScrollToPosition(0);
+        listRecycler.scrollToPosition(0);
     }
 
     private class MyAdapter extends RecyclerView.Adapter<MyHolder> {
