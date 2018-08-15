@@ -173,7 +173,7 @@ public class NovelListActivity extends BaseActivity {
     private void searchKey(String key) {
         int position = adapter.indexPosition(key);
         if(position >= 0) {
-            listRecycler.smoothScrollToPosition(adapter.getRealPosition(position));
+            listRecycler.scrollToPosition(adapter.getRealPosition(position));
         }
     }
 

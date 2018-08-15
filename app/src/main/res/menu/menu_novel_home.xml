@@ -4,6 +4,9 @@
     <item android:id="@+id/menu_novel_home_feedback"
         android:title="我要反馈"
         app:showAsAction="never"/>
+    <item android:id="@+id/menu_novel_home_check_update"
+        android:title="检测更新"
+        app:showAsAction="never"/>
     <item android:id="@+id/menu_novel_home_about"
         android:title="关于我们"
         app:showAsAction="never"/>

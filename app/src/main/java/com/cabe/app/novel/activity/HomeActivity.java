@@ -22,6 +22,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.cabe.app.novel.BuildConfig;
@@ -73,18 +74,6 @@ public class HomeActivity extends BaseActivity {
         waiting.setMessage("请稍候");
 
         loadLocal();
-
-        new UpdateUseCase().execute(new SimpleViewPresenter<AppBean>() {
-            @Override
-            public void error(CacheSource from, int code, String info) {
-                super.error(from, code, info);
-            }
-            @Override
-            public void load(CacheSource from, AppBean data) {
-                super.load(from, data);
-                showUpdateInfo(data);
-            }
-        });
     }
 
     @Override
@@ -111,6 +100,9 @@ public class HomeActivity extends BaseActivity {
                         .builder()
                         .invoke();
                 return true;
+            case R.id.menu_novel_home_check_update:
+                checkUpdate();
+                break;
             case R.id.menu_novel_home_about:
                 startActivity(new Intent(this, AboutActivity.class));
                 return true;
@@ -196,6 +188,19 @@ public class HomeActivity extends BaseActivity {
                 addLocalNovel(novelInfo);
             }
         }
+    }
+
+    private void checkUpdate() {
+        new UpdateUseCase().execute(new SimpleViewPresenter<AppBean>() {
+            @Override
+            public void error(CacheSource from, int code, String info) {
+                Toast.makeText(context, info, Toast.LENGTH_SHORT).show();
+            }
+            @Override
+            public void load(CacheSource from, AppBean data) {
+                showUpdateInfo(data);
+            }
+        });
     }
 
     private void showUpdateInfo(final AppBean appBean) {
