@@ -74,6 +74,7 @@ public class HomeActivity extends BaseActivity {
         waiting.setMessage("请稍候");
 
         loadLocal();
+        checkUpdate(true);
     }
 
     @Override
@@ -101,7 +102,7 @@ public class HomeActivity extends BaseActivity {
                         .invoke();
                 return true;
             case R.id.menu_novel_home_check_update:
-                checkUpdate();
+                checkUpdate(false);
                 break;
             case R.id.menu_novel_home_about:
                 startActivity(new Intent(this, AboutActivity.class));
@@ -190,11 +191,13 @@ public class HomeActivity extends BaseActivity {
         }
     }
 
-    private void checkUpdate() {
+    private void checkUpdate(final boolean showTips) {
         new UpdateUseCase().execute(new SimpleViewPresenter<AppBean>() {
             @Override
             public void error(CacheSource from, int code, String info) {
-                Toast.makeText(context, info, Toast.LENGTH_SHORT).show();
+                if(showTips) {
+                    Toast.makeText(context, info, Toast.LENGTH_SHORT).show();
+                }
             }
             @Override
             public void load(CacheSource from, AppBean data) {
