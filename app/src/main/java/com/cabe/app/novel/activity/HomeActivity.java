@@ -74,7 +74,7 @@ public class HomeActivity extends BaseActivity {
         waiting.setMessage("请稍候");
 
         loadLocal();
-        checkUpdate(true);
+        checkUpdate(false);
     }
 
     @Override
@@ -102,7 +102,7 @@ public class HomeActivity extends BaseActivity {
                         .invoke();
                 return true;
             case R.id.menu_novel_home_check_update:
-                checkUpdate(false);
+                checkUpdate(true);
                 break;
             case R.id.menu_novel_home_about:
                 startActivity(new Intent(this, AboutActivity.class));
