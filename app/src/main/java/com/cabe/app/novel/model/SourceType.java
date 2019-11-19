@@ -5,7 +5,7 @@ package com.cabe.app.novel.model;
  */
 public enum SourceType {
     X23US("顶点小说", "https://www.x23us.com/", "https://www.x23us.com/modules/article/images/nocover.jpg"),
-    EKXS("2K小说", "https://www.2kxs.com/", "https://www.2kxs.com/modules/article/images/nocover.jpg");
+    EKXS("2K小说", "https://www.2kxs.org/", "https://www.2kxs.org/modules/article/images/nocover.jpg");
     private String typeName;
     private String host;
     private String picUrl;

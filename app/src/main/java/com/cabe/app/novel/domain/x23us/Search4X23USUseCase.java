@@ -31,7 +31,7 @@ public class Search4X23USUseCase extends HttpCacheUseCase<List<NovelInfo>> {
 
         RequestParams params = new RequestParams();
         params.host = SourceType.X23US.getHost();
-        params.path = "/modules/article/search.php";
+        params.path = "/modules/article/so.php";
         params.requestMethod = RequestParams.REQUEST_METHOD_GET;
 
         Map<String, String> query = new HashMap<>();
