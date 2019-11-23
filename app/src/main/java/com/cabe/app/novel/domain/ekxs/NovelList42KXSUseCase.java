@@ -30,6 +30,7 @@ import java.util.List;
  * 作者：沈建芳 on 2017/10/9 16:30
  */
 public class NovelList42KXSUseCase extends HttpCacheUseCase<NovelList> {
+    private String host;
     private String novelUrl;
     public NovelList42KXSUseCase(String url) {
         super(new TypeToken<NovelList>() {}, null);
@@ -40,6 +41,7 @@ public class NovelList42KXSUseCase extends HttpCacheUseCase<NovelList> {
         this.novelUrl = url;
 
         String[] group = UrlUtils.splitUrl(url);
+        host = group[0];
         RequestParams params = new RequestParams();
         String host = group[0] + "/";
         String path = group.length > 1 ? group[1] : "";
@@ -53,11 +55,10 @@ public class NovelList42KXSUseCase extends HttpCacheUseCase<NovelList> {
         params.requestMethod = RequestParams.REQUEST_METHOD_GET;
 
         setRequestParams(params);
-
         HttpCacheRepository<String, NovelList> httpRepository = getHttpRepository();
         if(httpRepository instanceof HttpStringCacheManager) {
             HttpStringCacheManager<NovelList> httpManager = (HttpStringCacheManager<NovelList>) httpRepository;
-            httpManager.setStringEncode("gbk");
+            httpManager.setStringEncode("utf-8");
         }
         httpRepository.setResponseTransformer(new HttpStringTransformer<NovelList>() {
             @Override
@@ -72,15 +73,15 @@ public class NovelList42KXSUseCase extends HttpCacheUseCase<NovelList> {
         NovelList novelDetail = null;
         try {
             novelDetail = new NovelList();
-            Elements titleEs = doc.select("div#title > h1");
+            Elements titleEs = doc.select("div.info2 > h1");
             if(titleEs != null && titleEs.size() > 0) {
                 novelDetail.title = titleEs.get(0).text();
             }
-            Elements authorEs = doc.select("div#title > address > a");
+            Elements authorEs = doc.select("div.info2 > h3 > a");
             if(authorEs != null && authorEs.size() > 0) {
                 novelDetail.author = authorEs.get(0).text();
             }
-            Elements listEs = doc.select("dl.book > dd > a");
+            Elements listEs = doc.select("ul.list-charts > li > a");
             if(listEs != null && listEs.size() > 0) {
                 List<NovelContent> list = new ArrayList<>();
                 for(int i=0;i<listEs.size();i++) {
@@ -88,7 +89,7 @@ public class NovelList42KXSUseCase extends HttpCacheUseCase<NovelList> {
 
                     Element element = listEs.get(i);
                     content.title = element.text();
-                    content.url = novelUrl + element.attr("href");
+                    content.url = host + element.attr("href");
                     content.source = SourceType.EKXS;
                     list.add(content);
                 }

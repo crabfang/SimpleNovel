@@ -26,8 +26,12 @@ public class MyHttpManager<T> implements HttpCacheRepository<String, T> {
     private Observable.Transformer<String, T> transformer = null;
 
     public MyHttpManager(TypeToken<T> token) {
+        this(token, "gb2312");
+    }
+
+    public MyHttpManager(TypeToken<T> token, String encode) {
         this.typeToken = token;
-        setStringEncode("gb2312");
+        setStringEncode(encode);
         setHttpConverter(StreamConverterFactory.create());
         setResponseTransformer(new HttpStringTransformer<T>() {
             @Override

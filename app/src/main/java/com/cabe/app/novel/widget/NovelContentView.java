@@ -2,6 +2,7 @@ package com.cabe.app.novel.widget;
 
 import android.content.Context;
 import android.text.Html;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -85,6 +86,8 @@ public class NovelContentView extends LinearLayout {
         if(content == null) return;
 
         tvTitle.setText(content.title);
-        tvContent.setText(Html.fromHtml(content.content));
+        if(!TextUtils.isEmpty(content.content)) {
+            tvContent.setText(Html.fromHtml(content.content));
+        }
     }
 }

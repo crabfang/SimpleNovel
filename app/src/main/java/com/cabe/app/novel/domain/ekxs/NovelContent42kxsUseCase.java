@@ -25,7 +25,6 @@ import org.jsoup.select.Elements;
  */
 public class NovelContent42kxsUseCase extends HttpCacheUseCase<NovelContent> {
     private String url;
-    private String host;
     public NovelContent42kxsUseCase(String url) {
         super(new TypeToken<NovelContent>() {}, null);
 
@@ -35,7 +34,7 @@ public class NovelContent42kxsUseCase extends HttpCacheUseCase<NovelContent> {
 
         this.url = url;
         String[] group = UrlUtils.splitUrl(url);
-        host = group[0];
+        String host = group[0];
         RequestParams params = new RequestParams();
         params.host = host + "/";
         params.path = group.length > 1 ? group[1] : "";
@@ -46,7 +45,7 @@ public class NovelContent42kxsUseCase extends HttpCacheUseCase<NovelContent> {
         HttpCacheRepository<String, NovelContent> httpRepository = getHttpRepository();
         if(httpRepository instanceof HttpStringCacheManager) {
             HttpStringCacheManager<NovelContent> httpManager = (HttpStringCacheManager<NovelContent>) httpRepository;
-            httpManager.setStringEncode("gbk");
+            httpManager.setStringEncode("utf-8");
         }
         httpRepository.setResponseTransformer(new HttpStringTransformer<NovelContent>() {
             @Override
@@ -62,7 +61,7 @@ public class NovelContent42kxsUseCase extends HttpCacheUseCase<NovelContent> {
         try {
             content = new NovelContent();
             content.url = url;
-            Elements titleEs = doc.select("h2");
+            Elements titleEs = doc.select("div.panel-default > div.panel-heading");
             if(titleEs != null && titleEs.size() > 0) {
                 String title = titleEs.get(0).text();
                 if(title.startsWith("正文")) {
@@ -70,22 +69,21 @@ public class NovelContent42kxsUseCase extends HttpCacheUseCase<NovelContent> {
                 }
                 content.title = title;
             }
-            Elements bottomEs = doc.select("div.thumb").first().select("a");
-            Element preE = bottomEs.get(0);
-            if(preE != null) {
-                String href = preE.attr("href");
+            Elements preEs = doc.select("li.previous > a.btn-info");
+            if(preEs != null && preEs.size() > 0) {
+                String href = preEs.get(0).attr("href");
                 if(!TextUtils.isEmpty(href) && href.endsWith("html")) {
-                    content.preUrl = host + href;
+                    content.preUrl = href;
                 }
             }
-            Element nextE = bottomEs.get(4);
-            if(nextE != null) {
-                String href = nextE.attr("href");
+            Elements nextEs = doc.select("li.next > a.btn-info");
+            if(nextEs != null && nextEs.size() > 0) {
+                String href = nextEs.get(0).attr("href");
                 if(!TextUtils.isEmpty(href) && href.endsWith("html")) {
-                    content.nextUrl = host + href;
+                    content.nextUrl = href;
                 }
             }
-            Elements contentEs = doc.select("p.Text");
+            Elements contentEs = doc.select("div.panel-default > div.content-body");
             if(contentEs != null && contentEs.size() > 0) {
                 Element pE = contentEs.first();
                 String contentHtml = pE.html();
@@ -95,8 +93,7 @@ public class NovelContent42kxsUseCase extends HttpCacheUseCase<NovelContent> {
                 } else {
                     indexContent += 9;
                 }
-                String contentVal = contentHtml.substring(indexContent);
-                content.content = contentVal;
+                content.content = contentHtml.substring(indexContent);
             }
             content.source = SourceType.EKXS;
         } catch (Exception e) {

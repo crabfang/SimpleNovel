@@ -36,7 +36,7 @@ public class Search42kxsUseCase extends HttpCacheUseCase<List<NovelInfo>> {
 
         Map<String, String> query = new HashMap<>();
         try {
-            query.put("searchkey", URLEncoder.encode(key, "gb2312"));
+            query.put("searchkey", URLEncoder.encode(key, "utf-8"));
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
@@ -44,7 +44,7 @@ public class Search42kxsUseCase extends HttpCacheUseCase<List<NovelInfo>> {
         params.query = query;
         setRequestParams(params);
 
-        setHttpManager(new MyHttpManager<>(getTypeToken()));
+        setHttpManager(new MyHttpManager<>(getTypeToken(), "utf-8"));
         getHttpRepository().setResponseTransformer(new HttpStringTransformer<List<NovelInfo>>() {
             @Override
             public List<NovelInfo> buildData(String responseStr) {
@@ -125,12 +125,10 @@ public class Search42kxsUseCase extends HttpCacheUseCase<List<NovelInfo>> {
             novelInfo.source = SourceType.EKXS;
 
             Elements tdEs = e.select("td");
-            if(tdEs != null && tdEs.size() == 6) {
-                Element tdTitle = tdEs.get(0).child(0);
-                novelInfo.title = tdTitle.text();
-
-                Element aUrl = tdEs.get(1).child(0);
-                novelInfo.url = aUrl.attr("href");
+            if(tdEs != null && tdEs.size() >= 5) {
+                Elements titleTags = tdEs.get(1).select("a");
+                novelInfo.title = titleTags.get(0).text();
+                novelInfo.url = titleTags.get(0).attr("href");
 
                 Element tdAuthor = tdEs.get(2);
                 novelInfo.author = tdAuthor.text();
@@ -138,7 +136,7 @@ public class Search42kxsUseCase extends HttpCacheUseCase<List<NovelInfo>> {
                 Element tdWord = tdEs.get(3);
                 novelInfo.wordSize = tdWord.text();
 
-                Element tdState = tdEs.get(5);
+                Element tdState = tdEs.get(4);
                 novelInfo.state = tdState.text();
             }
         }

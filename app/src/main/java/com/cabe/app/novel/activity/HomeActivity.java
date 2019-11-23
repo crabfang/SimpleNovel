@@ -131,12 +131,6 @@ public class HomeActivity extends BaseActivity {
                 if(intent != null) {
                     startActivity(intent);
                 }
-                localSwipe.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        setTopNovel(novelInfo);
-                    }
-                }, 200);
             }
             @Override
             public void itemOnLongClick(final NovelInfo novelInfo) {
@@ -220,12 +214,13 @@ public class HomeActivity extends BaseActivity {
                             public void downloadFailed() {
                                 toast("下载失败");
                             }
+
                             @Override
-                            public void downloadSuccessful(Uri uri) {
+                            public void downloadSuccessful(File file) {
                                 UpdateUseCase.updateUpdateBuild();
                                 toast("下载成功");
-                                Log.d(TAG, "downloadSuccessful : " + uri);
-                                actionInstallApp(uri);
+                                Log.d(TAG, "downloadSuccessful : " + file);
+                                actionInstallApp(Uri.fromFile(file));
                             }
                             @Override
                             public void onProgressUpdate(Integer... integers) {
@@ -436,11 +431,11 @@ public class HomeActivity extends BaseActivity {
 
             Glide.with(context).load(itemData.getPicUrl()).into(holder.pic);
             holder.tvTitle.setText(itemData.title);
-            holder.tvAuthor.setText(String.valueOf("作者：" + itemData.author));
-            holder.tvType.setText(String.valueOf("类型：" + itemData.type));
-            holder.tvWords.setText(String.valueOf("字数：" + itemData.wordSize));
-            holder.tvState.setText(String.valueOf("状态：" + itemData.state));
-            holder.tvSource.setText(String.valueOf("来源：" + itemData.source));
+            holder.tvAuthor.setText("作者：" + itemData.author);
+            holder.tvType.setText("类型：" + itemData.type);
+            holder.tvWords.setText("字数：" + itemData.wordSize);
+            holder.tvState.setText("状态：" + itemData.state);
+            holder.tvSource.setText("来源：" + itemData.source);
             holder.tvType.setVisibility(TextUtils.isEmpty(itemData.type) ? View.GONE : View.VISIBLE);
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override

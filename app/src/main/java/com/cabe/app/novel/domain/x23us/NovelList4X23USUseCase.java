@@ -106,7 +106,7 @@ public class NovelList4X23USUseCase extends HttpCacheUseCase<NovelList> {
     }
 
     private String[] parseSubTitle(String text) {
-        String[] group = text.split("  ");
+        String[] group = text.split(" ");
 
         if(group.length > 1) {
             String[] authorGroup = group[0].split("：");
