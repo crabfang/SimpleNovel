@@ -11,6 +11,7 @@ public class NovelList extends BaseObject {
     public String title;
     public String author;
     public String lastModify;
+    public String picUrl;
     public SourceType source = SourceType.X23US;
     public List<NovelContent> list;
 

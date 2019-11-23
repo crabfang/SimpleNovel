@@ -2,6 +2,8 @@ package com.cabe.app.novel.domain.x23us;
 
 import android.text.TextUtils;
 
+import com.cabe.app.novel.domain.LocalNovelsUseCase;
+import com.cabe.app.novel.model.LocalNovelList;
 import com.cabe.app.novel.model.NovelContent;
 import com.cabe.app.novel.model.NovelList;
 import com.cabe.app.novel.model.SourceType;
@@ -31,6 +33,7 @@ import java.util.List;
  */
 public class NovelList4X23USUseCase extends HttpCacheUseCase<NovelList> {
     private String novelUrl;
+    private String host;
     public NovelList4X23USUseCase(String url) {
         super(new TypeToken<NovelList>() {}, null);
 
@@ -41,7 +44,7 @@ public class NovelList4X23USUseCase extends HttpCacheUseCase<NovelList> {
 
         String[] group = UrlUtils.splitUrl(url);
         RequestParams params = new RequestParams();
-        String host = group[0] + "/";
+        host = group[0] + "/";
         String path = group.length > 1 ? group[1] : "";
         try {
             path = URLEncoder.encode(path, "utf-8");
@@ -72,6 +75,11 @@ public class NovelList4X23USUseCase extends HttpCacheUseCase<NovelList> {
         NovelList novelList = null;
         try {
             novelList = new NovelList();
+            Elements picEs = doc.select("div.fl > a.hst > img");
+            if(picEs != null && picEs.size() > 0) {
+                String picUrl = host + picEs.get(0).attr("src");
+                LocalNovelsUseCase.updateLocalNovelPic(novelUrl, picUrl);
+            }
             Elements titleEs = doc.select("dd > h1");
             if(titleEs != null && titleEs.size() > 0) {
                 novelList.title = titleEs.get(0).text();

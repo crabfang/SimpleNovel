@@ -2,7 +2,10 @@ package com.cabe.app.novel.domain.ekxs;
 
 import android.text.TextUtils;
 
+import com.cabe.app.novel.domain.LocalNovelsUseCase;
+import com.cabe.app.novel.model.LocalNovelList;
 import com.cabe.app.novel.model.NovelContent;
+import com.cabe.app.novel.model.NovelInfo;
 import com.cabe.app.novel.model.NovelList;
 import com.cabe.app.novel.model.SourceType;
 import com.cabe.app.novel.utils.UrlUtils;
@@ -31,14 +34,14 @@ import java.util.List;
  */
 public class NovelList42KXSUseCase extends HttpCacheUseCase<NovelList> {
     private String host;
-    private String novelUrl;
+    private String url;
     public NovelList42KXSUseCase(String url) {
         super(new TypeToken<NovelList>() {}, null);
 
         if(TextUtils.isEmpty(url)) {
             throw RxException.build(HttpExceptionCode.HTTP_STATUS_LOCAL_REQUEST_NONE, null);
         }
-        this.novelUrl = url;
+        this.url = url;
 
         String[] group = UrlUtils.splitUrl(url);
         host = group[0];
@@ -73,6 +76,11 @@ public class NovelList42KXSUseCase extends HttpCacheUseCase<NovelList> {
         NovelList novelDetail = null;
         try {
             novelDetail = new NovelList();
+            Elements picEs = doc.select("div.info1 > img");
+            if(picEs != null && picEs.size() > 0) {
+                String picUrl = host + picEs.get(0).attr("src");
+                LocalNovelsUseCase.updateLocalNovelPic(url, picUrl);
+            }
             Elements titleEs = doc.select("div.info2 > h1");
             if(titleEs != null && titleEs.size() > 0) {
                 novelDetail.title = titleEs.get(0).text();

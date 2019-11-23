@@ -73,8 +73,14 @@ public class HomeActivity extends BaseActivity {
         waiting = new ProgressDialog(this);
         waiting.setMessage("请稍候");
 
-        loadLocal();
+        loadLocal(false);
         checkUpdate(false);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        loadLocal(true);
     }
 
     @Override
@@ -120,7 +126,7 @@ public class HomeActivity extends BaseActivity {
         localSwipe.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                loadLocal();
+                loadLocal(false);
             }
         });
         recyclerView.setAdapter(adapter);
@@ -279,8 +285,10 @@ public class HomeActivity extends BaseActivity {
         }
     }
 
-    private void loadLocal() {
-        localSwipe.setRefreshing(true);
+    private void loadLocal(boolean silent) {
+        if(!silent) {
+            localSwipe.setRefreshing(true);
+        }
         useCase.execute(new ViewPresenter<LocalNovelList>() {
             @Override
             public void error(CacheSource from, int code, String info) {
