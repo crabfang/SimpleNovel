@@ -3,9 +3,7 @@ package com.cabe.app.novel.domain.ekxs;
 import android.text.TextUtils;
 
 import com.cabe.app.novel.domain.LocalNovelsUseCase;
-import com.cabe.app.novel.model.LocalNovelList;
 import com.cabe.app.novel.model.NovelContent;
-import com.cabe.app.novel.model.NovelInfo;
 import com.cabe.app.novel.model.NovelList;
 import com.cabe.app.novel.model.SourceType;
 import com.cabe.app.novel.utils.UrlUtils;
@@ -89,19 +87,22 @@ public class NovelList42KXSUseCase extends HttpCacheUseCase<NovelList> {
             if(authorEs != null && authorEs.size() > 0) {
                 novelDetail.author = authorEs.get(0).text();
             }
-            Elements listEs = doc.select("ul.list-charts > li > a");
+            Elements listEs = doc.select("ul.list-charts");
             if(listEs != null && listEs.size() > 0) {
-                List<NovelContent> list = new ArrayList<>();
-                for(int i=0;i<listEs.size();i++) {
-                    NovelContent content = new NovelContent();
+                Elements liEs = listEs.get(0).select("li > a");
+                if(liEs != null && liEs.size() > 0) {
+                    List<NovelContent> list = new ArrayList<>();
+                    for(int i=0;i<liEs.size();i++) {
+                        NovelContent content = new NovelContent();
 
-                    Element element = listEs.get(i);
-                    content.title = element.text();
-                    content.url = host + element.attr("href");
-                    content.source = SourceType.EKXS;
-                    list.add(content);
+                        Element element = liEs.get(i);
+                        content.title = element.text();
+                        content.url = host + element.attr("href");
+                        content.source = SourceType.EKXS;
+                        list.add(content);
+                    }
+                    novelDetail.list = list;
                 }
-                novelDetail.list = list;
             }
         } catch (Exception e) {
             e.printStackTrace();
