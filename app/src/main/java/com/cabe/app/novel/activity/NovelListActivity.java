@@ -1,13 +1,10 @@
 package com.cabe.app.novel.activity;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -17,18 +14,24 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
 import com.cabe.app.novel.R;
 import com.cabe.app.novel.domain.ekxs.NovelList42KXSUseCase;
 import com.cabe.app.novel.domain.x23us.NovelList4X23USUseCase;
 import com.cabe.app.novel.model.NovelContent;
-import com.cabe.app.novel.model.NovelList;
 import com.cabe.app.novel.model.NovelInfo;
+import com.cabe.app.novel.model.NovelList;
 import com.cabe.app.novel.model.SourceType;
 import com.cabe.app.novel.utils.DiskUtils;
 import com.cabe.lib.cache.CacheSource;
 import com.cabe.lib.cache.interactor.ViewPresenter;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -49,7 +52,7 @@ public class NovelListActivity extends BaseActivity {
     private boolean flagReverse = true;
 
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
+    protected void onSaveInstanceState(@NotNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putBoolean(KEY_FLAG_SORT_REVERSE, flagReverse);
     }
@@ -117,12 +120,7 @@ public class NovelListActivity extends BaseActivity {
         GridLayoutManager manager = new GridLayoutManager(context, 2);
         listRecycler.setLayoutManager(manager);
 
-        listSwipe.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                loadNovelInfo();
-            }
-        });
+        listSwipe.setOnRefreshListener(this::loadNovelInfo);
 
         if(novelInfo != null) {
             setTitle(novelInfo.title);
@@ -183,19 +181,11 @@ public class NovelListActivity extends BaseActivity {
         new AlertDialog.Builder(this)
                 .setTitle("查找章节")
                 .setView(input)
-                .setPositiveButton("确定", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                        searchKey(input.getText().toString());
-                    }
+                .setPositiveButton("确定", (dialog, which) -> {
+                    dialog.dismiss();
+                    searchKey(input.getText().toString());
                 })
-                .setNegativeButton("取消", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                }).show();
+                .setNegativeButton("取消", (dialog, which) -> dialog.dismiss()).show();
     }
 
     private void actionOrderReverse() {
@@ -299,14 +289,16 @@ public class NovelListActivity extends BaseActivity {
             }
             return dataSize;
         }
+        @NotNull
         @Override
-        public MyHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        public MyHolder onCreateViewHolder(@NotNull ViewGroup parent, int viewType) {
             View itemView = LayoutInflater.from(context).inflate(R.layout.item_novel_list_info, parent, false);
             return new MyHolder(itemView);
         }
 
+        @SuppressLint("SetTextI18n")
         @Override
-        public void onBindViewHolder(MyHolder holder, int position) {
+        public void onBindViewHolder(@NotNull MyHolder holder, int position) {
             final NovelContent content = getItemData(position);
             if(content == null) return;
 
@@ -314,19 +306,16 @@ public class NovelListActivity extends BaseActivity {
             if(content.flagLast) {
                 tips = "(继续)";
             }
-            holder.title.setText(String.valueOf(tips + content.title));
+            holder.title.setText(tips + content.title);
             holder.title.setTextColor(content.equals(lastContent) ? 0xFFF51E51 : 0xFF34488A);
-            holder.itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    DiskUtils.saveData(keyNovelDetail, content.toGson());
-                    gotoContent(content);
-                }
+            holder.itemView.setOnClickListener(v -> {
+                DiskUtils.saveData(keyNovelDetail, content.toGson());
+                gotoContent(content);
             });
         }
     }
 
-    private class MyHolder extends RecyclerView.ViewHolder {
+    private static class MyHolder extends RecyclerView.ViewHolder {
         private TextView title;
         private MyHolder(View itemView) {
             super(itemView);

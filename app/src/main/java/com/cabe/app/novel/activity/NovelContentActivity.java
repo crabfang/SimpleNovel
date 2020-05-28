@@ -4,10 +4,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatDelegate;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatDelegate;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -20,6 +21,8 @@ import com.cabe.app.novel.widget.NovelContentView;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.List;
 
 public class NovelContentActivity extends BaseActivity {
@@ -31,7 +34,7 @@ public class NovelContentActivity extends BaseActivity {
     private String keyNovelContent;
 
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
+    protected void onSaveInstanceState(@NotNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putString(KEY_NOVEL_CONTENT_ID, keyNovelContent);
     }
@@ -53,13 +56,11 @@ public class NovelContentActivity extends BaseActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.menu_novel_content_theme:
-                actionSwitchTheme();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
+        if (item.getItemId() == R.id.menu_novel_content_theme) {
+            actionSwitchTheme();
+            return true;
         }
+        return super.onOptionsItemSelected(item);
     }
 
     private void initView() {
@@ -67,11 +68,11 @@ public class NovelContentActivity extends BaseActivity {
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             private int prePosition = -1;
             @Override
-            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+            public void onScrollStateChanged(@NotNull RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
             }
             @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+            public void onScrolled(@NotNull RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
                 int curIndex = ((LinearLayoutManager)recyclerView.getLayoutManager()).findFirstVisibleItemPosition();
                 if(prePosition != curIndex) {
@@ -151,7 +152,7 @@ public class NovelContentActivity extends BaseActivity {
         }
     }
 
-    private class MyViewHolder extends RecyclerView.ViewHolder {
+    private static class MyViewHolder extends RecyclerView.ViewHolder {
         private NovelContentView contentView;
         private MyViewHolder(NovelContentView itemView) {
             super(itemView);

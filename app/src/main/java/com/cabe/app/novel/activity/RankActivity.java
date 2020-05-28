@@ -1,19 +1,19 @@
 package com.cabe.app.novel.activity;
 
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.RadioGroup;
 import android.widget.TextView;
+
+import androidx.appcompat.app.AlertDialog;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.bumptech.glide.Glide;
 import com.cabe.app.novel.R;
@@ -22,6 +22,8 @@ import com.cabe.app.novel.domain.ekxs.Rank42kxsUseCase;
 import com.cabe.app.novel.model.NovelInfo;
 import com.cabe.lib.cache.CacheSource;
 import com.cabe.lib.cache.interactor.ViewPresenter;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -49,19 +51,9 @@ public class RankActivity extends BaseActivity {
         rankSwipe = findViewById(R.id.activity_rank_list_swipe);
         RecyclerView rankRecycler = findViewById(R.id.activity_rank_list_recycler);
 
-        typeRadio.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(RadioGroup group, int checkedId) {
-                changeType(checkedId);
-            }
-        });
+        typeRadio.setOnCheckedChangeListener((group, checkedId) -> changeType(checkedId));
 
-        rankSwipe.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                changeType(typeRadio.getCheckedRadioButtonId());
-            }
-        });
+        rankSwipe.setOnRefreshListener(() -> changeType(typeRadio.getCheckedRadioButtonId()));
 
         rankRecycler.setLayoutManager(new GridLayoutManager(this, 3));
         myAdapter = new MyAdapter();
@@ -149,16 +141,11 @@ public class RankActivity extends BaseActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle(novelInfo.title);
         builder.setItems(new String[]{ "添加书库", "取消"},
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        switch (which) {
-                            case 0:
-                                addNovel(novelInfo);
-                                break;
-                        }
-                        dialog.dismiss();
+                (dialog, which) -> {
+                    if (which == 0) {
+                        addNovel(novelInfo);
                     }
+                    dialog.dismiss();
                 });
         builder.create().show();
     }
@@ -172,7 +159,7 @@ public class RankActivity extends BaseActivity {
 
     private class MyAdapter extends RecyclerView.Adapter<MyHolder> {
         private List<NovelInfo> novelList;
-        public void setData(List<NovelInfo> list) {
+        void setData(List<NovelInfo> list) {
             novelList = list;
             notifyDataSetChanged();
         }
@@ -189,30 +176,26 @@ public class RankActivity extends BaseActivity {
 
             return novelList.get(index);
         }
+        @NotNull
         @Override
-        public MyHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        public MyHolder onCreateViewHolder(@NotNull ViewGroup parent, int viewType) {
             View itemView = LayoutInflater.from(context).inflate(R.layout.item_rank_list_novel, parent, false);
             return new MyHolder(itemView);
         }
 
         @Override
-        public void onBindViewHolder(MyHolder holder, int position) {
+        public void onBindViewHolder(@NotNull MyHolder holder, int position) {
             final NovelInfo itemData = getItemData(position);
             if(itemData == null) return;
 
             Glide.with(context).load(itemData.getPicUrl()).into(holder.pic);
             holder.tvTitle.setText(itemData.title);
-            holder.tvAuthor.setText(String.valueOf("作者：" + itemData.author));
-            holder.itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    queryNovel(itemData.url);
-                }
-            });
+            holder.tvAuthor.setText("作者：" + itemData.author);
+            holder.itemView.setOnClickListener(v -> queryNovel(itemData.url));
         }
     }
 
-    private class MyHolder extends RecyclerView.ViewHolder {
+    private static class MyHolder extends RecyclerView.ViewHolder {
         private ImageView pic;
         private TextView tvTitle;
         private TextView tvAuthor;
