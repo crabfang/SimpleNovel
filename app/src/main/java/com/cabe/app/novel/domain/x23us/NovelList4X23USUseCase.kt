@@ -32,8 +32,7 @@ class NovelList4X23USUseCase(url: String?) : HttpCacheUseCase<NovelList>(object 
             novelList = NovelList()
             val picEs = doc.select("div.fl > a.hst > img")
             if (picEs != null && picEs.size > 0) {
-                val picUrl = host + picEs[0].attr("src")
-                LocalNovelsUseCase.updateLocalNovelPic(novelUrl, picUrl)
+                novelList.picUrl = host + picEs[0].attr("src")
             }
             val titleEs = doc.select("dd > h1")
             if (titleEs != null && titleEs.size > 0) {
@@ -45,9 +44,10 @@ class NovelList4X23USUseCase(url: String?) : HttpCacheUseCase<NovelList>(object 
                 val group = parseSubTitle(text)
                 if (group != null) {
                     novelList.author = group[0]
-                    novelList.lastModify = group[1]
+                    novelList.update = group[1]
                 }
             }
+            LocalNovelsUseCase.updateLocalNovelPic(novelUrl, novelList)
             val listEs = doc.select("td.L > a")
             if (listEs != null && listEs.size > 0) {
                 val list: MutableList<NovelContent> = ArrayList()

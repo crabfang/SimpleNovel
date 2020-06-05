@@ -10,20 +10,22 @@ import java.util.List;
 public class NovelList extends BaseObject {
     public String title;
     public String author;
-    public String lastModify;
+    public String update;
     public String picUrl;
+    public String type;
+    public String state;
     public SourceType source = SourceType.X23US;
     public List<NovelContent> list;
 
     public String getTips() {
         String tips = "作者：" + author;
-        if(!TextUtils.isEmpty(lastModify)) {
-            tips += "  更新时间：" + lastModify;
+        if(!TextUtils.isEmpty(update)) {
+            tips += "  更新时间：" + update;
         }
         return tips;
     }
 
     public String toString() {
-        return title + "(" + author + ")#" + lastModify;
+        return title + "(" + author + ")#" + update;
     }
 }

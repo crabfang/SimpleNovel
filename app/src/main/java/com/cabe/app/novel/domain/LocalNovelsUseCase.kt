@@ -1,7 +1,7 @@
 package com.cabe.app.novel.domain
 
-import android.text.TextUtils
 import com.cabe.app.novel.model.LocalNovelList
+import com.cabe.app.novel.model.NovelList
 import com.cabe.lib.cache.impl.DiskCacheUseCase
 import com.google.gson.reflect.TypeToken
 
@@ -11,18 +11,19 @@ import com.google.gson.reflect.TypeToken
  */
 class LocalNovelsUseCase : DiskCacheUseCase<LocalNovelList>(object: TypeToken<LocalNovelList>(){}) {
     companion object {
-        fun updateLocalNovelPic(url: String?, picUrl: String?) {
-            if (!TextUtils.isEmpty(picUrl)) {
+        fun updateLocalNovelPic(url: String?, data: NovelList?) {
+            if (data != null) {
                 val localUseCase = LocalNovelsUseCase()
                 val localData: LocalNovelList = localUseCase.diskRepository.get(localUseCase.typeToken)
                 if (localData.list != null) {
                     var change = false
-                    for (item in localData.list) {
-                        if (item.url == url) {
-                            item.picUrl = picUrl
-                            change = true
-                            break
-                        }
+                    localData.list.find { it.url == url }?.let { result ->
+                        result.picUrl = data.picUrl
+                        result.author = data.author
+                        result.type = data.type
+                        result.state = data.state
+                        result.update = data.update
+                        change = true
                     }
                     if (change) {
                         localUseCase.saveCacheDisk(localData)

@@ -15,7 +15,7 @@ class NovelInfo : BaseObject() {
         }
     var author: String? = null
     var type: String? = null
-    var wordSize: String? = null
+    var update: String? = null
     var state: String? = null
     var source: SourceType? = SourceType.X23US
 
@@ -39,7 +39,7 @@ class NovelInfo : BaseObject() {
         result = 31 * result + (picUrl?.hashCode() ?: 0)
         result = 31 * result + (author?.hashCode() ?: 0)
         result = 31 * result + (type?.hashCode() ?: 0)
-        result = 31 * result + (wordSize?.hashCode() ?: 0)
+        result = 31 * result + (update?.hashCode() ?: 0)
         result = 31 * result + (state?.hashCode() ?: 0)
         result = 31 * result + (source?.hashCode() ?: 0)
         return result

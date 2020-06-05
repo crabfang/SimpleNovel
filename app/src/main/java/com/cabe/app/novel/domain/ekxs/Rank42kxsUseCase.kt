@@ -54,8 +54,7 @@ class Rank42kxsUseCase(sort: String?) : HttpCacheUseCase<List<NovelInfo>>(object
             if (titleEs != null && titleEs.size > 0) {
                 novelInfo.title = titleEs.first().text()
                 val url = titleEs.first().attr("href")
-                val groups = url.split("/".toRegex()).toTypedArray()
-                novelInfo.url = SourceType.EKXS.host + groups[groups.size - 1] + "/"
+                novelInfo.url = url
             }
             val authorEs = e.select("div.book_author > a")
             if (authorEs != null && authorEs.size > 0) {

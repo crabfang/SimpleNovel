@@ -21,7 +21,6 @@ import androidx.core.content.FileProvider
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener
 import com.bumptech.glide.Glide
 import com.cabe.app.novel.BuildConfig
 import com.cabe.app.novel.R
@@ -105,7 +104,7 @@ class HomeActivity : BaseActivity() {
         searchInput = findViewById(R.id.activity_home_search_input)
         localSwipe = findViewById(R.id.activity_home_local_swipe)
         val recyclerView = findViewById<RecyclerView>(R.id.activity_home_local_list)
-        localSwipe.setOnRefreshListener(OnRefreshListener { loadLocal(false) })
+        localSwipe.setOnRefreshListener { loadLocal(false) }
         recyclerView.adapter = adapter
         adapter.setItemClickListener(object : AdapterClickListener {
             override fun itemOnClick(novelInfo: NovelInfo?) {
@@ -221,12 +220,12 @@ class HomeActivity : BaseActivity() {
 
     private fun hiddenKeyboard() {
         val inputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        inputMethodManager?.hideSoftInputFromWindow(searchInput!!.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
+        inputMethodManager.hideSoftInputFromWindow(searchInput.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
     }
 
     private fun loadLocal(silent: Boolean) {
         if (!silent) {
-            localSwipe!!.isRefreshing = true
+            localSwipe.isRefreshing = true
         }
         useCase.execute(object : ViewPresenter<LocalNovelList?> {
             override fun error(from: CacheSource, code: Int, info: String) {
@@ -237,9 +236,8 @@ class HomeActivity : BaseActivity() {
                 localNovelList = data
                 updateLocalNovel()
             }
-
             override fun complete(from: CacheSource) {
-                localSwipe!!.isRefreshing = false
+                localSwipe.isRefreshing = false
             }
         })
     }
@@ -370,18 +368,18 @@ class HomeActivity : BaseActivity() {
             val itemData = getItemData(position) ?: return
             Glide.with(holder.itemView.context).load(itemData.picUrl).into(holder.pic)
             holder.tvTitle.text = itemData.title
-            holder.tvAuthor.text = "作者：" + itemData.author
-            holder.tvType.text = "类型：" + itemData.type
-            holder.tvWords.text = "字数：" + itemData.wordSize
-            holder.tvState.text = "状态：" + itemData.state
-            holder.tvSource.text = "来源：" + itemData.source
+            holder.tvAuthor.text = "作者：${itemData.author}"
+            holder.tvType.text = "类型：${itemData.type}"
+            holder.tvUpdate.text = "更新：${itemData.update}"
+            holder.tvState.text = "状态：${itemData.state}"
+            holder.tvSource.text = "来源：${itemData.source}"
             holder.tvType.visibility = if (TextUtils.isEmpty(itemData.type)) View.GONE else View.VISIBLE
-            holder.itemView.setOnClickListener { v: View? ->
+            holder.itemView.setOnClickListener {
                 if (listener != null) {
                     listener!!.itemOnClick(itemData)
                 }
             }
-            holder.itemView.setOnLongClickListener { v: View? ->
+            holder.itemView.setOnLongClickListener {
                 if (listener != null) {
                     listener!!.itemOnLongClick(itemData)
                 }
@@ -391,23 +389,14 @@ class HomeActivity : BaseActivity() {
     }
 
     private class MyHolder(itemView: View) : ViewHolder(itemView) {
-        val pic: ImageView
-        val tvTitle: TextView
-        val tvAuthor: TextView
-        val tvType: TextView
-        val tvWords: TextView
-        val tvState: TextView
-        val tvSource: TextView
+        val pic: ImageView = itemView.findViewById(R.id.item_home_local_novel_pic)
+        val tvTitle = itemView.findViewById<TextView>(R.id.item_home_local_novel_title)
+        val tvAuthor = itemView.findViewById<TextView>(R.id.item_home_local_novel_author)
+        val tvType = itemView.findViewById<TextView>(R.id.item_home_local_novel_type)
+        val tvState = itemView.findViewById<TextView>(R.id.item_home_local_novel_state)
+        val tvSource = itemView.findViewById<TextView>(R.id.item_home_local_novel_source)
+        val tvUpdate = itemView.findViewById<TextView>(R.id.item_home_local_novel_update)
 
-        init {
-            pic = itemView.findViewById(R.id.item_home_local_novel_pic)
-            tvTitle = itemView.findViewById(R.id.item_home_local_novel_title)
-            tvAuthor = itemView.findViewById(R.id.item_home_local_novel_author)
-            tvType = itemView.findViewById(R.id.item_home_local_novel_type)
-            tvWords = itemView.findViewById(R.id.item_home_local_novel_words)
-            tvState = itemView.findViewById(R.id.item_home_local_novel_state)
-            tvSource = itemView.findViewById(R.id.item_home_local_novel_source)
-        }
     }
 
     private interface AdapterClickListener {

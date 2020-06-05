@@ -30,19 +30,35 @@ class NovelList42KXSUseCase(url: String?) : HttpCacheUseCase<NovelList>(object :
         var novelDetail: NovelList? = null
         try {
             novelDetail = NovelList()
-            val picEs = doc.select("div.info1 > img")
-            if (picEs != null && picEs.size > 0) {
-                val picUrl = host + picEs[0].attr("src")
-                LocalNovelsUseCase.updateLocalNovelPic(url!!, picUrl)
+            doc.select("div.info1 > img")?.let { picEs ->
+                if (picEs.size > 0) {
+                    novelDetail.picUrl = host + picEs.first().attr("src")
+                }
             }
-            val titleEs = doc.select("div.info2 > h1")
-            if (titleEs != null && titleEs.size > 0) {
-                novelDetail.title = titleEs[0].text()
+            doc.select("div.info2 > h1")?.let { titleEs ->
+                if (titleEs.size > 0) {
+                    novelDetail.title = titleEs.first().text()
+                }
             }
-            val authorEs = doc.select("div.info2 > h3 > a")
-            if (authorEs != null && authorEs.size > 0) {
-                novelDetail.author = authorEs[0].text()
+            doc.select("div.info2 > h3 > a")?.let { authorEs ->
+                if (authorEs.size > 0) {
+                    novelDetail.author = authorEs.first().text()
+                }
             }
+            doc.select("div.info3 > p")?.let { typeEs ->
+                if(typeEs.size > 0) {
+                    typeEs.first().text().split("/").let { group ->
+                        novelDetail.type = group[0].replace("小说类别：", "")
+                        novelDetail.state = group[1].replace("写作状态：", "")
+                    }
+                }
+            }
+            doc.select("div.info3 > p > font")?.let { lastEs ->
+                if(lastEs.size > 0) {
+                    novelDetail.update = lastEs.first().text()
+                }
+            }
+            LocalNovelsUseCase.updateLocalNovelPic(url!!, novelDetail)
             val listEs = doc.select("ul.list-charts")
             if (listEs != null && listEs.size > 0) {
                 val liEs = listEs[0].select("li > a")

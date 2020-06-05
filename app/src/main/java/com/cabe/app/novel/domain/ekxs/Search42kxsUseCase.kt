@@ -71,7 +71,7 @@ class Search42kxsUseCase(key: String?) : HttpCacheUseCase<List<NovelInfo>>(objec
             val ddBook = e.select("div.abook > dd")
             if (ddBook != null && ddBook.size > 10) {
                 novelInfo.type = ddBook[0].child(0).text()
-                novelInfo.wordSize = ddBook[1].child(0).text()
+                novelInfo.update = ddBook[1].child(0).text()
                 novelInfo.state = ddBook[9].child(0).text()
             }
         }
@@ -91,7 +91,7 @@ class Search42kxsUseCase(key: String?) : HttpCacheUseCase<List<NovelInfo>>(objec
                 val tdAuthor = tdEs[2]
                 novelInfo.author = tdAuthor.text()
                 val tdWord = tdEs[3]
-                novelInfo.wordSize = tdWord.text()
+                novelInfo.update = tdWord.text()
                 val tdState = tdEs[4]
                 novelInfo.state = tdState.text()
             }

@@ -19,30 +19,31 @@ import java.net.URLEncoder
 /**
  * 作者：沈建芳 on 2017/10/9 16:30
  */
-class NovelDetail42kxsUseCase(url: String?) : HttpCacheUseCase<NovelInfo>(object : TypeToken<NovelInfo>() {}, null) {
+class NovelDetail42kxsUseCase(private val url: String?) : HttpCacheUseCase<NovelInfo>(object : TypeToken<NovelInfo>() {}, null) {
     private fun parserHtmlForNovel(doc: Document): NovelInfo? {
         var novel: NovelInfo?
         try {
             novel = NovelInfo()
-            val picEs = doc.select("div.bortable > img")
+            val picEs = doc.select("div.info1 > img")
             if (picEs != null && picEs.size > 0) {
                 val picUrl = picEs.first().attr("src")
                 novel.picUrl = SourceType.EKXS.host + picUrl.substring(1)
             }
-            val titleEs = doc.select("div#title > h2 > a")
+            val titleEs = doc.select("div.info2 > h1")
             if (titleEs != null && titleEs.size > 0) {
                 novel.title = titleEs.first().text()
-                novel.url = titleEs.first().attr("href")
+                novel.url = url
             }
-            val authorEs = doc.select("div#title > h2 > em > a")
+            val authorEs = doc.select("div.info2 > h3.text-center > a")
             if (authorEs != null && authorEs.size > 0) {
                 novel.author = authorEs.first().text()
             }
-            val typeEs = doc.select("div.abook > dd > span")
-            if (typeEs != null && typeEs.size > 9) {
-                novel.type = typeEs.first().text()
-                novel.wordSize = typeEs[1].text()
-                novel.state = typeEs[9].text()
+            val typeEs = doc.select("div.info3 > p")
+            if (typeEs != null && typeEs.size > 0) {
+                typeEs.first().text().split("/").let { group ->
+                    novel?.type = group[0].replace("小说类别：", "")
+                    novel?.state = group[1].replace("写作状态：", "")
+                }
             }
             novel.source = SourceType.EKXS
         } catch (e: Exception) {
@@ -68,7 +69,7 @@ class NovelDetail42kxsUseCase(url: String?) : HttpCacheUseCase<NovelInfo>(object
         }
         params.path = path
         setRequestParams(params)
-        setHttpManager(MyHttpManager(typeToken))
+        setHttpManager(MyHttpManager(typeToken).apply { setStringEncode("utf-8") })
         httpRepository.setResponseTransformer(object : HttpStringTransformer<NovelInfo?>() {
             override fun buildData(responseStr: String): NovelInfo? {
                 val docL = Jsoup.parse(responseStr)

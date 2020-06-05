@@ -64,7 +64,7 @@ class Search4X23USUseCase(key: String?) : HttpCacheUseCase<List<NovelInfo>>(obje
             if (eBook != null && eBook.size > 6) {
                 novelInfo.author = eBook[1].text()
                 novelInfo.type = eBook[0].text()
-                novelInfo.wordSize = eBook[4].text().replace("字", "")
+                novelInfo.update = eBook[4].text().replace("字", "")
                 novelInfo.state = eBook[2].text()
             }
             val eUrl = e.select("p.btnlinks > a")
@@ -89,7 +89,7 @@ class Search4X23USUseCase(key: String?) : HttpCacheUseCase<List<NovelInfo>>(obje
                 val tdAuthor = tdEs[2]
                 novelInfo.author = tdAuthor.text()
                 val tdWord = tdEs[3]
-                novelInfo.wordSize = tdWord.text()
+                novelInfo.update = tdWord.text()
                 val tdState = tdEs[5]
                 novelInfo.state = tdState.text()
             }

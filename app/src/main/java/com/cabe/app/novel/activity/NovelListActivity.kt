@@ -13,8 +13,6 @@ import android.widget.TextView
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener
 import com.cabe.app.novel.R
 import com.cabe.app.novel.domain.ekxs.NovelList42KXSUseCase
 import com.cabe.app.novel.domain.x23us.NovelList4X23USUseCase
@@ -280,16 +278,11 @@ class NovelListActivity : BaseActivity() {
     }
 
     private class MyHolder(itemView: View) : ViewHolder(itemView) {
-        val title: TextView
-
-        init {
-            title = itemView.findViewById(R.id.item_novel_list_info)
-        }
+        val title: TextView = itemView.findViewById(R.id.item_novel_list_info)
     }
 
     companion object {
         private const val KEY_FLAG_SORT_REVERSE = "keyFlagSortReverse"
-        @JvmField
         var novelList: NovelList? = null
         fun create(context: Context?, novelInfo: NovelInfo?): Intent {
             val intent = Intent(context, NovelListActivity::class.java)
