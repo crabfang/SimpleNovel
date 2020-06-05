@@ -21,7 +21,6 @@ import com.google.gson.reflect.TypeToken
 import kotlinx.android.synthetic.main.activity_novel_content.*
 
 class NovelContentActivity : BaseActivity() {
-    private var recyclerView: RecyclerView? = null
     private var myAdapter: MyAdapter? = null
     private var keyNovelContent: String? = null
     override fun onSaveInstanceState(outState: Bundle) {
@@ -86,7 +85,7 @@ class NovelContentActivity : BaseActivity() {
             }
         }
         val index = myAdapter!!.indexPosition(novelContent)
-        recyclerView!!.scrollToPosition(index)
+        activity_novel_content_recycler.scrollToPosition(index)
     }
 
     private fun actionSwitchTheme() {

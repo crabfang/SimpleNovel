@@ -45,6 +45,11 @@ class NovelDetail42kxsUseCase(private val url: String?) : HttpCacheUseCase<Novel
                     novel?.state = group[1].replace("写作状态：", "")
                 }
             }
+            doc.select("div.info3 > p > font")?.let { lastEs ->
+                if(lastEs.size > 0) {
+                    novel?.update = lastEs.first().text()
+                }
+            }
             novel.source = SourceType.EKXS
         } catch (e: Exception) {
             e.printStackTrace()

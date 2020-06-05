@@ -26,10 +26,15 @@ import com.cabe.app.novel.BuildConfig
 import com.cabe.app.novel.R
 import com.cabe.app.novel.domain.LocalNovelsUseCase
 import com.cabe.app.novel.domain.UpdateUseCase
+import com.cabe.app.novel.domain.ekxs.NovelDetail42kxsUseCase
+import com.cabe.app.novel.domain.ekxs.NovelList42KXSUseCase
 import com.cabe.app.novel.domain.ekxs.Search42kxsUseCase
+import com.cabe.app.novel.domain.x23us.NovelList4X23USUseCase
 import com.cabe.app.novel.domain.x23us.Search4X23USUseCase
 import com.cabe.app.novel.model.LocalNovelList
 import com.cabe.app.novel.model.NovelInfo
+import com.cabe.app.novel.model.NovelList
+import com.cabe.app.novel.model.SourceType
 import com.cabe.lib.cache.CacheSource
 import com.cabe.lib.cache.interactor.ViewPresenter
 import com.cabe.lib.cache.interactor.impl.SimpleViewPresenter
@@ -41,6 +46,7 @@ import com.pgyersdk.update.PgyUpdateManager
 import com.pgyersdk.update.UpdateManagerListener
 import com.pgyersdk.update.javabean.AppBean
 import kotlinx.android.synthetic.main.activity_home.*
+import kotlinx.android.synthetic.main.activity_novel_list.*
 import java.io.File
 import java.util.*
 
@@ -103,9 +109,8 @@ class HomeActivity : BaseActivity() {
     private fun initView() {
         searchInput = findViewById(R.id.activity_home_search_input)
         localSwipe = findViewById(R.id.activity_home_local_swipe)
-        val recyclerView = findViewById<RecyclerView>(R.id.activity_home_local_list)
         localSwipe.setOnRefreshListener { loadLocal(false) }
-        recyclerView.adapter = adapter
+        activity_home_local_list.adapter = adapter
         adapter.setItemClickListener(object : AdapterClickListener {
             override fun itemOnClick(novelInfo: NovelInfo?) {
                 val intent = NovelListActivity.create(context, novelInfo)
@@ -225,13 +230,13 @@ class HomeActivity : BaseActivity() {
 
     private fun loadLocal(silent: Boolean) {
         if (!silent) {
+            updateRemoteData()
             localSwipe.isRefreshing = true
         }
-        useCase.execute(object : ViewPresenter<LocalNovelList?> {
+        useCase.execute(object : ViewPresenter<LocalNovelList> {
             override fun error(from: CacheSource, code: Int, info: String) {
                 toast(info)
             }
-
             override fun load(from: CacheSource, data: LocalNovelList?) {
                 localNovelList = data
                 updateLocalNovel()
@@ -244,7 +249,25 @@ class HomeActivity : BaseActivity() {
 
     private fun updateLocalNovel() {
         if (localNovelList != null) {
-            adapter.setData(localNovelList!!.list)
+            adapter.setData(localNovelList?.list)
+        }
+    }
+
+    private fun updateRemoteData() {
+        localNovelList?.list?.forEach {
+            val presenter: ViewPresenter<NovelList> = object : ViewPresenter<NovelList> {
+                override fun load(from: CacheSource, data: NovelList?) {
+                }
+                override fun error(from: CacheSource, code: Int, info: String) {
+                }
+                override fun complete(from: CacheSource) {
+                }
+            }
+            if (it?.source == SourceType.X23US) {
+                NovelList4X23USUseCase(it.url).execute(presenter)
+            } else if (it!!.source == SourceType.EKXS) {
+                NovelList42KXSUseCase(it.url).execute(presenter)
+            }
         }
     }
 
