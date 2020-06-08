@@ -24,30 +24,39 @@ class NovelDetail42kxsUseCase(private val url: String?) : HttpCacheUseCase<Novel
         var novel: NovelInfo?
         try {
             novel = NovelInfo()
-            val picEs = doc.select("div.info1 > img")
-            if (picEs != null && picEs.size > 0) {
-                val picUrl = picEs.first().attr("src")
-                novel.picUrl = SourceType.EKXS.host + picUrl.substring(1)
-            }
-            val titleEs = doc.select("div.info2 > h1")
-            if (titleEs != null && titleEs.size > 0) {
-                novel.title = titleEs.first().text()
-                novel.url = url
-            }
-            val authorEs = doc.select("div.info2 > h3.text-center > a")
-            if (authorEs != null && authorEs.size > 0) {
-                novel.author = authorEs.first().text()
-            }
-            val typeEs = doc.select("div.info3 > p")
-            if (typeEs != null && typeEs.size > 0) {
-                typeEs.first().text().split("/").let { group ->
-                    novel?.type = group[0].replace("小说类别：", "")
-                    novel?.state = group[1].replace("写作状态：", "")
+            doc.select("div.info1 > img")?.let { es ->
+                if (es.size > 0) {
+                    val picUrl = es.first().attr("src")
+                    novel?.picUrl = SourceType.EKXS.host + picUrl.substring(1)
                 }
             }
-            doc.select("div.info3 > p > font")?.let { lastEs ->
-                if(lastEs.size > 0) {
-                    novel?.update = lastEs.first().text()
+            doc.select("div.info2 > h1")?.let { titleEs ->
+                if (titleEs.size > 0) {
+                    novel?.title = titleEs.first().text()
+                    novel?.url = url
+                }
+            }
+            doc.select("div.info2 > h3.text-center > a")?.let { es ->
+                if (es.size > 0) {
+                    novel?.author = es.first().text()
+                }
+            }
+            doc.select("div.info3 > p")?.let { es ->
+                if (es.size > 0) {
+                    es.first().text().split("/").let { group ->
+                        novel?.type = group[0].replace("小说类别：", "")
+                        novel?.state = group[1].replace("写作状态：", "")
+                    }
+                }
+            }
+            doc.select("div.info3 > p > font")?.let { es ->
+                if(es.size > 0) {
+                    novel?.update = es.first().text()
+                }
+            }
+            doc.select("div.info3 > p > a")?.let { es ->
+                if(es.size > 0) {
+                    novel?.lastChapter = es.first().text()
                 }
             }
             novel.source = SourceType.EKXS

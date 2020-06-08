@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
 import com.cabe.app.novel.R
 import com.cabe.app.novel.domain.ekxs.NovelDetail42kxsUseCase
 import com.cabe.app.novel.domain.ekxs.Rank42kxsUseCase
@@ -133,7 +134,13 @@ class RankActivity : BaseActivity() {
 
         override fun onBindViewHolder(holder: MyHolder, position: Int) {
             val itemData = getItemData(position) ?: return
-            Glide.with(holder.itemView.context).load(itemData.picUrl).into(holder.pic)
+            Glide.with(holder.itemView.context)
+                    .load(itemData.picUrl)
+                    .apply(RequestOptions().apply{
+                        placeholder(R.drawable.pic_default_novel)
+                        error(R.drawable.pic_default_novel)
+                    })
+                    .into(holder.pic)
             holder.tvTitle.text = itemData.title
             holder.tvAuthor.text = "作者：${itemData.author}"
             holder.itemView.setOnClickListener { queryNovel(itemData.url) }

@@ -11,6 +11,7 @@ public class NovelList extends BaseObject {
     public String title;
     public String author;
     public String update;
+    public String lastChapter;
     public String picUrl;
     public String type;
     public String state;

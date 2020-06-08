@@ -30,32 +30,37 @@ class NovelList42KXSUseCase(url: String?) : HttpCacheUseCase<NovelList>(object :
         var novelDetail: NovelList? = null
         try {
             novelDetail = NovelList()
-            doc.select("div.info1 > img")?.let { picEs ->
-                if (picEs.size > 0) {
-                    novelDetail.picUrl = host + picEs.first().attr("src")
+            doc.select("div.info1 > img")?.let { es ->
+                if (es.size > 0) {
+                    novelDetail.picUrl = host + es.first().attr("src")
                 }
             }
-            doc.select("div.info2 > h1")?.let { titleEs ->
-                if (titleEs.size > 0) {
-                    novelDetail.title = titleEs.first().text()
+            doc.select("div.info2 > h1")?.let { es ->
+                if (es.size > 0) {
+                    novelDetail.title = es.first().text()
                 }
             }
-            doc.select("div.info2 > h3 > a")?.let { authorEs ->
-                if (authorEs.size > 0) {
-                    novelDetail.author = authorEs.first().text()
+            doc.select("div.info2 > h3 > a")?.let { es ->
+                if (es.size > 0) {
+                    novelDetail.author = es.first().text()
                 }
             }
-            doc.select("div.info3 > p")?.let { typeEs ->
-                if(typeEs.size > 0) {
-                    typeEs.first().text().split("/").let { group ->
+            doc.select("div.info3 > p")?.let { es ->
+                if(es.size > 0) {
+                    es.first().text().split("/").let { group ->
                         novelDetail.type = group[0].replace("小说类别：", "")
                         novelDetail.state = group[1].replace("写作状态：", "")
                     }
                 }
             }
-            doc.select("div.info3 > p > font")?.let { lastEs ->
-                if(lastEs.size > 0) {
-                    novelDetail.update = lastEs.first().text()
+            doc.select("div.info3 > p > font")?.let { es ->
+                if(es.size > 0) {
+                    novelDetail.update = es.first().text()
+                }
+            }
+            doc.select("div.info3 > p > a")?.let { es ->
+                if(es.size > 0) {
+                    novelDetail.lastChapter = es.first().text()
                 }
             }
             LocalNovelsUseCase.updateLocalNovelPic(url!!, novelDetail)

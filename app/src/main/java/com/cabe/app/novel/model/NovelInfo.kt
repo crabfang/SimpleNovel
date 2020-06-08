@@ -17,6 +17,7 @@ class NovelInfo : BaseObject() {
     var type: String? = null
     var update: String? = null
     var state: String? = null
+    var lastChapter: String? = null
     var source: SourceType? = SourceType.X23US
 
     override fun equals(obj: Any?): Boolean {

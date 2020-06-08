@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="horizontal"
     android:background="@drawable/bg_list_item_white">
 
@@ -14,16 +15,22 @@
         android:layout_marginTop="6dp"
         android:layout_marginBottom="6dp"
         android:scaleType="fitStart"
-        android:src="@drawable/pic_default_novel"/>
+        android:src="@drawable/pic_default_novel"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:layout_toRightOf="@+id/item_home_local_novel_pic"
         android:layout_alignTop="@+id/item_home_local_novel_pic"
         android:layout_marginLeft="4dp"
         android:layout_marginRight="4dp"
-        android:orientation="vertical" >
+        android:orientation="vertical"
+        app:layout_constraintLeft_toRightOf="@+id/item_home_local_novel_pic"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/item_home_local_novel_pic"
+        app:layout_constraintBottom_toBottomOf="@+id/item_home_local_novel_pic">
 
         <TextView
             android:id="@+id/item_home_local_novel_title"
@@ -33,59 +40,85 @@
             android:ellipsize="end"
             android:textSize="14dp"
             android:textColor="#333333"
-            tools:text="@string/app_name" />
+            tools:text="@string/app_name"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
         <TextView
             android:id="@+id/item_home_local_novel_author"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
             android:singleLine="true"
             android:ellipsize="end"
             android:textSize="12dp"
             android:textColor="#999999"
-            tools:text="@string/app_name" />
+            tools:text="@string/app_name"
+            android:layout_marginTop="2dp"
+            app:layout_constraintLeft_toLeftOf="@+id/item_home_local_novel_title"
+            app:layout_constraintTop_toBottomOf="@+id/item_home_local_novel_title" />
         <TextView
             android:id="@+id/item_home_local_novel_type"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
             android:singleLine="true"
             android:ellipsize="end"
             android:visibility="gone"
             android:textSize="12dp"
             android:textColor="#999999"
-            tools:text="@string/app_name" />
+            tools:text="@string/app_name"
+            android:layout_marginTop="2dp"
+            app:layout_constraintLeft_toLeftOf="@+id/item_home_local_novel_title"
+            app:layout_constraintTop_toBottomOf="@+id/item_home_local_novel_author" />
         <TextView
             android:id="@+id/item_home_local_novel_state"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
             android:singleLine="true"
+            android:includeFontPadding="false"
             android:ellipsize="end"
             android:textSize="12dp"
             android:textColor="#999999"
-            tools:text="@string/app_name" />
+            tools:text="@string/app_name"
+            android:layout_marginTop="2dp"
+            app:layout_constraintLeft_toRightOf="@+id/item_home_local_novel_title"
+            app:layout_constraintTop_toTopOf="@+id/item_home_local_novel_title"
+            app:layout_constraintBottom_toBottomOf="@+id/item_home_local_novel_title" />
         <TextView
-            android:id="@+id/item_home_local_novel_source"
+            android:id="@+id/item_home_local_novel_chapter"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
             android:singleLine="true"
             android:ellipsize="end"
             android:textSize="12dp"
             android:textColor="#999999"
-            tools:text="@string/app_name" />
+            tools:text="@string/app_name"
+            android:layout_marginTop="2dp"
+            app:layout_constraintLeft_toLeftOf="@+id/item_home_local_novel_title"
+            app:layout_constraintTop_toBottomOf="@+id/item_home_local_novel_type" />
         <TextView
             android:id="@+id/item_home_local_novel_update"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
             android:singleLine="true"
             android:ellipsize="end"
             android:textSize="12dp"
             android:textColor="#999999"
-            tools:text="@string/app_name" />
+            tools:text="@string/app_name"
+            android:layout_marginTop="2dp"
+            app:layout_constraintLeft_toLeftOf="@+id/item_home_local_novel_title"
+            app:layout_constraintTop_toBottomOf="@+id/item_home_local_novel_chapter" />
+        <TextView
+            android:id="@+id/item_home_local_novel_source"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:singleLine="true"
+            android:ellipsize="end"
+            android:textSize="12dp"
+            android:textColor="#999999"
+            tools:text="@string/app_name"
+            android:layout_marginTop="2dp"
+            app:layout_constraintLeft_toLeftOf="@+id/item_home_local_novel_title"
+            app:layout_constraintTop_toBottomOf="@+id/item_home_local_novel_update" />
 
-    </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-</RelativeLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

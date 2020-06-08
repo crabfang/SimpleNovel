@@ -22,11 +22,11 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
 import com.cabe.app.novel.BuildConfig
 import com.cabe.app.novel.R
 import com.cabe.app.novel.domain.LocalNovelsUseCase
 import com.cabe.app.novel.domain.UpdateUseCase
-import com.cabe.app.novel.domain.ekxs.NovelDetail42kxsUseCase
 import com.cabe.app.novel.domain.ekxs.NovelList42KXSUseCase
 import com.cabe.app.novel.domain.ekxs.Search42kxsUseCase
 import com.cabe.app.novel.domain.x23us.NovelList4X23USUseCase
@@ -46,7 +46,6 @@ import com.pgyersdk.update.PgyUpdateManager
 import com.pgyersdk.update.UpdateManagerListener
 import com.pgyersdk.update.javabean.AppBean
 import kotlinx.android.synthetic.main.activity_home.*
-import kotlinx.android.synthetic.main.activity_novel_list.*
 import java.io.File
 import java.util.*
 
@@ -59,6 +58,7 @@ class HomeActivity : BaseActivity() {
     private lateinit var recyclerSearch: RecyclerView
     private val adapter = MyAdapter()
     private val adapterSearch = MyAdapter()
+    private var flagRemote = true
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
@@ -71,6 +71,7 @@ class HomeActivity : BaseActivity() {
 
     override fun onResume() {
         super.onResume()
+        flagRemote = true
         loadLocal(true)
     }
 
@@ -230,7 +231,6 @@ class HomeActivity : BaseActivity() {
 
     private fun loadLocal(silent: Boolean) {
         if (!silent) {
-            updateRemoteData()
             localSwipe.isRefreshing = true
         }
         useCase.execute(object : ViewPresenter<LocalNovelList> {
@@ -240,6 +240,10 @@ class HomeActivity : BaseActivity() {
             override fun load(from: CacheSource, data: LocalNovelList?) {
                 localNovelList = data
                 updateLocalNovel()
+                if(flagRemote) {
+                    flagRemote = false
+                    updateRemoteData()
+                }
             }
             override fun complete(from: CacheSource) {
                 localSwipe.isRefreshing = false
@@ -253,6 +257,7 @@ class HomeActivity : BaseActivity() {
         }
     }
 
+    private var remoteUpdateCount = 0
     private fun updateRemoteData() {
         localNovelList?.list?.forEach {
             val presenter: ViewPresenter<NovelList> = object : ViewPresenter<NovelList> {
@@ -261,6 +266,10 @@ class HomeActivity : BaseActivity() {
                 override fun error(from: CacheSource, code: Int, info: String) {
                 }
                 override fun complete(from: CacheSource) {
+                    remoteUpdateCount ++
+                    if(remoteUpdateCount == localNovelList?.list?.size ?: -1) {
+                        loadLocal(true)
+                    }
                 }
             }
             if (it?.source == SourceType.X23US) {
@@ -389,13 +398,20 @@ class HomeActivity : BaseActivity() {
         @SuppressLint("SetTextI18n")
         override fun onBindViewHolder(holder: MyHolder, position: Int) {
             val itemData = getItemData(position) ?: return
-            Glide.with(holder.itemView.context).load(itemData.picUrl).into(holder.pic)
+            Glide.with(holder.itemView.context)
+                    .load(itemData.picUrl)
+                    .apply(RequestOptions().apply{
+                        placeholder(R.drawable.pic_default_novel)
+                        error(R.drawable.pic_default_novel)
+                    })
+                    .into(holder.pic)
             holder.tvTitle.text = itemData.title
-            holder.tvAuthor.text = "作者：${itemData.author}"
-            holder.tvType.text = "类型：${itemData.type}"
-            holder.tvUpdate.text = "更新：${itemData.update}"
-            holder.tvState.text = "状态：${itemData.state}"
-            holder.tvSource.text = "来源：${itemData.source}"
+            holder.tvAuthor.text = "作者：${itemData.author ?: "--"}"
+            holder.tvType.text = "类型：${itemData.type ?: "--"}"
+            holder.tvUpdate.text = "更新：${itemData.update ?: "--"}"
+            holder.tvState.text = "(${itemData.state ?: "--"})"
+            holder.tvSource.text = "来源：${itemData.source ?: "--"}"
+            holder.tvChapter.text = "章节：${itemData.lastChapter ?: "--"}"
             holder.tvType.visibility = if (TextUtils.isEmpty(itemData.type)) View.GONE else View.VISIBLE
             holder.itemView.setOnClickListener {
                 if (listener != null) {
@@ -419,7 +435,7 @@ class HomeActivity : BaseActivity() {
         val tvState = itemView.findViewById<TextView>(R.id.item_home_local_novel_state)
         val tvSource = itemView.findViewById<TextView>(R.id.item_home_local_novel_source)
         val tvUpdate = itemView.findViewById<TextView>(R.id.item_home_local_novel_update)
-
+        val tvChapter = itemView.findViewById<TextView>(R.id.item_home_local_novel_chapter)
     }
 
     private interface AdapterClickListener {

@@ -23,6 +23,7 @@ class LocalNovelsUseCase : DiskCacheUseCase<LocalNovelList>(object: TypeToken<Lo
                         result.type = data.type
                         result.state = data.state
                         result.update = data.update
+                        result.lastChapter = data.lastChapter
                         change = true
                     }
                     if (change) {
