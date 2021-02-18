@@ -17,13 +17,13 @@ class LocalNovelsUseCase : DiskCacheUseCase<LocalNovelList>(object: TypeToken<Lo
                 val localData: LocalNovelList = localUseCase.diskRepository.get(localUseCase.typeToken)
                 if (localData.list != null) {
                     var change = false
-                    localData.list.find { it.url == url }?.let { result ->
-                        result.picUrl = data.picUrl
-                        result.author = data.author
-                        result.type = data.type
-                        result.state = data.state
-                        result.update = data.update
-                        result.lastChapter = data.lastChapter
+                    localData.list?.find { it.url == url }?.let { result ->
+                        data.picUrl?.let { result.picUrl = it }
+                        data.author?.let { result.author = it }
+                        data.type?.let { result.type = it }
+                        data.state?.let { result.state = it }
+                        data.update?.let { result.update = it }
+                        data.lastChapter?.let { result.lastChapter = it }
                         change = true
                     }
                     if (change) {
