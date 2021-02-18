@@ -22,17 +22,18 @@ import com.bumptech.glide.request.RequestOptions
 import com.cabe.app.novel.R
 import com.cabe.app.novel.domain.BaseViewModel
 import com.cabe.app.novel.domain.LocalNovelsUseCase
+import com.cabe.app.novel.domain.bqg.NovelList4BqgUseCase
 import com.cabe.app.novel.domain.bqg.Search4BqgUseCase
 import com.cabe.app.novel.domain.ekxs.NovelList42KXSUseCase
 import com.cabe.app.novel.domain.ekxs.Search42kxsUseCase
 import com.cabe.app.novel.domain.x23us.NovelList4X23USUseCase
-import com.cabe.app.novel.domain.x23us.Search4X23USUseCase
 import com.cabe.app.novel.model.LocalNovelList
 import com.cabe.app.novel.model.NovelInfo
 import com.cabe.app.novel.model.NovelList
 import com.cabe.app.novel.model.SourceType
 import com.cabe.lib.cache.CacheSource
 import com.cabe.lib.cache.interactor.ViewPresenter
+import com.cabe.lib.cache.interactor.impl.SimpleViewPresenter
 import com.google.gson.Gson
 import com.pgyer.pgyersdk.PgyerSDKManager
 import kotlinx.android.synthetic.main.activity_home.*
@@ -100,7 +101,10 @@ class HomeActivity : BaseActivity() {
     private fun initView() {
         searchInput = findViewById(R.id.activity_home_search_input)
         localSwipe = findViewById(R.id.activity_home_local_swipe)
-        localSwipe.setOnRefreshListener { loadLocal(false) }
+        localSwipe.setOnRefreshListener {
+            remoteUpdateCount = 0
+            loadLocal(false)
+        }
         activity_home_local_list.adapter = adapter
         adapter.setItemClickListener(object : AdapterClickListener {
             override fun itemOnClick(novelInfo: NovelInfo?) {
@@ -192,11 +196,7 @@ class HomeActivity : BaseActivity() {
     private var remoteUpdateCount = 0
     private fun updateRemoteData() {
         localNovelList?.list?.forEach {
-            val presenter: ViewPresenter<NovelList> = object : ViewPresenter<NovelList> {
-                override fun load(from: CacheSource, data: NovelList?) {
-                }
-                override fun error(from: CacheSource, code: Int, info: String) {
-                }
+            val presenter: ViewPresenter<NovelList> = object : SimpleViewPresenter<NovelList>() {
                 override fun complete(from: CacheSource) {
                     remoteUpdateCount ++
                     if(remoteUpdateCount == localNovelList?.list?.size ?: -1) {
@@ -204,10 +204,10 @@ class HomeActivity : BaseActivity() {
                     }
                 }
             }
-            if (it?.source == SourceType.X23US) {
-                NovelList4X23USUseCase(it.url).execute(presenter)
-            } else if (it!!.source == SourceType.EKXS) {
-                NovelList42KXSUseCase(it.url).execute(presenter)
+            when (it?.source) {
+                SourceType.X23US -> NovelList4X23USUseCase(it.url).execute(presenter)
+                SourceType.EKXS -> NovelList42KXSUseCase(it.url).execute(presenter)
+                SourceType.BQG -> NovelList4BqgUseCase(it.url).execute(presenter)
             }
         }
     }
@@ -251,24 +251,6 @@ class HomeActivity : BaseActivity() {
 
     fun onRank(view: View?) {
         startActivityForResult(Intent(this, RankActivity::class.java), REQUEST_CODE_RANK)
-    }
-
-    private fun search4x23us(keyWord: String) {
-        val searchUseCase = Search4X23USUseCase(keyWord)
-        searchUseCase.execute(object : ViewPresenter<List<NovelInfo>> {
-            override fun load(from: CacheSource, data: List<NovelInfo>) {
-                if (data.isNotEmpty()) {
-                    adapterSearch.setData(data)
-                    showSearchView(true)
-                }
-            }
-            override fun error(from: CacheSource, code: Int, info: String) {
-                toast(info)
-            }
-            override fun complete(from: CacheSource) {
-                search42kxs(keyWord)
-            }
-        })
     }
 
     private fun search42kxs(keyWord: String) {

@@ -3,8 +3,6 @@ package com.cabe.app.novel.domain.bqg
 import com.cabe.app.novel.model.NovelInfo
 import com.cabe.app.novel.model.SourceType
 import com.cabe.app.novel.retrofit.MyHttpManager
-import com.cabe.lib.cache.exception.HttpExceptionCode
-import com.cabe.lib.cache.exception.RxException
 import com.cabe.lib.cache.http.RequestParams
 import com.cabe.lib.cache.http.transformer.HttpStringTransformer
 import com.cabe.lib.cache.impl.HttpCacheUseCase
@@ -52,7 +50,7 @@ class Search4BqgUseCase(key: String?) : HttpCacheUseCase<List<NovelInfo>>(object
                 val aTitle = divDetail.first().select("h3 > a")
                 if (aTitle?.size ?: 0 > 0) {
                     novelInfo.title = aTitle.text()
-                    novelInfo.url = SourceType.BQG.host + aTitle.attr("href")
+                    novelInfo.url = SourceType.BQG.host + aTitle.attr("href").substring(1)
                 }
                 val divInfo = divDetail.first().select("p.result-game-item-info-tag")
                 if (divInfo?.size ?: 0 > 0) {
@@ -99,11 +97,7 @@ class Search4BqgUseCase(key: String?) : HttpCacheUseCase<List<NovelInfo>>(object
         httpRepository.setResponseTransformer(object : HttpStringTransformer<List<NovelInfo>>() {
             override fun buildData(responseStr: String): List<NovelInfo>? {
                 val docL = Jsoup.parse(responseStr)
-                val list = parserHtmlForList(docL)
-                if (list?.isEmpty() == true) {
-                    throw RxException.build(HttpExceptionCode.HTTP_STATUS_SERVER_ERROR, null)
-                }
-                return list
+                return parserHtmlForList(docL)
             }
         })
     }

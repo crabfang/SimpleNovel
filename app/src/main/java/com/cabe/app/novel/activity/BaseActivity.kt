@@ -63,7 +63,7 @@ abstract class BaseActivity : AppCompatActivity() {
     }
 
     protected fun toast(info: String?) {
-        Toast.makeText(context, info, Toast.LENGTH_SHORT).show()
+        if(TextUtils.isEmpty(info).not()) Toast.makeText(context, info, Toast.LENGTH_SHORT).show()
     }
 
     companion object {

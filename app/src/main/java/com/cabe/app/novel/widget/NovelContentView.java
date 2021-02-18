@@ -9,6 +9,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.cabe.app.novel.R;
+import com.cabe.app.novel.domain.bqg.NovelContent4BqgUseCase;
 import com.cabe.app.novel.domain.ekxs.NovelContent42kxsUseCase;
 import com.cabe.app.novel.domain.x23us.NovelContent4X23USUseCase;
 import com.cabe.app.novel.model.NovelContent;
@@ -78,6 +79,9 @@ public class NovelContentView extends LinearLayout {
             useCase.execute(presenter);
         } else if(novel.source == SourceType.EKXS) {
             NovelContent42kxsUseCase useCase = new NovelContent42kxsUseCase(url);
+            useCase.execute(presenter);
+        } else if(novel.source == SourceType.BQG) {
+            NovelContent4BqgUseCase useCase = new NovelContent4BqgUseCase(url);
             useCase.execute(presenter);
         }
     }

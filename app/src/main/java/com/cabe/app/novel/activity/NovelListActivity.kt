@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.cabe.app.novel.R
+import com.cabe.app.novel.domain.bqg.NovelList4BqgUseCase
 import com.cabe.app.novel.domain.ekxs.NovelList42KXSUseCase
 import com.cabe.app.novel.domain.x23us.NovelList4X23USUseCase
 import com.cabe.app.novel.model.NovelContent
@@ -123,12 +124,10 @@ class NovelListActivity : BaseActivity() {
                     activity_novel_list_swipe.isRefreshing = false
                 }
             }
-            if (novelInfo?.source == SourceType.X23US) {
-                val useCase = NovelList4X23USUseCase(novelInfo?.url)
-                useCase.execute(presenter)
-            } else if (novelInfo!!.source == SourceType.EKXS) {
-                val useCase = NovelList42KXSUseCase(novelInfo!!.url)
-                useCase.execute(presenter)
+            when (novelInfo?.source) {
+                SourceType.X23US -> NovelList4X23USUseCase(novelInfo?.url).execute(presenter)
+                SourceType.EKXS -> NovelList42KXSUseCase(novelInfo?.url).execute(presenter)
+                SourceType.BQG -> NovelList4BqgUseCase(novelInfo?.url).execute(presenter)
             }
         }
     }

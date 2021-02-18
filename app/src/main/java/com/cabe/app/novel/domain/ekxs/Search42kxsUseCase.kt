@@ -3,8 +3,6 @@ package com.cabe.app.novel.domain.ekxs
 import com.cabe.app.novel.model.NovelInfo
 import com.cabe.app.novel.model.SourceType
 import com.cabe.app.novel.retrofit.MyHttpManager
-import com.cabe.lib.cache.exception.HttpExceptionCode
-import com.cabe.lib.cache.exception.RxException
 import com.cabe.lib.cache.http.RequestParams
 import com.cabe.lib.cache.http.transformer.HttpStringTransformer
 import com.cabe.lib.cache.impl.HttpCacheUseCase
@@ -117,11 +115,7 @@ class Search42kxsUseCase(key: String?) : HttpCacheUseCase<List<NovelInfo>>(objec
         httpRepository.setResponseTransformer(object : HttpStringTransformer<List<NovelInfo>>() {
             override fun buildData(responseStr: String): List<NovelInfo>? {
                 val docL = Jsoup.parse(responseStr)
-                val list = parserHtmlForList(docL)
-                if (list?.isEmpty() == true) {
-                    throw RxException.build(HttpExceptionCode.HTTP_STATUS_SERVER_ERROR, null)
-                }
-                return list
+                return parserHtmlForList(docL)
             }
         })
     }
