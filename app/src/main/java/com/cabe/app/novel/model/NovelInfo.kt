@@ -18,7 +18,7 @@ class NovelInfo : BaseObject() {
     var update: String? = null
     var state: String? = null
     var lastChapter: String? = null
-    var source: SourceType? = SourceType.X23US
+    var source: SourceType? = SourceType.EKXS
 
     override fun equals(obj: Any?): Boolean {
         return (obj as? NovelInfo)?.let { novelInfo ->

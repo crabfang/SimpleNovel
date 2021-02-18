@@ -11,7 +11,6 @@ import androidx.appcompat.app.AppCompatActivity
 import com.cabe.app.novel.model.BaseObject
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import com.pgyersdk.crash.PgyCrashManager
 
 /**
  * 作者：沈建芳 on 2017/10/9 16:55
@@ -28,13 +27,11 @@ abstract class BaseActivity : AppCompatActivity() {
         initExtra(savedInstanceState)
         context = this
         setBackable(true)
-        PgyCrashManager.register()
     }
 
     override fun onDestroy() {
         super.onDestroy()
         context = null
-        PgyCrashManager.unregister()
     }
 
     protected fun setBackable(backable: Boolean) {
@@ -44,7 +41,7 @@ abstract class BaseActivity : AppCompatActivity() {
     }
 
     protected open fun initExtra(savedInstanceState: Bundle?) {}
-    protected fun getExtraString(key: String?): String {
+    protected fun getExtraString(key: String?): String? {
         return intent.getStringExtra(key)
     }
 

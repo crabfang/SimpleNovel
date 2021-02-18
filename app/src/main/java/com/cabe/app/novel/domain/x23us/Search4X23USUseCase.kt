@@ -8,6 +8,7 @@ import com.cabe.lib.cache.exception.RxException
 import com.cabe.lib.cache.http.RequestParams
 import com.cabe.lib.cache.http.transformer.HttpStringTransformer
 import com.cabe.lib.cache.impl.HttpCacheUseCase
+import com.cabe.lib.cache.interactor.HttpCacheRepository
 import com.google.gson.reflect.TypeToken
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
@@ -100,18 +101,31 @@ class Search4X23USUseCase(key: String?) : HttpCacheUseCase<List<NovelInfo>>(obje
     init {
         val params = RequestParams()
         params.host = SourceType.X23US.host
-        params.path = "/modules/article/so.php"
-        params.requestMethod = RequestParams.REQUEST_METHOD_GET
-        val query: MutableMap<String, String> = HashMap()
+        params.path = "modules/article/search.php"
+        val headers: MutableMap<String, String> = HashMap()
+        headers["Content-Type"] = "application/x-www-form-urlencoded"
+        headers["cache-control"] = "no-cache"
+        headers["accept-encoding"] = "gzip, deflate, br"
+        headers["accept"] = "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9"
+        params.head = headers
+
+        params.requestMethod = RequestParams.REQUEST_METHOD_POST
+        val form: MutableMap<String, String> = HashMap()
+        form["searchtype"] = "articlename"//articlename
         try {
-            query["searchkey"] = URLEncoder.encode(key, "gb2312")
+            form["searchkey"] = URLEncoder.encode(key, "gb2312")
         } catch (e: UnsupportedEncodingException) {
             e.printStackTrace()
         }
-        query["searchtype"] = "keywords"
-        params.query = query
+        params.body = form
         setRequestParams(params)
+
         setHttpManager(MyHttpManager(typeToken))
+
+        val httpRepository: HttpCacheRepository<String?, List<NovelInfo>> = httpRepository
+        if (httpRepository is MyHttpManager<*>) {
+            httpRepository.setStringEncode("gb2312")
+        }
         httpRepository.setResponseTransformer(object : HttpStringTransformer<List<NovelInfo>>() {
             override fun buildData(responseStr: String): List<NovelInfo>? {
                 val docL = Jsoup.parse(responseStr)

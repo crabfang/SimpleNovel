@@ -349,3 +349,5 @@ com_pgyersdk_sdk_2_8_1.xml
 /SimpleNovel.zip
 /.idea
 /.gradle
+/.idea/libraries/Gradle__org_jsoup_jsoup_1_11_3_jar.xml
+/.idea/libraries/Gradle__org_jetbrains_annotations_13_0_jar.xml

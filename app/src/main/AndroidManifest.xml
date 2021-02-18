@@ -27,6 +27,7 @@
         android:networkSecurityConfig="@xml/network_security_config"
         tools:replace="label" >
 
+        <activity android:name="com.pgyersdk.feedback.FeedbackActivity"/>
         <meta-data
             android:name="PGYER_APPID"
             android:value="975f6c1c832cb41803173f43db393dce" >

@@ -3,7 +3,8 @@ package com.cabe.app.novel.activity;
 import android.app.Application;
 
 import com.cabe.lib.cache.disk.DiskCacheManager;
-import com.pgyersdk.crash.PgyCrashManager;
+import com.pgyer.pgyersdk.PgyerSDKManager;
+import com.pgyer.pgyersdk.pgyerenum.FeatureEnum;
 
 import java.io.File;
 
@@ -20,6 +21,10 @@ public class MyApp extends Application {
         } else {
             DiskCacheManager.DISK_CACHE_PATH = getFilesDir().getAbsolutePath();
         }
-        PgyCrashManager.register();
+
+        new PgyerSDKManager.InitSdk()
+                .setContext(this) //设置上下问对象
+                .enable(FeatureEnum.CHECK_UPDATE)  //添加检查新版本
+                .build();
     }
 }

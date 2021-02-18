@@ -69,7 +69,7 @@ class NovelContentActivity : BaseActivity() {
             }
         })
         myAdapter = MyAdapter()
-        activity_novel_content_recycler.setAdapter(myAdapter)
+        activity_novel_content_recycler.adapter = myAdapter
     }
 
     private fun updateView(savedInstanceState: Bundle?) {
@@ -125,7 +125,7 @@ class NovelContentActivity : BaseActivity() {
         }
 
         private val novelList: List<NovelContent>?
-            private get() = if (NovelListActivity.novelList == null) null else NovelListActivity.novelList!!.list
+            get() = if (NovelListActivity.novelList == null) null else NovelListActivity.novelList?.list
     }
 
     private class MyViewHolder(val contentView: NovelContentView) : ViewHolder(contentView)
