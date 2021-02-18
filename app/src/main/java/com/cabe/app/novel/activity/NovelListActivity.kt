@@ -162,11 +162,11 @@ class NovelListActivity : BaseActivity() {
         AlertDialog.Builder(this)
                 .setTitle("查找章节")
                 .setView(input)
-                .setPositiveButton("确定") { dialog: DialogInterface, which: Int ->
+                .setPositiveButton("确定") { dialog: DialogInterface, _: Int ->
                     dialog.dismiss()
                     searchKey(input.text.toString())
                 }
-                .setNegativeButton("取消") { dialog: DialogInterface, which: Int -> dialog.dismiss() }.show()
+                .setNegativeButton("取消") { dialog: DialogInterface, _: Int -> dialog.dismiss() }.show()
     }
 
     private fun actionOrderReverse() {
@@ -281,7 +281,7 @@ class NovelListActivity : BaseActivity() {
             }
             holder.title.text = tips + content.title
             holder.title.setTextColor(if (content == lastContent) -0xae1af else -0xcbb776)
-            holder.itemView.setOnClickListener { v: View? ->
+            holder.itemView.setOnClickListener {
                 DiskUtils.saveData(keyNovelDetail, content.toGson())
                 gotoContent(content)
             }

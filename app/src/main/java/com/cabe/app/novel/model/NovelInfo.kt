@@ -20,8 +20,8 @@ class NovelInfo : BaseObject() {
     var lastChapter: String? = null
     var source: SourceType? = SourceType.EKXS
 
-    override fun equals(obj: Any?): Boolean {
-        return (obj as? NovelInfo)?.let { novelInfo ->
+    override fun equals(other: Any?): Boolean {
+        return (other as? NovelInfo)?.let { novelInfo ->
             var isSameSource = true
             if (source != null && novelInfo.source != null) {
                 isSameSource = source.toString() == novelInfo.source.toString()

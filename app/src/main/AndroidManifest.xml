@@ -12,9 +12,10 @@
     <uses-permission android:name="android.permission.INTERNET" /> <!-- 网络通信-->
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />  <!-- 获取设备信息 -->
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" /> <!-- 获取MAC地址-->
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" /> <!-- 读写sdcard，storage等等 -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" tools:ignore="ScopedStorage" /> <!-- 读写sdcard，storage等等 -->
     <uses-permission android:name="android.permission.RECORD_AUDIO" /> <!-- 允许程序录制音频 -->
-    <uses-permission android:name="android.permission.GET_TASKS"/>
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+    <uses-permission android:name="android.permission.READ_PRIVILEGED_PHONE_STATE" tools:ignore="ProtectedPermissions" />
 
     <application
         android:name=".activity.MyApp"
@@ -26,12 +27,11 @@
         android:theme="@style/AppTheme"
         android:networkSecurityConfig="@xml/network_security_config"
         tools:replace="label" >
+        <meta-data android:name="PGYER_API_KEY" android:value="38799a299871a7c3d5dc92586cdb1c7f" />
+        <meta-data android:name="PGYER_FRONTJS_KEY" android:value="545341d6119adc6826d406d20a341cb6" />
 
-        <activity android:name="com.pgyersdk.feedback.FeedbackActivity"/>
-        <meta-data
-            android:name="PGYER_APPID"
-            android:value="975f6c1c832cb41803173f43db393dce" >
-        </meta-data>
+        <!--添加新版本检测-->
+        <meta-data android:name="PGYER_FEATURE_CHECK_UNPDATE" android:value="true" />
 
         <activity
             android:name=".activity.SplashActivity"
