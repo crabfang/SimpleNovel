@@ -10,10 +10,12 @@ import android.text.TextUtils
 import android.view.*
 import android.widget.EditText
 import android.widget.TextView
+import androidx.activity.viewModels
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.cabe.app.novel.R
+import com.cabe.app.novel.domain.BaseViewModel
 import com.cabe.app.novel.domain.bqg.NovelList4BqgUseCase
 import com.cabe.app.novel.domain.ekxs.NovelList42KXSUseCase
 import com.cabe.app.novel.domain.x23us.NovelList4X23USUseCase
@@ -22,13 +24,25 @@ import com.cabe.app.novel.model.NovelInfo
 import com.cabe.app.novel.model.NovelList
 import com.cabe.app.novel.model.SourceType
 import com.cabe.app.novel.utils.DiskUtils
-import com.cabe.lib.cache.CacheSource
-import com.cabe.lib.cache.interactor.ViewPresenter
+import com.cabe.lib.cache.impl.HttpCacheUseCase
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.android.synthetic.main.activity_novel_list.*
 
+class ListViewModel: BaseViewModel<NovelList>() {
+    private var useCase: HttpCacheUseCase<NovelList>? = null
+    fun loadData(novelInfo: NovelInfo?) {
+        useCase?.unsubscribe()
+        useCase = when(novelInfo?.source) {
+            SourceType.EKXS -> NovelList42KXSUseCase(novelInfo.url)
+            SourceType.BQG -> NovelList4BqgUseCase(novelInfo.url)
+            else -> NovelList4X23USUseCase(novelInfo?.url)
+        }
+        useCase?.execute(createPresenter())
+    }
+}
 class NovelListActivity : BaseActivity() {
+    private val viewModel: ListViewModel by viewModels()
     private var keyNovelDetail = ""
     private var novelInfo: NovelInfo? = null
     private var lastContent: NovelContent? = null
@@ -43,6 +57,7 @@ class NovelListActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_novel_list)
         initView()
+        bindData()
         loadNovelInfo()
     }
 
@@ -110,25 +125,22 @@ class NovelListActivity : BaseActivity() {
         adapter.updateLastInfo(lastContent)
     }
 
+    private fun bindData() {
+        viewModel.liveResponse.observe(this, {
+            updateView(it)
+        })
+        viewModel.liveError.observe(this, {
+            it?.let { toast(it.msg) }
+        })
+        viewModel.liveComplete.observe(this, {
+            activity_novel_list_swipe.isRefreshing = false
+        })
+    }
+
     private fun loadNovelInfo() {
         if (novelInfo != null) {
             activity_novel_list_swipe.isRefreshing = true
-            val presenter: ViewPresenter<NovelList> = object : ViewPresenter<NovelList> {
-                override fun load(from: CacheSource, data: NovelList?) {
-                    updateView(data)
-                }
-                override fun error(from: CacheSource, code: Int, info: String) {
-                    toast(info)
-                }
-                override fun complete(from: CacheSource) {
-                    activity_novel_list_swipe.isRefreshing = false
-                }
-            }
-            when (novelInfo?.source) {
-                SourceType.X23US -> NovelList4X23USUseCase(novelInfo?.url).execute(presenter)
-                SourceType.EKXS -> NovelList42KXSUseCase(novelInfo?.url).execute(presenter)
-                SourceType.BQG -> NovelList4BqgUseCase(novelInfo?.url).execute(presenter)
-            }
+            viewModel.loadData(novelInfo)
         }
     }
 
@@ -223,8 +235,8 @@ class NovelListActivity : BaseActivity() {
             notifyDataSetChanged()
         }
 
-        private fun getItemData(index: Int): NovelContent? {
-            var index = index
+        private fun getItemData(position: Int): NovelContent? {
+            var index = position
             if (lastContent != null) {
                 if (index == 0) {
                     return lastContent
@@ -245,7 +257,7 @@ class NovelListActivity : BaseActivity() {
         }
 
         private val realItemCount: Int
-            private get() = if (data == null) 0 else data!!.size
+            get() = if (data == null) 0 else data!!.size
 
         override fun getItemCount(): Int {
             var dataSize = realItemCount
