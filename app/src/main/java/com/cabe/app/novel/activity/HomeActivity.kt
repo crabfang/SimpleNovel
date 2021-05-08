@@ -1,7 +1,6 @@
 package com.cabe.app.novel.activity
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
@@ -40,7 +39,6 @@ import kotlinx.android.synthetic.main.activity_home.*
 import kotlinx.android.synthetic.main.item_home_local_novel.view.*
 import java.util.*
 
-private const val REQUEST_CODE_RANK = 0x101
 class HomeViewModel: BaseViewModel<LocalNovelList>() {
     private var useCase: LocalNovelsUseCase? = null
     fun loadData() {
@@ -65,6 +63,12 @@ class HomeActivity : BaseActivity() {
     private val adapter = MyAdapter()
     private val adapterSearch = MyAdapter()
     private var flagRemote = true
+    private val rankLauncher = registerForActivityResult(RankResultContract()) { jsonStr ->
+        if (!TextUtils.isEmpty(jsonStr)) {
+            val novelInfo = Gson().fromJson(jsonStr, NovelInfo::class.java)
+            addLocalNovel(novelInfo)
+        }
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
@@ -89,6 +93,7 @@ class HomeActivity : BaseActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
+            R.id.menu_novel_home_rank -> actionRank()
             R.id.menu_novel_home_check_update -> checkUpdate()
             R.id.menu_novel_home_about -> {
                 startActivity(Intent(this, AboutActivity::class.java))
@@ -153,16 +158,8 @@ class HomeActivity : BaseActivity() {
         })
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (resultCode != Activity.RESULT_OK) return
-        if (requestCode == REQUEST_CODE_RANK) {
-            val jsonStr = data!!.getStringExtra(KEY_EXTRA_GSON)
-            if (!TextUtils.isEmpty(jsonStr)) {
-                val novelInfo = Gson().fromJson(jsonStr, NovelInfo::class.java)
-                addLocalNovel(novelInfo)
-            }
-        }
+    private fun actionRank() {
+        rankLauncher.launch(null)
     }
 
     private fun checkUpdate() {
@@ -204,7 +201,7 @@ class HomeActivity : BaseActivity() {
                     }
                 }
             }
-            when (it?.source) {
+            when (it.source) {
                 SourceType.X23US -> NovelList4X23USUseCase(it.url).execute(presenter)
                 SourceType.EKXS -> NovelList42KXSUseCase(it.url).execute(presenter)
                 SourceType.BQG -> NovelList4BqgUseCase(it.url).execute(presenter)
@@ -238,6 +235,7 @@ class HomeActivity : BaseActivity() {
     }
 
     fun onClose(view: View?) {
+        searchInput.setText("")
         adapterSearch.setData(null)
         showSearchView(false)
     }
@@ -245,19 +243,18 @@ class HomeActivity : BaseActivity() {
     fun onSearch(view: View?) {
         waiting!!.show()
         hiddenKeyboard()
+        searchList.clear()
         val inputStr = searchInput.text.toString()
         search42kxs(inputStr)
     }
 
-    fun onRank(view: View?) {
-        startActivityForResult(Intent(this, RankActivity::class.java), REQUEST_CODE_RANK)
-    }
-
+    private var searchList = mutableListOf<NovelInfo>()
     private fun search42kxs(keyWord: String) {
         val searchUseCase = Search42kxsUseCase(keyWord)
         searchUseCase.execute(object : ViewPresenter<List<NovelInfo>> {
             override fun load(from: CacheSource, data: List<NovelInfo>) {
                 if (data.isNotEmpty()) {
+                    searchList.addAll(data)
                     adapterSearch.addData(data)
                     showSearchView(true)
                 }
@@ -276,6 +273,7 @@ class HomeActivity : BaseActivity() {
         searchUseCase.execute(object : ViewPresenter<List<NovelInfo>> {
             override fun load(from: CacheSource, data: List<NovelInfo>) {
                 if (data.isNotEmpty()) {
+                    searchList.addAll(data)
                     adapterSearch.addData(data)
                     showSearchView(true)
                 }
@@ -284,9 +282,16 @@ class HomeActivity : BaseActivity() {
                 toast(info)
             }
             override fun complete(from: CacheSource) {
-                waiting!!.dismiss()
+                handleSearchResult()
             }
         })
+    }
+
+    private fun handleSearchResult() {
+        waiting!!.dismiss()
+        if(searchList.isEmpty()) {
+            toast("找不到相关小说")
+        }
     }
 
     private inner class MyAdapter : RecyclerView.Adapter<MyHolder>() {
@@ -296,7 +301,10 @@ class HomeActivity : BaseActivity() {
             this.listener = listener
         }
         fun setData(list: List<NovelInfo>?) {
-            novelList = list?.toMutableList()
+            novelList?.clear()
+            list?.let {
+                novelList = it.toMutableList()
+            }
             notifyDataSetChanged()
         }
         fun addData(list: List<NovelInfo>?) {

@@ -1,6 +1,5 @@
 package com.cabe.app.novel.activity
 
-import android.R
 import android.app.ProgressDialog
 import android.content.Context
 import android.os.Bundle
@@ -8,6 +7,7 @@ import android.text.TextUtils
 import android.view.MenuItem
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.cabe.app.novel.R
 import com.cabe.app.novel.model.BaseObject
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken

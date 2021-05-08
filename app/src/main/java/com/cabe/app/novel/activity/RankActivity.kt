@@ -1,6 +1,7 @@
 package com.cabe.app.novel.activity
 
 import android.app.Activity
+import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
@@ -10,6 +11,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.RadioGroup
 import android.widget.TextView
+import androidx.activity.result.contract.ActivityResultContract
 import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -17,6 +19,7 @@ import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.cabe.app.novel.R
+import com.cabe.app.novel.activity.BaseActivity.Companion.KEY_EXTRA_GSON
 import com.cabe.app.novel.domain.ekxs.NovelDetail42kxsUseCase
 import com.cabe.app.novel.domain.ekxs.Rank42kxsUseCase
 import com.cabe.app.novel.model.NovelInfo
@@ -36,12 +39,11 @@ class RankActivity : BaseActivity() {
     }
 
     private fun initView() {
-        val rankRecycler = findViewById<RecyclerView>(R.id.activity_rank_list_recycler)
         activity_rank_list_type.setOnCheckedChangeListener { _: RadioGroup?, checkedId: Int -> changeType(checkedId) }
         activity_rank_list_swipe.setOnRefreshListener { changeType(activity_rank_list_type.checkedRadioButtonId) }
-        rankRecycler.layoutManager = GridLayoutManager(this, 3)
+        activity_rank_list_recycler.layoutManager = GridLayoutManager(this, 3)
         myAdapter = MyAdapter()
-        rankRecycler.adapter = myAdapter
+        activity_rank_list_recycler.adapter = myAdapter
     }
 
     private fun changeType(checkedId: Int) {
@@ -60,6 +62,7 @@ class RankActivity : BaseActivity() {
     }
 
     private fun loadRank(sort: String) {
+        activity_rank_list_recycler.scrollToPosition(0)
         activity_rank_list_swipe.isRefreshing = true
         val useCase = Rank42kxsUseCase(sort)
         useCase.execute(object : ViewPresenter<List<NovelInfo>> {
@@ -67,7 +70,7 @@ class RankActivity : BaseActivity() {
                 toast(info)
             }
             override fun load(from: CacheSource, data: List<NovelInfo>) {
-                myAdapter!!.setData(data)
+                myAdapter?.setData(data)
             }
             override fun complete(from: CacheSource) {
                 activity_rank_list_swipe.isRefreshing = false
@@ -152,4 +155,17 @@ class RankActivity : BaseActivity() {
         val tvTitle: TextView = itemView.findViewById(R.id.item_rank_list_novel_title)
         val tvAuthor: TextView = itemView.findViewById(R.id.item_rank_list_novel_author)
     }
+}
+
+class RankResultContract: ActivityResultContract<String?, String?>() {
+    override fun createIntent(context: Context, input: String?): Intent {
+        return Intent(context, RankActivity::class.java)
+    }
+    override fun parseResult(resultCode: Int, intent: Intent?): String? {
+        return when (resultCode) {
+            Activity.RESULT_OK -> intent?.getStringExtra(KEY_EXTRA_GSON)
+            else -> null
+        }
+    }
+
 }
