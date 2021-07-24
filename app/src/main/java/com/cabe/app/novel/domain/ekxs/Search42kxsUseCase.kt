@@ -100,18 +100,18 @@ class Search42kxsUseCase(key: String?) : HttpCacheUseCase<List<NovelInfo>>(objec
     init {
         val params = RequestParams()
         params.host = SourceType.EKXS.host
-        params.path = "modules/article/search.php"
+        params.path = "/modules/article/so.php"
         params.requestMethod = RequestParams.REQUEST_METHOD_GET
         val query: MutableMap<String, String> = HashMap()
         try {
-            query["searchkey"] = URLEncoder.encode(key, "utf-8")
+            query["searchkey"] = URLEncoder.encode(key, "gbk")
         } catch (e: UnsupportedEncodingException) {
             e.printStackTrace()
         }
         query["searchtype"] = "keywords"
         params.query = query
         setRequestParams(params)
-        setHttpManager(MyHttpManager(typeToken, "utf-8"))
+        setHttpManager(MyHttpManager(typeToken, "gbk"))
         httpRepository.setResponseTransformer(object : HttpStringTransformer<List<NovelInfo>>() {
             override fun buildData(responseStr: String): List<NovelInfo>? {
                 val docL = Jsoup.parse(responseStr)

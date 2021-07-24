@@ -4,7 +4,7 @@ import android.app.Application;
 
 import com.cabe.lib.cache.disk.DiskCacheManager;
 import com.pgyer.pgyersdk.PgyerSDKManager;
-import com.pgyer.pgyersdk.pgyerenum.FeatureEnum;
+import com.pgyer.pgyersdk.pgyerenum.Features;
 
 import java.io.File;
 
@@ -22,9 +22,9 @@ public class MyApp extends Application {
             DiskCacheManager.DISK_CACHE_PATH = getFilesDir().getAbsolutePath();
         }
 
-        new PgyerSDKManager.InitSdk()
+        new PgyerSDKManager.Init()
                 .setContext(this) //设置上下问对象
-                .enable(FeatureEnum.CHECK_UPDATE)  //添加检查新版本
-                .build();
+                .enable(Features.CHECK_UPDATE)  //添加检查新版本
+                .start();
     }
 }

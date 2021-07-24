@@ -212,7 +212,7 @@ class NovelListActivity : BaseActivity() {
             var index = 0
             if (data != null) {
                 for (content in data!!) {
-                    if (content.title.contains(key)) {
+                    if (content.title?.contains(key) == true) {
                         break
                     }
                     index++
@@ -230,7 +230,7 @@ class NovelListActivity : BaseActivity() {
                 return cur
             }
 
-        fun setData(data: List<NovelContent>) {
+        fun setData(data: List<NovelContent>?) {
             this.data = data
             notifyDataSetChanged()
         }

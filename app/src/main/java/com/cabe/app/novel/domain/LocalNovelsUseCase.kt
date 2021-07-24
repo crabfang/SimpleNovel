@@ -32,5 +32,21 @@ class LocalNovelsUseCase : DiskCacheUseCase<LocalNovelList>(object: TypeToken<Lo
                 }
             }
         }
+        fun updateLocalNovelUrl(url: String?, newUrl: String?) {
+            if (newUrl != null) {
+                val localUseCase = LocalNovelsUseCase()
+                val localData: LocalNovelList = localUseCase.diskRepository.get(localUseCase.typeToken)
+                if (localData.list != null) {
+                    var change = false
+                    localData.list?.find { it.url == url }?.let { result ->
+                        result.url = newUrl
+                        change = true
+                    }
+                    if (change) {
+                        localUseCase.saveCacheDisk(localData)
+                    }
+                }
+            }
+        }
     }
 }

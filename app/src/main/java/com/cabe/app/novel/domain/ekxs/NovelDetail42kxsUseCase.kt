@@ -77,13 +77,13 @@ class NovelDetail42kxsUseCase(private val url: String?) : HttpCacheUseCase<Novel
         params.host = "$host/"
         var path = if (group.size > 1) group[1] else ""
         try {
-            path = URLEncoder.encode(path, "utf-8")
+            path = URLEncoder.encode(path, "gbk")
         } catch (e: UnsupportedEncodingException) {
             e.printStackTrace()
         }
         params.path = path
         setRequestParams(params)
-        setHttpManager(MyHttpManager(typeToken).apply { setStringEncode("utf-8") })
+        setHttpManager(MyHttpManager(typeToken).apply { setStringEncode("gbk") })
         httpRepository.setResponseTransformer(object : HttpStringTransformer<NovelInfo?>() {
             override fun buildData(responseStr: String): NovelInfo? {
                 val docL = Jsoup.parse(responseStr)

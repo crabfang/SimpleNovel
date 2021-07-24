@@ -244,6 +244,7 @@ class HomeActivity : BaseActivity() {
         waiting!!.show()
         hiddenKeyboard()
         searchList.clear()
+        adapterSearch.setData(null)
         val inputStr = searchInput.text.toString()
         search42kxs(inputStr)
     }

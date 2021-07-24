@@ -15,6 +15,7 @@ import com.cabe.lib.cache.impl.HttpCacheUseCase
 import com.google.gson.reflect.TypeToken
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+import java.io.File
 import java.io.UnsupportedEncodingException
 import java.net.URLEncoder
 import java.util.*
@@ -35,12 +36,12 @@ class NovelList42KXSUseCase(url: String?) : HttpCacheUseCase<NovelList>(object :
                     novelDetail.picUrl = host + es.first().attr("src")
                 }
             }
-            doc.select("div.info2 > h1")?.let { es ->
+            doc.select("div#title > h1")?.let { es ->
                 if (es.size > 0) {
                     novelDetail.title = es.first().text()
                 }
             }
-            doc.select("div.info2 > h3 > a")?.let { es ->
+            doc.select("div#title > address > a")?.let { es ->
                 if (es.size > 0) {
                     novelDetail.author = es.first().text()
                 }
@@ -58,27 +59,24 @@ class NovelList42KXSUseCase(url: String?) : HttpCacheUseCase<NovelList>(object :
                     novelDetail.update = es.first().text()
                 }
             }
-            doc.select("div.info3 > p > a")?.let { es ->
+            doc.select("dl.book > dd")?.let { es ->
                 if(es.size > 0) {
                     novelDetail.lastChapter = es.first().text()
                 }
             }
             LocalNovelsUseCase.updateLocalNovelPic(url!!, novelDetail)
-            val listEs = doc.select("ul.list-charts")
+            val listEs = doc.select("dl.book > dd")
             if (listEs != null && listEs.size > 0) {
-                val liEs = listEs[0].select("li > a")
-                if (liEs != null && liEs.size > 0) {
-                    val list: MutableList<NovelContent> = ArrayList()
-                    for (i in liEs.indices) {
-                        val content = NovelContent()
-                        val element = liEs[i]
-                        content.title = element.text()
-                        content.url = host + element.attr("href")
-                        content.source = SourceType.EKXS
-                        list.add(content)
-                    }
-                    novelDetail.list = list
+                val list: MutableList<NovelContent> = ArrayList()
+                for (i in 4 until listEs.size) {
+                    val content = NovelContent()
+                    val element = listEs[i].selectFirst("a")
+                    content.title = element.text()
+                    content.url = url + element.attr("href")
+                    content.source = SourceType.EKXS
+                    list.add(content)
                 }
+                novelDetail.list = list
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -97,7 +95,7 @@ class NovelList42KXSUseCase(url: String?) : HttpCacheUseCase<NovelList>(object :
         val host = group[0].toString() + "/"
         var path = if (group.size > 1) group[1] else ""
         try {
-            path = URLEncoder.encode(path, "utf-8")
+            path = URLEncoder.encode(path, "gbk")
         } catch (e: UnsupportedEncodingException) {
             e.printStackTrace()
         }
@@ -108,7 +106,7 @@ class NovelList42KXSUseCase(url: String?) : HttpCacheUseCase<NovelList>(object :
         val httpRepository = httpRepository
         if (httpRepository is HttpStringCacheManager<*>) {
             val httpManager = httpRepository as HttpStringCacheManager<NovelList?>
-            httpManager.setStringEncode("utf-8")
+            httpManager.setStringEncode("gbk")
         }
         httpRepository.setResponseTransformer(object : HttpStringTransformer<NovelList?>() {
             override fun buildData(responseStr: String): NovelList? {
