@@ -1,16 +1,14 @@
-package com.cabe.app.novel.domain.ekxs
+package com.cabe.app.novel.domain.fpzw
 
 import android.text.TextUtils
 import com.cabe.lib.cache.impl.HttpCacheUseCase
 import com.cabe.app.novel.model.NovelContent
 import com.google.gson.reflect.TypeToken
-import org.jsoup.select.Elements
 import com.cabe.app.novel.model.SourceType
 import com.cabe.lib.cache.exception.RxException
 import com.cabe.lib.cache.exception.HttpExceptionCode
 import com.cabe.app.novel.utils.UrlUtils
 import com.cabe.lib.cache.http.RequestParams
-import com.cabe.lib.cache.interactor.HttpCacheRepository
 import com.cabe.lib.cache.http.HttpStringCacheManager
 import com.cabe.lib.cache.http.transformer.HttpStringTransformer
 import org.jsoup.Jsoup
@@ -21,7 +19,7 @@ import java.lang.Exception
  *
  * 作者：沈建芳 on 2017/10/9 16:30
  */
-class NovelContent42kxsUseCase(val url: String?) : HttpCacheUseCase<NovelContent?>(object : TypeToken<NovelContent?>() {}, null) {
+class NovelContent4FpzwUseCase(val url: String?) : HttpCacheUseCase<NovelContent?>(object : TypeToken<NovelContent?>() {}, null) {
     private val host: String
     private fun parserHtmlForList(doc: Document): NovelContent? {
         var content: NovelContent? = null
@@ -65,7 +63,7 @@ class NovelContent42kxsUseCase(val url: String?) : HttpCacheUseCase<NovelContent
                 }
                 content.content = contentHtml.substring(indexContent)
             }
-            content.source = SourceType.EKXS
+            content.source = SourceType.FPZW
         } catch (e: Exception) {
             e.printStackTrace()
         }

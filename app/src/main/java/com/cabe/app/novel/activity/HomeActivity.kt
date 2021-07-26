@@ -23,8 +23,9 @@ import com.cabe.app.novel.domain.BaseViewModel
 import com.cabe.app.novel.domain.LocalNovelsUseCase
 import com.cabe.app.novel.domain.bqg.NovelList4BqgUseCase
 import com.cabe.app.novel.domain.bqg.Search4BqgUseCase
-import com.cabe.app.novel.domain.ekxs.NovelList42KXSUseCase
-import com.cabe.app.novel.domain.ekxs.Search42kxsUseCase
+import com.cabe.app.novel.domain.fpzw.NovelList4FpzwUseCase
+import com.cabe.app.novel.domain.fpzw.Search4FpzwUseCase
+import com.cabe.app.novel.domain.tkxs.NovelList42KXSUseCase
 import com.cabe.app.novel.domain.x23us.NovelList4X23USUseCase
 import com.cabe.app.novel.model.LocalNovelList
 import com.cabe.app.novel.model.NovelInfo
@@ -192,7 +193,18 @@ class HomeActivity : BaseActivity() {
 
     private var remoteUpdateCount = 0
     private fun updateRemoteData() {
+        var needReload = false
         localNovelList?.list?.forEach {
+            if(it.url?.contains(SourceType.EKXS.host) == true && it.source != SourceType.EKXS) {
+                LocalNovelsUseCase.updateLocalSource(it.url, SourceType.EKXS)
+                needReload = true
+            } else if(it.url?.contains(SourceType.FPZW.host) == true && it.source != SourceType.FPZW) {
+                LocalNovelsUseCase.updateLocalSource(it.url, SourceType.FPZW)
+                needReload = true
+            } else if(it.source == SourceType.BQG && it.url?.contains(SourceType.BQG.host) == false) {
+                LocalNovelsUseCase.updateLocalHost(it.url, SourceType.BQG.host)
+                needReload = true
+            }
             val presenter: ViewPresenter<NovelList> = object : SimpleViewPresenter<NovelList>() {
                 override fun complete(from: CacheSource) {
                     remoteUpdateCount ++
@@ -202,11 +214,13 @@ class HomeActivity : BaseActivity() {
                 }
             }
             when (it.source) {
-                SourceType.X23US -> NovelList4X23USUseCase(it.url).execute(presenter)
                 SourceType.EKXS -> NovelList42KXSUseCase(it.url).execute(presenter)
+                SourceType.X23US -> NovelList4X23USUseCase(it.url).execute(presenter)
+                SourceType.FPZW -> NovelList4FpzwUseCase(it.url).execute(presenter)
                 SourceType.BQG -> NovelList4BqgUseCase(it.url).execute(presenter)
             }
         }
+        if(needReload) loadLocal(true)
     }
 
     private fun addLocalNovel(novelInfo: NovelInfo?) {
@@ -251,7 +265,7 @@ class HomeActivity : BaseActivity() {
 
     private var searchList = mutableListOf<NovelInfo>()
     private fun search42kxs(keyWord: String) {
-        val searchUseCase = Search42kxsUseCase(keyWord)
+        val searchUseCase = Search4FpzwUseCase(keyWord)
         searchUseCase.execute(object : ViewPresenter<List<NovelInfo>> {
             override fun load(from: CacheSource, data: List<NovelInfo>) {
                 if (data.isNotEmpty()) {

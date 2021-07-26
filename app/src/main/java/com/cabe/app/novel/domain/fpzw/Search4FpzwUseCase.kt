@@ -1,4 +1,4 @@
-package com.cabe.app.novel.domain.ekxs
+package com.cabe.app.novel.domain.fpzw
 
 import com.cabe.app.novel.model.NovelInfo
 import com.cabe.app.novel.model.SourceType
@@ -17,7 +17,7 @@ import java.util.*
 /**
  * 作者：沈建芳 on 2017/10/9 16:30
  */
-class Search42kxsUseCase(key: String?) : HttpCacheUseCase<List<NovelInfo>>(object : TypeToken<List<NovelInfo>>() {}, null) {
+class Search4FpzwUseCase(key: String?) : HttpCacheUseCase<List<NovelInfo>>(object : TypeToken<List<NovelInfo>>() {}, null) {
     private fun parserHtmlForList(doc: Document): List<NovelInfo>? {
         var novelList: MutableList<NovelInfo>? = null
         try {
@@ -49,10 +49,10 @@ class Search42kxsUseCase(key: String?) : HttpCacheUseCase<List<NovelInfo>>(objec
         var novelInfo: NovelInfo? = null
         if (e != null) {
             novelInfo = NovelInfo()
-            novelInfo.source = SourceType.EKXS
+            novelInfo.source = SourceType.FPZW
             val ePic = e.select("div.wleft > img")
             if (ePic != null && ePic.size > 0) {
-                novelInfo.picUrl = SourceType.EKXS.host + ePic.first().attr("src")
+                novelInfo.picUrl = SourceType.FPZW.host + ePic.first().attr("src")
             }
             val tdTitle = e.select("div#title")
             if (tdTitle != null) {
@@ -80,7 +80,7 @@ class Search42kxsUseCase(key: String?) : HttpCacheUseCase<List<NovelInfo>>(objec
         var novelInfo: NovelInfo? = null
         if (e != null) {
             novelInfo = NovelInfo()
-            novelInfo.source = SourceType.EKXS
+            novelInfo.source = SourceType.FPZW
             val tdEs = e.select("td")
             if (tdEs != null && tdEs.size >= 5) {
                 val titleTags = tdEs[1].select("a")
@@ -99,7 +99,7 @@ class Search42kxsUseCase(key: String?) : HttpCacheUseCase<List<NovelInfo>>(objec
 
     init {
         val params = RequestParams()
-        params.host = SourceType.EKXS.host
+        params.host = SourceType.FPZW.host
         params.path = "/modules/article/so.php"
         params.requestMethod = RequestParams.REQUEST_METHOD_GET
         val query: MutableMap<String, String> = HashMap()

@@ -1,4 +1,4 @@
-package com.cabe.app.novel.domain.ekxs
+package com.cabe.app.novel.domain.tkxs
 
 import com.cabe.app.novel.model.NovelInfo
 import com.cabe.app.novel.model.SourceType

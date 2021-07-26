@@ -83,11 +83,11 @@ class Search4BqgUseCase(key: String?) : HttpCacheUseCase<List<NovelInfo>>(object
     init {
         val params = RequestParams()
         params.host = SourceType.BQG.host
-        params.path = "search.php"
+        params.path = "/modules/article/search.php"
         params.requestMethod = RequestParams.REQUEST_METHOD_GET
         val query: MutableMap<String, String> = HashMap()
         try {
-            query["q"] = URLEncoder.encode(key, "utf-8")
+            query["searchkey"] = URLEncoder.encode(key, "utf-8")
         } catch (e: UnsupportedEncodingException) {
             e.printStackTrace()
         }

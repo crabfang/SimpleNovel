@@ -20,8 +20,8 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.cabe.app.novel.R
 import com.cabe.app.novel.activity.BaseActivity.Companion.KEY_EXTRA_GSON
-import com.cabe.app.novel.domain.ekxs.NovelDetail42kxsUseCase
-import com.cabe.app.novel.domain.ekxs.Rank42kxsUseCase
+import com.cabe.app.novel.domain.fpzw.NovelDetail4FpzwUseCase
+import com.cabe.app.novel.domain.fpzw.Rank4FpzwUseCase
 import com.cabe.app.novel.model.NovelInfo
 import com.cabe.lib.cache.CacheSource
 import com.cabe.lib.cache.interactor.ViewPresenter
@@ -64,7 +64,7 @@ class RankActivity : BaseActivity() {
     private fun loadRank(sort: String) {
         activity_rank_list_recycler.scrollToPosition(0)
         activity_rank_list_swipe.isRefreshing = true
-        val useCase = Rank42kxsUseCase(sort)
+        val useCase = Rank4FpzwUseCase(sort)
         useCase.execute(object : ViewPresenter<List<NovelInfo>> {
             override fun error(from: CacheSource, code: Int, info: String) {
                 toast(info)
@@ -80,7 +80,7 @@ class RankActivity : BaseActivity() {
 
     private fun queryNovel(url: String?) {
         waiting?.show()
-        val useCase = NovelDetail42kxsUseCase(url)
+        val useCase = NovelDetail4FpzwUseCase(url)
         useCase.execute(object : ViewPresenter<NovelInfo> {
             override fun error(from: CacheSource, code: Int, info: String) {
                 toast(info)

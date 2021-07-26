@@ -1,7 +1,9 @@
 package com.cabe.app.novel.domain
 
+import android.net.Uri
 import com.cabe.app.novel.model.LocalNovelList
 import com.cabe.app.novel.model.NovelList
+import com.cabe.app.novel.model.SourceType
 import com.cabe.lib.cache.impl.DiskCacheUseCase
 import com.google.gson.reflect.TypeToken
 
@@ -11,7 +13,7 @@ import com.google.gson.reflect.TypeToken
  */
 class LocalNovelsUseCase : DiskCacheUseCase<LocalNovelList>(object: TypeToken<LocalNovelList>(){}) {
     companion object {
-        fun updateLocalNovelPic(url: String?, data: NovelList?) {
+        fun updateLocalPic(url: String?, data: NovelList?) {
             if (data != null) {
                 val localUseCase = LocalNovelsUseCase()
                 val localData: LocalNovelList = localUseCase.diskRepository.get(localUseCase.typeToken)
@@ -32,19 +34,32 @@ class LocalNovelsUseCase : DiskCacheUseCase<LocalNovelList>(object: TypeToken<Lo
                 }
             }
         }
-        fun updateLocalNovelUrl(url: String?, newUrl: String?) {
-            if (newUrl != null) {
-                val localUseCase = LocalNovelsUseCase()
-                val localData: LocalNovelList = localUseCase.diskRepository.get(localUseCase.typeToken)
-                if (localData.list != null) {
-                    var change = false
-                    localData.list?.find { it.url == url }?.let { result ->
-                        result.url = newUrl
-                        change = true
-                    }
-                    if (change) {
-                        localUseCase.saveCacheDisk(localData)
-                    }
+        fun updateLocalSource(url: String?, source: SourceType) {
+            val localUseCase = LocalNovelsUseCase()
+            val localData: LocalNovelList = localUseCase.diskRepository.get(localUseCase.typeToken)
+            if (localData.list != null) {
+                var change = false
+                localData.list?.find { it.url == url }?.let { result ->
+                    result.source = source
+                    change = true
+                }
+                if (change) {
+                    localUseCase.saveCacheDisk(localData)
+                }
+            }
+        }
+        fun updateLocalHost(url: String?, host: String) {
+            val localUseCase = LocalNovelsUseCase()
+            val localData: LocalNovelList = localUseCase.diskRepository.get(localUseCase.typeToken)
+            if (localData.list != null) {
+                var change = false
+                localData.list?.find { it.url == url }?.let { result ->
+                    val path = Uri.parse(result.url).path
+                    result.url = Uri.parse(host).buildUpon().path(path).build().toString()
+                    change = true
+                }
+                if (change) {
+                    localUseCase.saveCacheDisk(localData)
                 }
             }
         }

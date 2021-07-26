@@ -1,4 +1,4 @@
-package com.cabe.app.novel.domain.x23us
+package com.cabe.app.novel.domain.fpzw
 
 import android.text.TextUtils
 import com.cabe.app.novel.domain.LocalNovelsUseCase
@@ -23,79 +23,78 @@ import java.util.*
  *
  * 作者：沈建芳 on 2017/10/9 16:30
  */
-class NovelList4X23USUseCase(url: String?) : HttpCacheUseCase<NovelList>(object : TypeToken<NovelList>() {}, null) {
-    private val novelUrl: String?
+class NovelList4FpzwUseCase(url: String?) : HttpCacheUseCase<NovelList>(object : TypeToken<NovelList>() {}, null) {
     private val host: String
+    private val url: String?
     private fun parserHtmlForList(doc: Document): NovelList? {
-        var novelList: NovelList? = null
+        var novelDetail: NovelList? = null
         try {
-            novelList = NovelList()
-            val picEs = doc.select("div.fl > a.hst > img")
-            if (picEs != null && picEs.size > 0) {
-                novelList.picUrl = host + picEs[0].attr("src")
-            }
-            val titleEs = doc.select("dd > h1")
-            if (titleEs != null && titleEs.size > 0) {
-                novelList.title = titleEs[0].text()
-            }
-            val subTitleEs = doc.select("dd > h3")
-            if (subTitleEs != null && subTitleEs.size > 0) {
-                val text = subTitleEs[0].text()
-                val group = parseSubTitle(text)
-                if (group != null) {
-                    novelList.author = group[0]
-                    novelList.update = group[1]
+            novelDetail = NovelList()
+            doc.select("div.info1 > img")?.let { es ->
+                if (es.size > 0) {
+                    novelDetail.picUrl = host + es.first().attr("src")
                 }
             }
-            LocalNovelsUseCase.updateLocalPic(novelUrl, novelList)
-            val listEs = doc.select("td.L > a")
+            doc.select("div#title > h1")?.let { es ->
+                if (es.size > 0) {
+                    novelDetail.title = es.first().text()
+                }
+            }
+            doc.select("div#title > address > a")?.let { es ->
+                if (es.size > 0) {
+                    novelDetail.author = es.first().text()
+                }
+            }
+            doc.select("div.info3 > p")?.let { es ->
+                if(es.size > 0) {
+                    es.first().text().split("/").let { group ->
+                        novelDetail.type = group[0].replace("小说类别：", "")
+                        novelDetail.state = group[1].replace("写作状态：", "")
+                    }
+                }
+            }
+            doc.select("div.info3 > p > font")?.let { es ->
+                if(es.size > 0) {
+                    novelDetail.update = es.first().text()
+                }
+            }
+            doc.select("dl.book > dd")?.let { es ->
+                if(es.size > 0) {
+                    novelDetail.lastChapter = es.first().text()
+                }
+            }
+            LocalNovelsUseCase.updateLocalPic(url!!, novelDetail)
+            val listEs = doc.select("dl.book > dd")
             if (listEs != null && listEs.size > 0) {
                 val list: MutableList<NovelContent> = ArrayList()
-                for (i in listEs.indices) {
+                for (i in 4 until listEs.size) {
                     val content = NovelContent()
-                    val element = listEs[i]
+                    val element = listEs[i].selectFirst("a")
                     content.title = element.text()
-                    content.url = novelUrl + element.attr("href")
-                    content.source = SourceType.X23US
+                    content.url = url + element.attr("href")
+                    content.source = SourceType.FPZW
                     list.add(content)
                 }
-                novelList.list = list
+                novelDetail.list = list
             }
         } catch (e: Exception) {
             e.printStackTrace()
         }
-        return novelList
-    }
-
-    private fun parseSubTitle(text: String): Array<String>? {
-        val group = text.split(" ".toRegex()).toTypedArray()
-        if (group.size > 1) {
-            val authorGroup = group[0].split("：".toRegex()).toTypedArray()
-            val modifyGroup = group[1].split("：".toRegex()).toTypedArray()
-            var author = ""
-            var modify = ""
-            if (authorGroup.size > 1) {
-                author = authorGroup[1]
-            }
-            if (modifyGroup.size > 1) {
-                modify = modifyGroup[1]
-            }
-            return arrayOf(author, modify)
-        }
-        return null
+        return novelDetail
     }
 
     init {
         if (TextUtils.isEmpty(url)) {
             throw RxException.build(HttpExceptionCode.HTTP_STATUS_LOCAL_REQUEST_NONE, null)
         }
-        novelUrl = url
+        this.url = url
         val group = UrlUtils.splitUrl(url)
+        host = group[0]
         val params = RequestParams()
-        host = group[0].toString() + "/"
+        val host = group[0].toString() + "/"
         var path = if (group.size > 1) group[1] else ""
         try {
-            path = URLEncoder.encode(path, "utf-8")
+            path = URLEncoder.encode(path, "gbk")
         } catch (e: UnsupportedEncodingException) {
             e.printStackTrace()
         }

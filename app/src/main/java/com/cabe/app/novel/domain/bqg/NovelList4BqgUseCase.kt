@@ -53,7 +53,7 @@ class NovelList4BqgUseCase(url: String?) : HttpCacheUseCase<NovelList>(object : 
                     novelList.lastChapter = p.text().split("：")[1]
                 }
             }
-            LocalNovelsUseCase.updateLocalNovelPic(novelUrl, novelList)
+            LocalNovelsUseCase.updateLocalPic(novelUrl, novelList)
             val listEs = doc.select("div#list > dl > dd > a")
             if (listEs?.size?:0 > 0) {
                 val list: MutableList<NovelContent> = ArrayList()
