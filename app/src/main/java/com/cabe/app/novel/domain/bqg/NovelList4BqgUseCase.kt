@@ -23,7 +23,7 @@ import java.util.*
  *
  * 作者：沈建芳 on 2017/10/9 16:30
  */
-class NovelList4BqgUseCase(url: String?) : HttpCacheUseCase<NovelList>(object : TypeToken<NovelList>() {}, null) {
+class NovelList4BqgUseCase(val url: String?) : HttpCacheUseCase<NovelList>(object : TypeToken<NovelList>() {}, null) {
     private val novelUrl: String?
     private val host: String
     private fun parserHtmlForList(doc: Document): NovelList? {
@@ -39,18 +39,18 @@ class NovelList4BqgUseCase(url: String?) : HttpCacheUseCase<NovelList>(object : 
                 novelList.title = titleEs[0].text()
             }
             val esInfo = doc.select("div#info > p")
-            if (esInfo?.size?:0 ==4) {
+            if (esInfo?.size?:0 >= 4) {
                 esInfo[0].let { p ->
-                    novelList.author = p.text().split("：")[1]
+                    novelList.author = p.text().split(":")[1]
                 }
                 esInfo[1].let { p ->
-                    novelList.state = p.text().split("：")[1]
+                    novelList.state = p.text().split(":")[1]
                 }
                 esInfo[2].let { p ->
-                    novelList.update = p.text().split("：")[1]
+                    novelList.update = p.text().split(":")[1]
                 }
                 esInfo[3].let { p ->
-                    novelList.lastChapter = p.text().split("：")[1]
+                    novelList.lastChapter = p.text().split(":")[1]
                 }
             }
             LocalNovelsUseCase.updateLocalPic(novelUrl, novelList)
@@ -61,7 +61,7 @@ class NovelList4BqgUseCase(url: String?) : HttpCacheUseCase<NovelList>(object : 
                     val content = NovelContent()
                     val element = listEs[i]
                     content.title = element.text()
-                    content.url = SourceType.BQG.host + element.attr("href").substring(1)
+                    content.url = url + element.attr("href")
                     content.source = SourceType.BQG
                     list.add(content)
                 }

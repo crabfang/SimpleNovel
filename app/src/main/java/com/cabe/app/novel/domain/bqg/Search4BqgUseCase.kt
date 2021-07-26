@@ -1,5 +1,6 @@
 package com.cabe.app.novel.domain.bqg
 
+import android.text.TextUtils
 import com.cabe.app.novel.model.NovelInfo
 import com.cabe.app.novel.model.SourceType
 import com.cabe.app.novel.retrofit.MyHttpManager
@@ -21,12 +22,12 @@ class Search4BqgUseCase(key: String?) : HttpCacheUseCase<List<NovelInfo>>(object
     private fun parserHtmlForList(doc: Document): List<NovelInfo>? {
         var novelList: MutableList<NovelInfo>? = null
         try {
-            val divResult = doc.select("div.result-item")
+            val divResult = doc.select("table.grid > tbody > tr")
             if (divResult != null && divResult.size > 0) {
                 novelList = ArrayList()
                 divResult.forEach { div ->
                     val novelInfo = parseSingle(div)
-                    if(novelInfo != null) novelList.add(novelInfo)
+                    if(TextUtils.isEmpty(novelInfo?.url).not()) novelList.add(novelInfo!!)
                 }
                 return novelList
             }
@@ -41,40 +42,26 @@ class Search4BqgUseCase(key: String?) : HttpCacheUseCase<List<NovelInfo>>(object
         if (e != null) {
             novelInfo = NovelInfo()
             novelInfo.source = SourceType.BQG
-            val ePic = e.select("div.result-game-item-pic > a > img")
-            if (ePic?.size ?: 0 > 0) {
-                novelInfo.picUrl = ePic.first().attr("src")
+            val eTitle = e.select("td.odd > a")
+            if (eTitle?.size ?: 0 > 0) {
+                novelInfo.title = eTitle.first().text()
+                novelInfo.url = SourceType.BQG.host + eTitle.attr("href").substring(1)
             }
-            val divDetail = e.select("div.result-game-item-detail")
-            if (divDetail != null) {
-                val aTitle = divDetail.first().select("h3 > a")
-                if (aTitle?.size ?: 0 > 0) {
-                    novelInfo.title = aTitle.text()
-                    novelInfo.url = SourceType.BQG.host + aTitle.attr("href").substring(1)
-                }
-                val divInfo = divDetail.first().select("p.result-game-item-info-tag")
-                if (divInfo?.size ?: 0 > 0) {
-                    divInfo[0].select("p > span")?.let { span ->
-                        if (span.size > 1) {
-                            novelInfo.author = span[1].text()
-                        }
-                    }
-                    divInfo[1].select("p > span")?.let { span ->
-                        if (span.size > 1) {
-                            novelInfo.type = span[1].text()
-                        }
-                    }
-                    divInfo[2].select("p > span")?.let { span ->
-                        if (span.size > 1) {
-                            novelInfo.update = span[1].text()
-                        }
-                    }
-                    divInfo[3].select("p > a")?.let { a ->
-                        if (a.size > 0) {
-                            novelInfo.lastChapter = a[0].text()
-                        }
-                    }
-                }
+            val eLast = e.select("td.even > a")
+            if (eLast?.size ?: 0 > 0) {
+                novelInfo.lastChapter = eLast.first().text()
+            }
+            val eAuthor = e.select("td.odd")
+            if (eAuthor?.size ?: 0 > 1) {
+                novelInfo.author = eAuthor[1].text()
+            }
+            val eUpdate = e.select("td.odd")
+            if (eUpdate?.size ?: 0 > 2) {
+                novelInfo.update = eUpdate[2].text()
+            }
+            val eState = e.select("td.even")
+            if (eState?.size ?: 0 > 1) {
+                novelInfo.state = eState[2].text()
             }
         }
         return novelInfo

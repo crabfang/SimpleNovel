@@ -15,7 +15,6 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 
 /**
- *
  * 作者：沈建芳 on 2017/10/9 16:30
  */
 class NovelContent4BqgUseCase(url: String?) : HttpCacheUseCase<NovelContent?>(object : TypeToken<NovelContent?>() {}, null) {
