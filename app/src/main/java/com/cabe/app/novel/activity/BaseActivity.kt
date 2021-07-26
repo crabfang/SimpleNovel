@@ -7,7 +7,6 @@ import android.text.TextUtils
 import android.view.MenuItem
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.cabe.app.novel.R
 import com.cabe.app.novel.model.BaseObject
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -55,7 +54,7 @@ abstract class BaseActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.home) {
+        if (item.itemId == android.R.id.home) {
             finish()
             return true
         }
