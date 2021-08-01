@@ -11,7 +11,7 @@ import android.widget.TextView;
 import com.cabe.app.novel.R;
 import com.cabe.app.novel.domain.bqg.NovelContent4BqgUseCase;
 import com.cabe.app.novel.domain.fpzw.NovelContent4FpzwUseCase;
-import com.cabe.app.novel.domain.tkxs.NovelContent42kxsUseCase;
+import com.cabe.app.novel.domain.ekxs.NovelContent42kxsUseCase;
 import com.cabe.app.novel.domain.x23us.NovelContent4X23USUseCase;
 import com.cabe.app.novel.model.NovelContent;
 import com.cabe.app.novel.model.SourceType;

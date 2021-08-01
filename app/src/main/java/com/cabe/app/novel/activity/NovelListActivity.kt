@@ -18,7 +18,7 @@ import com.cabe.app.novel.R
 import com.cabe.app.novel.domain.BaseViewModel
 import com.cabe.app.novel.domain.bqg.NovelList4BqgUseCase
 import com.cabe.app.novel.domain.fpzw.NovelList4FpzwUseCase
-import com.cabe.app.novel.domain.tkxs.NovelList42KXSUseCase
+import com.cabe.app.novel.domain.ekxs.NovelList42KXSUseCase
 import com.cabe.app.novel.domain.x23us.NovelList4X23USUseCase
 import com.cabe.app.novel.model.NovelContent
 import com.cabe.app.novel.model.NovelInfo

@@ -24,8 +24,8 @@ import com.cabe.app.novel.domain.LocalNovelsUseCase
 import com.cabe.app.novel.domain.bqg.NovelList4BqgUseCase
 import com.cabe.app.novel.domain.bqg.Search4BqgUseCase
 import com.cabe.app.novel.domain.fpzw.NovelList4FpzwUseCase
-import com.cabe.app.novel.domain.fpzw.Search4FpzwUseCase
-import com.cabe.app.novel.domain.tkxs.NovelList42KXSUseCase
+import com.cabe.app.novel.domain.ekxs.NovelList42KXSUseCase
+import com.cabe.app.novel.domain.ekxs.Search42kxsUseCase
 import com.cabe.app.novel.domain.x23us.NovelList4X23USUseCase
 import com.cabe.app.novel.model.LocalNovelList
 import com.cabe.app.novel.model.NovelInfo
@@ -265,7 +265,7 @@ class HomeActivity : BaseActivity() {
 
     private var searchList = mutableListOf<NovelInfo>()
     private fun search42kxs(keyWord: String) {
-        val searchUseCase = Search4FpzwUseCase(keyWord)
+        val searchUseCase = Search42kxsUseCase(keyWord)
         searchUseCase.execute(object : ViewPresenter<List<NovelInfo>> {
             override fun load(from: CacheSource, data: List<NovelInfo>) {
                 if (data.isNotEmpty()) {

@@ -1,4 +1,4 @@
-package com.cabe.app.novel.domain.tkxs
+package com.cabe.app.novel.domain.ekxs
 
 import android.text.TextUtils
 import com.cabe.app.novel.domain.LocalNovelsUseCase
