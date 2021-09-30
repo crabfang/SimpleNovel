@@ -55,6 +55,11 @@ class NovelListActivity : BaseActivity() {
         outState.putBoolean(KEY_FLAG_SORT_REVERSE, flagReverse)
     }
 
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+        loadNovelInfo()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_novel_list)

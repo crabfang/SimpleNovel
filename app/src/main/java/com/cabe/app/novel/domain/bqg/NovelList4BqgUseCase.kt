@@ -44,7 +44,7 @@ class NovelList4BqgUseCase(val url: String?) : HttpCacheUseCase<NovelList>(objec
                     novelList.author = p.text().split(":")[1]
                 }
                 esInfo[1].let { p ->
-                    novelList.state = p.text().split(":")[1]
+                    novelList.type = p.text().split(":")[1]
                 }
                 esInfo[2].let { p ->
                     novelList.update = p.text().split(":")[1]
@@ -52,6 +52,7 @@ class NovelList4BqgUseCase(val url: String?) : HttpCacheUseCase<NovelList>(objec
                 esInfo[3].let { p ->
                     novelList.lastChapter = p.text().split(":")[1]
                 }
+                novelList.state = ""
             }
             LocalNovelsUseCase.updateLocalPic(novelUrl, novelList)
             val listEs = doc.select("div#list > dl > dd > a")

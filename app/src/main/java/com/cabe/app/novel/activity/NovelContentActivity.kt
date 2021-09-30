@@ -28,6 +28,12 @@ class NovelContentActivity : BaseActivity() {
         outState.putString(KEY_NOVEL_CONTENT_ID, keyNovelContent)
     }
 
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+        updateView(savedInstanceState)
+        finish()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_novel_content)
@@ -51,10 +57,6 @@ class NovelContentActivity : BaseActivity() {
     private fun initView() {
         activity_novel_content_recycler.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             private var prePosition = -1
-            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-                super.onScrollStateChanged(recyclerView, newState)
-            }
-
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
                 val curIndex = (recyclerView.layoutManager as LinearLayoutManager?)!!.findFirstVisibleItemPosition()

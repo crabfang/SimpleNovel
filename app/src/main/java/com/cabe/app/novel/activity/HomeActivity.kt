@@ -359,6 +359,7 @@ class HomeActivity : BaseActivity() {
             holder.tvState.text = "(${itemData.state ?: "--"})"
             holder.tvSource.text = "来源：${itemData.source ?: "--"}"
             holder.tvChapter.text = "章节：${itemData.lastChapter ?: "--"}"
+            holder.tvState.visibility = if (TextUtils.isEmpty(itemData.state)) View.GONE else View.VISIBLE
             holder.tvType.visibility = if (TextUtils.isEmpty(itemData.type)) View.GONE else View.VISIBLE
             holder.itemView.setOnClickListener {
                 if (listener != null) {
