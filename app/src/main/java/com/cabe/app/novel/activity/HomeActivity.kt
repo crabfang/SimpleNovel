@@ -27,10 +27,8 @@ import com.cabe.app.novel.domain.fpzw.NovelList4FpzwUseCase
 import com.cabe.app.novel.domain.ekxs.NovelList42KXSUseCase
 import com.cabe.app.novel.domain.ekxs.Search42kxsUseCase
 import com.cabe.app.novel.domain.x23us.NovelList4X23USUseCase
-import com.cabe.app.novel.model.LocalNovelList
-import com.cabe.app.novel.model.NovelInfo
-import com.cabe.app.novel.model.NovelList
-import com.cabe.app.novel.model.SourceType
+import com.cabe.app.novel.model.*
+import com.cabe.app.novel.utils.DiskUtils
 import com.cabe.lib.cache.CacheSource
 import com.cabe.lib.cache.interactor.ViewPresenter
 import com.cabe.lib.cache.interactor.impl.SimpleViewPresenter
@@ -187,6 +185,14 @@ class HomeActivity : BaseActivity() {
 
     private fun updateLocalNovel() {
         if (localNovelList != null) {
+            localNovelList?.list?.forEach {
+                val key = "NovelListActivity#" + it.title + "#" + it.url
+                val novelGson = DiskUtils.getData(key)
+                if (!TextUtils.isEmpty(novelGson)) {
+                    val cacheData = Gson().fromJson(novelGson, NovelContent::class.java)
+                    it.readChapter = cacheData.title
+                }
+            }
             adapter.setData(localNovelList?.list)
         }
     }
@@ -352,13 +358,13 @@ class HomeActivity : BaseActivity() {
                         error(R.drawable.pic_default_novel)
                     })
                     .into(holder.pic)
-            holder.tvTitle.text = itemData.title
+            holder.tvTitle.text = "${itemData.title}(${itemData.source})"
             holder.tvAuthor.text = "作者：${itemData.author ?: "--"}"
             holder.tvType.text = "类型：${itemData.type ?: "--"}"
             holder.tvUpdate.text = "更新：${itemData.update ?: "--"}"
             holder.tvState.text = "(${itemData.state ?: "--"})"
-            holder.tvSource.text = "来源：${itemData.source ?: "--"}"
-            holder.tvChapter.text = "章节：${itemData.lastChapter ?: "--"}"
+            holder.tvRead.text = "已读：${itemData.readChapter ?: "--"}"
+            holder.tvChapter.text = "最新：${itemData.lastChapter ?: "--"}"
             holder.tvState.visibility = if (TextUtils.isEmpty(itemData.state)) View.GONE else View.VISIBLE
             holder.tvType.visibility = if (TextUtils.isEmpty(itemData.type)) View.GONE else View.VISIBLE
             holder.itemView.setOnClickListener {
@@ -381,7 +387,7 @@ class HomeActivity : BaseActivity() {
         val tvAuthor: TextView = itemView.item_home_local_novel_author
         val tvType: TextView = itemView.item_home_local_novel_type
         val tvState: TextView = itemView.item_home_local_novel_state
-        val tvSource: TextView = itemView.item_home_local_novel_source
+        val tvRead: TextView = itemView.item_home_local_novel_read
         val tvUpdate: TextView = itemView.item_home_local_novel_update
         val tvChapter: TextView = itemView.item_home_local_novel_chapter
     }

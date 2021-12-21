@@ -18,6 +18,7 @@ class NovelInfo : BaseObject() {
     var update: String? = null
     var state: String? = null
     var lastChapter: String? = null
+    var readChapter: String? = null
     var source: SourceType? = SourceType.FPZW
 
     override fun equals(other: Any?): Boolean {

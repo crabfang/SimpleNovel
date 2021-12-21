@@ -20,7 +20,10 @@ import retrofit.converter.Converter;
  */
 public class RetrofitFactory {
     private static RestAdapter.LogLevel logLevel = RestAdapter.LogLevel.FULL;
-    private static OkHttpClient httpClient = OkHttpClientFactory.create();
+    private static OkHttpClient httpClient = generate();
+    private static OkHttpClient generate() {
+        return OkHttpClientFactory.create();
+    }
     private static OkHttpClient getHttpClient() {
         return httpClient;
     }
