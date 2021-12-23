@@ -25,6 +25,7 @@ public class RetrofitFactory {
         return OkHttpClientFactory.create();
     }
     private static OkHttpClient getHttpClient() {
+        httpClient.setDns(OkHttpDns.getInstance());
         return httpClient;
     }
 
