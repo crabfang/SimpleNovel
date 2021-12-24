@@ -47,7 +47,7 @@ class NovelList4BqgUseCase(val url: String?) : HttpCacheUseCase<NovelList>(objec
                     novelList.type = p.text().split(":")[1]
                 }
                 esInfo[2].let { p ->
-                    novelList.update = p.text().split(":")[1]
+                    novelList.update = p.text().split(" :")[1]
                 }
                 esInfo[3].let { p ->
                     novelList.lastChapter = p.text().split(":")[1]

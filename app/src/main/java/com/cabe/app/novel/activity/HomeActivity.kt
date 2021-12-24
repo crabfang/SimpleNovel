@@ -106,7 +106,7 @@ class HomeActivity : BaseActivity() {
         searchInput = findViewById(R.id.activity_home_search_input)
         localSwipe = findViewById(R.id.activity_home_local_swipe)
         localSwipe.setOnRefreshListener {
-            remoteUpdateCount = 0
+            flagRemote = true
             loadLocal(false)
         }
         activity_home_local_list.adapter = adapter
@@ -200,6 +200,7 @@ class HomeActivity : BaseActivity() {
     private var remoteUpdateCount = 0
     private fun updateRemoteData() {
         var needReload = false
+        remoteUpdateCount = 0
         localNovelList?.list?.forEach {
             if(it.url?.contains(SourceType.EKXS.host) == true && it.source != SourceType.EKXS) {
                 LocalNovelsUseCase.updateLocalSource(it.url, SourceType.EKXS)
