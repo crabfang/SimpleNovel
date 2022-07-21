@@ -25,7 +25,7 @@ public class OkHttpDns implements Dns {
         //通过异步解析接口获取ip
         String bqgHost = Uri.parse(SourceType.BQG.getHost()).getHost();
         if(bqgHost.equals(hostname)) {
-            String ip = "68.168.18.81";
+            String ip = "23.225.140.157";
             //如果ip不为null，直接使用该ip进行网络请求
             List<InetAddress> inetAddresses = Arrays.asList(InetAddress.getAllByName(ip));
             Log.e("OkHttpDns", "inetAddresses:" + inetAddresses);

@@ -215,7 +215,7 @@ class HomeActivity : BaseActivity() {
             val presenter: ViewPresenter<NovelList> = object : SimpleViewPresenter<NovelList>() {
                 override fun complete(from: CacheSource) {
                     remoteUpdateCount ++
-                    if(remoteUpdateCount == localNovelList?.list?.size ?: -1) {
+                    if(remoteUpdateCount == (localNovelList?.list?.size ?: -1)) {
                         loadLocal(true)
                     }
                 }
@@ -225,6 +225,7 @@ class HomeActivity : BaseActivity() {
                 SourceType.X23US -> NovelList4X23USUseCase(it.url).execute(presenter)
                 SourceType.FPZW -> NovelList4FpzwUseCase(it.url).execute(presenter)
                 SourceType.BQG -> NovelList4BqgUseCase(it.url).execute(presenter)
+                else -> {}
             }
         }
         if(needReload) loadLocal(true)
