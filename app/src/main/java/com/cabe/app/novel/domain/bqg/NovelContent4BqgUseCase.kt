@@ -17,7 +17,7 @@ import org.jsoup.nodes.Document
 /**
  * 作者：沈建芳 on 2017/10/9 16:30
  */
-class NovelContent4BqgUseCase(url: String?) : HttpCacheUseCase<NovelContent?>(object : TypeToken<NovelContent?>() {}, null) {
+class NovelContent4BqgUseCase(url: String?) : HttpCacheUseCase<NovelContent>(object : TypeToken<NovelContent>() {}, null) {
     private val url: String?
     private val host: String
     private fun parserHtmlForList(doc: Document): NovelContent? {
@@ -26,7 +26,7 @@ class NovelContent4BqgUseCase(url: String?) : HttpCacheUseCase<NovelContent?>(ob
             content = NovelContent()
             content.url = url
             val titleEs = doc.select("div.bookname > h1")
-            if (titleEs?.size?:0 > 0) {
+            if ((titleEs?.size ?: 0) > 0) {
                 content.title = titleEs[0].text()
             }
             val preEs = doc.select("a:contains(上一章)")

@@ -15,7 +15,7 @@ import com.google.gson.reflect.TypeToken
  * 作者：沈建芳 on 2017/10/9 16:55
  */
 abstract class BaseActivity : AppCompatActivity() {
-    var TAG = "BaseActivity"
+    protected var TAG = "BaseActivity"
     var context: Context? = null
     var waiting: ProgressDialog? = null
     override fun onCreate(savedInstanceState: Bundle?) {
