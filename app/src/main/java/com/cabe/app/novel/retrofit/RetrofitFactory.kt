@@ -1,67 +1,60 @@
 package com.cabe.app.novel.retrofit
 
 import android.text.TextUtils
-import android.util.Log
 import com.cabe.lib.cache.http.RequestParams
-import com.cabe.lib.cache.http.repository.OkHttpClientFactory
-import com.squareup.okhttp.OkHttpClient
-import retrofit.RequestInterceptor
-import retrofit.RestAdapter
-import retrofit.RestAdapter.LogLevel
-import retrofit.client.OkClient
-import retrofit.converter.Converter
+import okhttp3.*
+import retrofit2.Converter
+import retrofit2.Retrofit
+import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory
 
 /**
  * 作者：沈建芳 on 2018/6/29 17:19
  */
-object RetrofitFactory {
-    private val logLevel = LogLevel.FULL
-    private val httpClient: OkHttpClient by lazy {
-        generate().apply {
-            dns = OkHttpDns.instance
+private var myCookies: CookieJar = object : CookieJar {
+    private val cookieMap= mutableMapOf<String, List<Cookie>?>()
+    override fun saveFromResponse(url: HttpUrl, cookies: MutableList<Cookie>) {
+        url.host().let { host ->
+            cookieMap[host] = cookies
         }
     }
-
-    private fun generate(): OkHttpClient= OkHttpClientFactory.create()
-    @JvmStatic
-    fun <T> buildApiService(params: RequestParams, converter: Converter?, clazz: Class<T>?): T {
+    override fun loadForRequest(url: HttpUrl): MutableList<Cookie> {
+        return cookieMap[url.host()]?.toMutableList() ?: arrayListOf()
+    }
+}
+object RetrofitFactory {
+    fun <T> buildApiService(params: RequestParams, converterFactory: Converter.Factory?, clazz: Class<T>): T {
         val host = params.getHost()
-        val requestInterceptor = RequestInterceptor { request ->
-            val headMap = params.head
-            if (headMap != null) {
-                val it: MutableIterator<Map.Entry<String, String>> = headMap.entries.iterator()
-                while (it.hasNext()) {
-                    val (key, value) = it.next()
-                    request.addHeader(key, value)
-                    it.remove()
+        val httpBuilder = OkHttpClient.Builder()
+            .dns(OkHttpDns.instance)
+            .cookieJar(myCookies)
+            .addInterceptor(ReceivedCookiesInterceptor())
+            .addInterceptor(AddCookiesInterceptor())
+        if(params.head != null) {
+            httpBuilder.addInterceptor { chain ->
+                val original = chain.request()
+                val builder = original.newBuilder()
+                builder.method(original.method(), original.body())
+                params.head.forEach {
+                    builder.addHeader(it.key, it.value)
                 }
+                chain.proceed(builder.build())
             }
         }
-        return getRetrofit(converter, host, requestInterceptor).create(clazz)
+        return getRetrofit(httpBuilder.build(), converterFactory, host).create(clazz)
     }
 
-    private fun getRetrofit(converter: Converter?, baseUrl: String, dataInterceptor: RequestInterceptor?): RestAdapter {
+    private fun getRetrofit(httpClient: OkHttpClient, converterFactory: Converter.Factory?, baseUrl: String): Retrofit {
         return if (TextUtils.isEmpty(baseUrl)) {
             throw RuntimeException("baseUrl is null")
         } else {
-            val retrofit = RestAdapter.Builder()
-            retrofit.setLog(HttpLog())
-            retrofit.setLogLevel(logLevel)
-            retrofit.setEndpoint(baseUrl)
-            if (converter != null) {
-                retrofit.setConverter(converter)
+            val retrofit = Retrofit.Builder()
+            retrofit.baseUrl(baseUrl)
+            retrofit.addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+            if (converterFactory != null) {
+                retrofit.addConverterFactory(converterFactory)
             }
-            retrofit.setClient(OkClient(httpClient))
-            if (dataInterceptor != null) {
-                retrofit.setRequestInterceptor(dataInterceptor)
-            }
+            retrofit.client(httpClient)
             retrofit.build()
         }
-    }
-}
-
-private class HttpLog : RestAdapter.Log {
-    override fun log(message: String) {
-        Log.i("RxCache.Http", message)
     }
 }

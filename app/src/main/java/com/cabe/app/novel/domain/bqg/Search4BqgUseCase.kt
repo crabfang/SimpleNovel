@@ -43,24 +43,24 @@ class Search4BqgUseCase(key: String?) : HttpCacheUseCase<List<NovelInfo>>(object
             novelInfo = NovelInfo()
             novelInfo.source = SourceType.BQG
             val eTitle = e.select("td.odd > a")
-            if (eTitle?.size ?: 0 > 0) {
+            if ((eTitle?.size ?: 0) > 0) {
                 novelInfo.title = eTitle.first().text()
                 novelInfo.url = SourceType.BQG.host + eTitle.attr("href").substring(1)
             }
             val eLast = e.select("td.even > a")
-            if (eLast?.size ?: 0 > 0) {
+            if ((eLast?.size ?: 0) > 0) {
                 novelInfo.lastChapter = eLast.first().text()
             }
             val eAuthor = e.select("td.odd")
-            if (eAuthor?.size ?: 0 > 1) {
+            if ((eAuthor?.size ?: 0) > 1) {
                 novelInfo.author = eAuthor[1].text()
             }
             val eUpdate = e.select("td.odd")
-            if (eUpdate?.size ?: 0 > 2) {
+            if ((eUpdate?.size ?: 0) > 2) {
                 novelInfo.update = eUpdate[2].text()
             }
             val eState = e.select("td.even")
-            if (eState?.size ?: 0 > 1) {
+            if ((eState?.size ?: 0) > 1) {
                 novelInfo.state = eState[2].text()
             }
         }

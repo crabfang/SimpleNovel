@@ -2,13 +2,10 @@ package com.cabe.app.novel.retrofit
 
 import android.net.Uri
 import android.util.Log
-import com.squareup.okhttp.Dns
-import kotlin.Throws
 import com.cabe.app.novel.model.SourceType
-import com.cabe.app.novel.retrofit.OkHttpDns
+import okhttp3.Dns
 import java.net.InetAddress
 import java.net.UnknownHostException
-import java.util.*
 
 class OkHttpDns private constructor() : Dns {
     companion object {

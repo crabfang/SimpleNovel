@@ -20,6 +20,7 @@
             android:paddingLeft="10dp"
             android:textSize="14dp"
             android:hint="搜索"
+            android:singleLine="true"
             android:gravity="center_vertical"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toLeftOf="@+id/activity_home_btn_search"/>

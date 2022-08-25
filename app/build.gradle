@@ -9,8 +9,8 @@ android {
         applicationId "com.cabe.app.novel"
         minSdkVersion 23
         targetSdkVersion 32
-        versionCode 32
-        versionName "3.0"
+        versionCode 33
+        versionName "4.0"
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_11
@@ -51,7 +51,7 @@ dependencies {
     implementation "androidx.constraintlayout:constraintlayout:2.1.4"
     implementation "androidx.core:core-ktx:1.8.0"
 
-    implementation 'androidx.activity:activity-ktx:1.2.3'
+    implementation 'androidx.activity:activity-ktx:1.5.0'
     implementation 'androidx.fragment:fragment:1.5.0'
     implementation 'androidx.fragment:fragment-ktx:1.5.0'
 
@@ -76,4 +76,8 @@ dependencies {
     implementation 'org.jsoup:jsoup:1.13.1'
     implementation 'com.github.bumptech.glide:glide:4.13.1'
     implementation 'com.pgyer:analytics:4.2.2'
+
+    implementation "com.squareup.okhttp3:okhttp:3.12.0"
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation 'com.squareup.retrofit2:adapter-rxjava:2.1.0'
 }

@@ -23,10 +23,11 @@ import com.cabe.app.novel.domain.BaseViewModel
 import com.cabe.app.novel.domain.LocalNovelsUseCase
 import com.cabe.app.novel.domain.bqg.NovelList4BqgUseCase
 import com.cabe.app.novel.domain.bqg.Search4BqgUseCase
-import com.cabe.app.novel.domain.fpzw.NovelList4FpzwUseCase
 import com.cabe.app.novel.domain.ekxs.NovelList42KXSUseCase
 import com.cabe.app.novel.domain.ekxs.Search42kxsUseCase
+import com.cabe.app.novel.domain.fpzw.NovelList4FpzwUseCase
 import com.cabe.app.novel.domain.x23us.NovelList4X23USUseCase
+import com.cabe.app.novel.domain.x23us.Search4X23USUseCase
 import com.cabe.app.novel.model.*
 import com.cabe.app.novel.utils.DiskUtils
 import com.cabe.lib.cache.CacheSource
@@ -36,7 +37,6 @@ import com.google.gson.Gson
 import com.pgyer.pgyersdk.PgyerSDKManager
 import kotlinx.android.synthetic.main.activity_home.*
 import kotlinx.android.synthetic.main.item_home_local_novel.view.*
-import java.util.*
 
 class HomeViewModel: BaseViewModel<LocalNovelList>() {
     private var useCase: LocalNovelsUseCase? = null
@@ -138,23 +138,22 @@ class HomeActivity : BaseActivity() {
                 showSearchView(false)
                 searchInput.setText("")
             }
-
             override fun itemOnLongClick(novelInfo: NovelInfo) {}
         })
     }
 
     private fun bindData() {
-        viewModel.liveResponse.observe(this, { data ->
+        viewModel.liveResponse.observe(this) { data ->
             localNovelList = data
             updateLocalNovel()
-            if(flagRemote) {
+            if (flagRemote) {
                 flagRemote = false
                 updateRemoteData()
             }
-        })
-        viewModel.liveComplete.observe(this, {
+        }
+        viewModel.liveComplete.observe(this) {
             localSwipe.isRefreshing = false
-        })
+        }
     }
 
     private fun actionRank() {
@@ -263,7 +262,7 @@ class HomeActivity : BaseActivity() {
     }
 
     fun onSearch(view: View?) {
-        waiting!!.show()
+        waiting?.show()
         hiddenKeyboard()
         searchList.clear()
         adapterSearch.setData(null)
@@ -275,8 +274,8 @@ class HomeActivity : BaseActivity() {
     private fun search42kxs(keyWord: String) {
         val searchUseCase = Search42kxsUseCase(keyWord)
         searchUseCase.execute(object : ViewPresenter<List<NovelInfo>> {
-            override fun load(from: CacheSource, data: List<NovelInfo>) {
-                if (data.isNotEmpty()) {
+            override fun load(from: CacheSource, data: List<NovelInfo>?) {
+                if (data?.isNotEmpty() == true) {
                     searchList.addAll(data)
                     adapterSearch.addData(data)
                     showSearchView(true)
@@ -294,8 +293,27 @@ class HomeActivity : BaseActivity() {
     private fun search4Bqg(keyWord: String) {
         val searchUseCase = Search4BqgUseCase(keyWord)
         searchUseCase.execute(object : ViewPresenter<List<NovelInfo>> {
-            override fun load(from: CacheSource, data: List<NovelInfo>) {
-                if (data.isNotEmpty()) {
+            override fun load(from: CacheSource, data: List<NovelInfo>?) {
+                if (data?.isNotEmpty() == true) {
+                    searchList.addAll(data)
+                    adapterSearch.addData(data)
+                    showSearchView(true)
+                }
+            }
+            override fun error(from: CacheSource, code: Int, info: String) {
+                toast(info)
+            }
+            override fun complete(from: CacheSource) {
+                search4DD(keyWord)
+            }
+        })
+    }
+
+    private fun search4DD(keyWord: String) {
+        val searchUseCase = Search4X23USUseCase(keyWord)
+        searchUseCase.execute(object : ViewPresenter<List<NovelInfo>> {
+            override fun load(from: CacheSource, data: List<NovelInfo>?) {
+                if (data?.isNotEmpty() == true) {
                     searchList.addAll(data)
                     adapterSearch.addData(data)
                     showSearchView(true)
@@ -311,7 +329,7 @@ class HomeActivity : BaseActivity() {
     }
 
     private fun handleSearchResult() {
-        waiting!!.dismiss()
+        waiting?.dismiss()
         if(searchList.isEmpty()) {
             toast("找不到相关小说")
         }

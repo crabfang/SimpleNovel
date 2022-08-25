@@ -2,20 +2,19 @@ package com.cabe.app.novel.domain.x23us
 
 import com.cabe.app.novel.model.NovelInfo
 import com.cabe.app.novel.model.SourceType
+import com.cabe.app.novel.retrofit.MyHttpFactory
 import com.cabe.app.novel.retrofit.MyHttpManager
 import com.cabe.lib.cache.exception.HttpExceptionCode
 import com.cabe.lib.cache.exception.RxException
 import com.cabe.lib.cache.http.RequestParams
 import com.cabe.lib.cache.http.transformer.HttpStringTransformer
 import com.cabe.lib.cache.impl.HttpCacheUseCase
-import com.cabe.lib.cache.interactor.HttpCacheRepository
 import com.google.gson.reflect.TypeToken
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import java.io.UnsupportedEncodingException
 import java.net.URLEncoder
-import java.util.*
 
 /**
  * 作者：沈建芳 on 2017/10/9 16:30
@@ -98,18 +97,43 @@ class Search4X23USUseCase(key: String?) : HttpCacheUseCase<List<NovelInfo>>(obje
         return novelInfo
     }
 
+    private fun parseOne(doc: Document): NovelInfo? {
+        var result: NovelInfo?= null
+        try {
+            doc.select("div.box_con")?.firstOrNull()?.let { book ->
+                result = NovelInfo()
+                book.select("div#sidebbar>div>img")?.firstOrNull()?.let { e ->
+                    result?.picUrl = SourceType.X23US.host + e.attr("src")
+                }
+                book.select("div#maininfo>div#info")?.firstOrNull()?.let { e ->
+                    result?.title = e.select("h1")?.firstOrNull()?.text()
+                    result?.author = e.select("p")?.get(0)?.text()?.split("者：")?.get(1)
+                    result?.state = e.select("p>font")?.firstOrNull()?.text()
+                    result?.update = e.select("p")?.get(2)?.text()?.split("新：")?.get(1)
+                    result?.lastChapter = e.select("p>a")?.firstOrNull()?.text()
+                }
+            }
+
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        return result
+    }
+
     init {
         val params = RequestParams()
         params.host = SourceType.X23US.host
         params.path = "modules/article/search.php"
         val headers: MutableMap<String, String> = HashMap()
-        headers["Content-Type"] = "application/x-www-form-urlencoded"
+        headers["content-type"] = "application/x-www-form-urlencoded"
         headers["cache-control"] = "no-cache"
-        headers["accept-encoding"] = "gzip, deflate, br"
         headers["accept"] = "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9"
+        headers["accept-encoding"] = "gzip, deflate, br"
+        headers["accept-language"] = "zh-CN,zh;q=0.9,en;q=0.8,zh-TW;q=0.7,ja;q=0.6,pt;q=0.5,da;q=0.4"
+        headers["Protocol"] = "HTTP/2.0"
         params.head = headers
 
-        params.requestMethod = RequestParams.REQUEST_METHOD_POST
+        params.requestMethod = MyHttpFactory.REQUEST_METHOD_POST_FORM
         val form: MutableMap<String, String> = HashMap()
         form["searchtype"] = "articlename"//articlename
         try {
@@ -119,19 +143,16 @@ class Search4X23USUseCase(key: String?) : HttpCacheUseCase<List<NovelInfo>>(obje
         }
         params.body = form
         setRequestParams(params)
-
         setHttpManager(MyHttpManager(typeToken))
-
-        val httpRepository: HttpCacheRepository<String?, List<NovelInfo>> = httpRepository
-        if (httpRepository is MyHttpManager<*>) {
-            httpRepository.setStringEncode("gb2312")
-        }
         httpRepository.setResponseTransformer(object : HttpStringTransformer<List<NovelInfo>>() {
-            override fun buildData(responseStr: String): List<NovelInfo>? {
+            override fun buildData(responseStr: String): List<NovelInfo> {
                 val docL = Jsoup.parse(responseStr)
-                val list = parserHtmlForList(docL)
-                if (list?.isEmpty() == true) {
-                    throw RxException.build(HttpExceptionCode.HTTP_STATUS_SERVER_ERROR, null)
+                var list: List<NovelInfo>? = parserHtmlForList(docL)
+                if (list?.isNotEmpty() != true) {
+                    val book = parseOne(docL)
+                    if(book != null) {
+                        list = arrayListOf(book)
+                    } else throw RxException.build(HttpExceptionCode.HTTP_STATUS_SERVER_ERROR, null)
                 }
                 return list
             }
