@@ -11,7 +11,7 @@ import com.google.gson.reflect.TypeToken
 /**
  * 作者：沈建芳 on 2017/10/9 16:30
  */
-class Home4X23USUseCase : HttpCacheUseCase<Void>(object : TypeToken<Void>() {}, null) {
+class Home4X23USUseCase: HttpCacheUseCase<Void>(object : TypeToken<Void>() {}, null) {
     init {
         val params = RequestParams()
         params.host = SourceType.X23US.host

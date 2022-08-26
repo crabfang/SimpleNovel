@@ -21,8 +21,9 @@ class MyHttpFactory: HttpFactoryInterface<InputStream> {
         const val REQUEST_METHOD_PUT = RequestParams.REQUEST_METHOD_PUT
         const val REQUEST_METHOD_POST_FORM = 101
     }
+    var redirectCallback: ((redirectUrl: String?) -> Unit)?= null
     override fun createRequest(params: RequestParams, converter: Converter?): Observable<InputStream> {
-        val apiService = buildApiService(params, null, ApiService::class.java)
+        val apiService = buildApiService(params, null, redirectCallback, ApiService::class.java)
         val queryMap = mutableMapOf<String, String?>()
         if(params.query != null) queryMap.putAll(params.query)
         val observable: Observable<ResponseBody>  = when (params.requestMethod) {

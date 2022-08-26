@@ -53,7 +53,7 @@ class HomeViewModel: BaseViewModel<LocalNovelList>() {
         }
     }
 }
-class HomeActivity : BaseActivity() {
+class HomeActivity: BaseActivity() {
     private val viewModel: HomeViewModel by viewModels()
     private var localNovelList: LocalNovelList? = null
     private lateinit var searchInput: EditText
@@ -385,6 +385,7 @@ class HomeActivity : BaseActivity() {
             holder.tvState.text = "(${itemData.state ?: "--"})"
             holder.tvRead.text = "已读：${itemData.readChapter ?: "--"}"
             holder.tvChapter.text = "最新：${itemData.lastChapter ?: "--"}"
+            holder.tvRead.visibility = if (TextUtils.isEmpty(itemData.readChapter)) View.GONE else View.VISIBLE
             holder.tvState.visibility = if (TextUtils.isEmpty(itemData.state)) View.GONE else View.VISIBLE
             holder.tvType.visibility = if (TextUtils.isEmpty(itemData.type)) View.GONE else View.VISIBLE
             holder.itemView.setOnClickListener {

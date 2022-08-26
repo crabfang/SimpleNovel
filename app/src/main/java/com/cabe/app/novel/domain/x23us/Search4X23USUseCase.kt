@@ -4,8 +4,6 @@ import com.cabe.app.novel.model.NovelInfo
 import com.cabe.app.novel.model.SourceType
 import com.cabe.app.novel.retrofit.MyHttpFactory
 import com.cabe.app.novel.retrofit.MyHttpManager
-import com.cabe.lib.cache.exception.HttpExceptionCode
-import com.cabe.lib.cache.exception.RxException
 import com.cabe.lib.cache.http.RequestParams
 import com.cabe.lib.cache.http.transformer.HttpStringTransformer
 import com.cabe.lib.cache.impl.HttpCacheUseCase
@@ -19,7 +17,8 @@ import java.net.URLEncoder
 /**
  * 作者：沈建芳 on 2017/10/9 16:30
  */
-class Search4X23USUseCase(key: String?) : HttpCacheUseCase<List<NovelInfo>>(object : TypeToken<List<NovelInfo>>() {}, null) {
+class Search4X23USUseCase(key: String?): HttpCacheUseCase<List<NovelInfo>>(object : TypeToken<List<NovelInfo>>() {}, null) {
+    private var redirectUrl: String?= null
     private fun parserHtmlForList(doc: Document): List<NovelInfo>? {
         var novelList: MutableList<NovelInfo>? = null
         try {
@@ -102,6 +101,7 @@ class Search4X23USUseCase(key: String?) : HttpCacheUseCase<List<NovelInfo>>(obje
         try {
             doc.select("div.box_con")?.firstOrNull()?.let { book ->
                 result = NovelInfo()
+                result?.source = SourceType.X23US
                 book.select("div#sidebbar>div>img")?.firstOrNull()?.let { e ->
                     result?.picUrl = SourceType.X23US.host + e.attr("src")
                 }
@@ -112,8 +112,8 @@ class Search4X23USUseCase(key: String?) : HttpCacheUseCase<List<NovelInfo>>(obje
                     result?.update = e.select("p")?.get(2)?.text()?.split("新：")?.get(1)
                     result?.lastChapter = e.select("p>a")?.firstOrNull()?.text()
                 }
+                result?.url = redirectUrl
             }
-
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -125,12 +125,7 @@ class Search4X23USUseCase(key: String?) : HttpCacheUseCase<List<NovelInfo>>(obje
         params.host = SourceType.X23US.host
         params.path = "modules/article/search.php"
         val headers: MutableMap<String, String> = HashMap()
-        headers["content-type"] = "application/x-www-form-urlencoded"
-        headers["cache-control"] = "no-cache"
-        headers["accept"] = "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9"
-        headers["accept-encoding"] = "gzip, deflate, br"
-        headers["accept-language"] = "zh-CN,zh;q=0.9,en;q=0.8,zh-TW;q=0.7,ja;q=0.6,pt;q=0.5,da;q=0.4"
-        headers["Protocol"] = "HTTP/2.0"
+        headers["Content-Type"] = "application/x-www-form-urlencoded"
         params.head = headers
 
         params.requestMethod = MyHttpFactory.REQUEST_METHOD_POST_FORM
@@ -143,16 +138,20 @@ class Search4X23USUseCase(key: String?) : HttpCacheUseCase<List<NovelInfo>>(obje
         }
         params.body = form
         setRequestParams(params)
-        setHttpManager(MyHttpManager(typeToken))
+        setHttpManager(MyHttpManager(typeToken).apply {
+            redirectCallback = {
+                redirectUrl = it
+            }
+        })
         httpRepository.setResponseTransformer(object : HttpStringTransformer<List<NovelInfo>>() {
-            override fun buildData(responseStr: String): List<NovelInfo> {
+            override fun buildData(responseStr: String): List<NovelInfo>? {
                 val docL = Jsoup.parse(responseStr)
                 var list: List<NovelInfo>? = parserHtmlForList(docL)
                 if (list?.isNotEmpty() != true) {
                     val book = parseOne(docL)
                     if(book != null) {
                         list = arrayListOf(book)
-                    } else throw RxException.build(HttpExceptionCode.HTTP_STATUS_SERVER_ERROR, null)
+                    }
                 }
                 return list
             }

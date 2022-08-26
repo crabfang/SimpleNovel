@@ -17,11 +17,14 @@ import rx.Observable
  * 作者：沈建芳 on 2018/6/29 17:25
  */
 class MyHttpManager<T> @JvmOverloads constructor(private val typeToken: TypeToken<T>?, encode: String? = "gb2312") : HttpCacheRepository<String, T> {
+    var redirectCallback: ((redirectUrl: String?) -> Unit)?= null
     private var encode: String? = null
     private var converter: Converter? = null
     private var transformer: Observable.Transformer<String, T>? = null
     override fun getHttpObservable(params: RequestParams): Observable<T> {
-        return MyHttpFactory().createRequest(params, converter).compose(Stream2StringTransformer(encode)).compose(transformer)
+        return MyHttpFactory().apply {
+            redirectCallback = this@MyHttpManager.redirectCallback
+        }.createRequest(params, converter).compose(Stream2StringTransformer(encode)).compose(transformer)
     }
 
     override fun setHttpConverter(converter: Converter) {

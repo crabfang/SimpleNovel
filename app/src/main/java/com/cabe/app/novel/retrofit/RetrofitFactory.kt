@@ -22,7 +22,7 @@ private var myCookies: CookieJar = object : CookieJar {
     }
 }
 object RetrofitFactory {
-    fun <T> buildApiService(params: RequestParams, converterFactory: Converter.Factory?, clazz: Class<T>): T {
+    fun <T> buildApiService(params: RequestParams, converterFactory: Converter.Factory?, redirectCallback: ((redirectUrl: String?) -> Unit)?= null, clazz: Class<T>): T {
         val host = params.getHost()
         val httpBuilder = OkHttpClient.Builder()
             .dns(OkHttpDns.instance)
@@ -38,6 +38,13 @@ object RetrofitFactory {
                     builder.addHeader(it.key, it.value)
                 }
                 chain.proceed(builder.build())
+            }
+        }
+        if(redirectCallback != null) {
+            httpBuilder.addNetworkInterceptor { chain ->
+                chain.proceed(chain.request()).apply {
+                    if(isRedirect) redirectCallback.invoke(header("location"))
+                }
             }
         }
         return getRetrofit(httpBuilder.build(), converterFactory, host).create(clazz)
