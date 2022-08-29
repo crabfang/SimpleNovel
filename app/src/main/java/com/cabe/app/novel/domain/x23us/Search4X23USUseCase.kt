@@ -19,6 +19,11 @@ import java.net.URLEncoder
  */
 class Search4X23USUseCase(key: String?): HttpCacheUseCase<List<NovelInfo>>(object : TypeToken<List<NovelInfo>>() {}, null) {
     private var redirectUrl: String?= null
+    private fun checkEmpty(doc: Document): Boolean {
+        val errorStr = doc.selectFirst("div.block > div.blocktitle")?.text()
+        val emptyStr = doc.selectFirst("div#main > div#content > div#tips")?.text()
+        return errorStr?.contains("错误") == true || emptyStr?.contains("抱歉") == true
+    }
     private fun parserHtmlForList(doc: Document): List<NovelInfo>? {
         var novelList: MutableList<NovelInfo>? = null
         try {
@@ -51,7 +56,7 @@ class Search4X23USUseCase(key: String?): HttpCacheUseCase<List<NovelInfo>>(objec
         if (e != null) {
             novelInfo = NovelInfo()
             novelInfo.source = SourceType.X23US
-            val ePic = e.select("div.fl > img")
+            val ePic = e.select("div#fmimg > img")
             if (ePic != null && ePic.size > 0) {
                 novelInfo.picUrl = SourceType.X23US.host + ePic.first().attr("src")
             }
@@ -96,30 +101,6 @@ class Search4X23USUseCase(key: String?): HttpCacheUseCase<List<NovelInfo>>(objec
         return novelInfo
     }
 
-    private fun parseOne(doc: Document): NovelInfo? {
-        var result: NovelInfo?= null
-        try {
-            doc.select("div.box_con")?.firstOrNull()?.let { book ->
-                result = NovelInfo()
-                result?.source = SourceType.X23US
-                book.select("div#sidebbar>div>img")?.firstOrNull()?.let { e ->
-                    result?.picUrl = SourceType.X23US.host + e.attr("src")
-                }
-                book.select("div#maininfo>div#info")?.firstOrNull()?.let { e ->
-                    result?.title = e.select("h1")?.firstOrNull()?.text()
-                    result?.author = e.select("p")?.get(0)?.text()?.split("者：")?.get(1)
-                    result?.state = e.select("p>font")?.firstOrNull()?.text()
-                    result?.update = e.select("p")?.get(2)?.text()?.split("新：")?.get(1)
-                    result?.lastChapter = e.select("p>a")?.firstOrNull()?.text()
-                }
-                result?.url = redirectUrl
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-        return result
-    }
-
     init {
         val params = RequestParams()
         params.host = SourceType.X23US.host
@@ -146,11 +127,24 @@ class Search4X23USUseCase(key: String?): HttpCacheUseCase<List<NovelInfo>>(objec
         httpRepository.setResponseTransformer(object : HttpStringTransformer<List<NovelInfo>>() {
             override fun buildData(responseStr: String): List<NovelInfo>? {
                 val docL = Jsoup.parse(responseStr)
+                if(checkEmpty(docL)) return null
+
                 var list: List<NovelInfo>? = parserHtmlForList(docL)
                 if (list?.isNotEmpty() != true) {
-                    val book = parseOne(docL)
+                    val book = NovelList4X23USUseCase.paresBook(docL)
                     if(book != null) {
-                        list = arrayListOf(book)
+                        list = arrayListOf(
+                            NovelInfo().apply {
+                                source = book.source
+                                picUrl = book.picUrl
+                                title = book.title
+                                author = book.author
+                                state = book.state
+                                update = book.update
+                                lastChapter = book.lastChapter
+                                url = redirectUrl
+                            }
+                        )
                     }
                 }
                 return list

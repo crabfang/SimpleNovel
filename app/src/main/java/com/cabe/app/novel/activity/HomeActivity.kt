@@ -7,8 +7,8 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.TextUtils
 import android.view.*
+import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
-import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.viewModels
@@ -56,7 +56,6 @@ class HomeViewModel: BaseViewModel<LocalNovelList>() {
 class HomeActivity: BaseActivity() {
     private val viewModel: HomeViewModel by viewModels()
     private var localNovelList: LocalNovelList? = null
-    private lateinit var searchInput: EditText
     private lateinit var localSwipe: SwipeRefreshLayout
     private lateinit var recyclerSearch: RecyclerView
     private val adapter = MyAdapter()
@@ -103,7 +102,12 @@ class HomeActivity: BaseActivity() {
     }
 
     private fun initView() {
-        searchInput = findViewById(R.id.activity_home_search_input)
+        activity_home_search_input.setOnEditorActionListener { input, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                onSearch(input)
+                true
+            } else false
+        }
         localSwipe = findViewById(R.id.activity_home_local_swipe)
         localSwipe.setOnRefreshListener {
             flagRemote = true
@@ -136,7 +140,7 @@ class HomeActivity: BaseActivity() {
                 addLocalNovel(novelInfo)
                 recyclerSearch.smoothScrollToPosition(0)
                 showSearchView(false)
-                searchInput.setText("")
+                activity_home_search_input.setText("")
             }
             override fun itemOnLongClick(novelInfo: NovelInfo) {}
         })
@@ -172,7 +176,7 @@ class HomeActivity: BaseActivity() {
 
     private fun hiddenKeyboard() {
         val inputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        inputMethodManager.hideSoftInputFromWindow(searchInput.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
+        inputMethodManager.hideSoftInputFromWindow(activity_home_search_input.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
     }
 
     private fun loadLocal(silent: Boolean) {
@@ -256,7 +260,7 @@ class HomeActivity: BaseActivity() {
     }
 
     fun onClose(view: View?) {
-        searchInput.setText("")
+        activity_home_search_input.setText("")
         adapterSearch.setData(null)
         showSearchView(false)
     }
@@ -266,7 +270,7 @@ class HomeActivity: BaseActivity() {
         hiddenKeyboard()
         searchList.clear()
         adapterSearch.setData(null)
-        val inputStr = searchInput.text.toString()
+        val inputStr = activity_home_search_input.text.toString()
         search42kxs(inputStr)
     }
 

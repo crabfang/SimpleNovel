@@ -1,21 +1,18 @@
 package com.cabe.app.novel.domain.x23us
 
-import com.cabe.app.novel.utils.UrlUtils.splitUrl
-import com.cabe.lib.cache.impl.HttpCacheUseCase
-import com.cabe.app.novel.model.NovelContent
-import com.google.gson.reflect.TypeToken
-import com.cabe.app.novel.model.SourceType
 import android.text.TextUtils
-import com.cabe.lib.cache.exception.RxException
+import com.cabe.app.novel.model.NovelContent
+import com.cabe.app.novel.model.SourceType
+import com.cabe.app.novel.utils.UrlUtils.splitUrl
 import com.cabe.lib.cache.exception.HttpExceptionCode
-import com.cabe.app.novel.utils.UrlUtils
-import com.cabe.lib.cache.http.RequestParams
-import com.cabe.lib.cache.interactor.HttpCacheRepository
+import com.cabe.lib.cache.exception.RxException
 import com.cabe.lib.cache.http.HttpStringCacheManager
+import com.cabe.lib.cache.http.RequestParams
 import com.cabe.lib.cache.http.transformer.HttpStringTransformer
+import com.cabe.lib.cache.impl.HttpCacheUseCase
+import com.google.gson.reflect.TypeToken
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import java.lang.Exception
 
 /**
  *
@@ -29,21 +26,17 @@ class NovelContent4X23USUseCase(url: String?): HttpCacheUseCase<NovelContent>(ob
         try {
             content = NovelContent()
             content.url = url
-            val titleEs = doc.select("dd > h1")
-            if (titleEs != null && titleEs.size > 0) {
-                content.title = titleEs[0].text()
+            doc.selectFirst("div.box_con > div.bookname")?.let { book ->
+                book.selectFirst("h1")?.let {
+                    content.title = it.text()
+                }
+                book.selectFirst("div.bottem1")?.let { option ->
+                    content.preUrl = host + option.child(1).attr("href")
+                    content.nextUrl = host + option.child(3).attr("href")
+                }
             }
-            val preEs = doc.select("a:contains(上一页)")
-            if (preEs != null && preEs.size > 0) {
-                content.preUrl = host + preEs[0].attr("href")
-            }
-            val nextEs = doc.select("a:contains(下一页)")
-            if (nextEs != null && nextEs.size > 0) {
-                content.nextUrl = host + nextEs[0].attr("href")
-            }
-            val contentEs = doc.select("dd#contents")
-            if (contentEs != null && contentEs.size > 0) {
-                content.content = contentEs[0].html()
+            doc.selectFirst("div#content")?.let {
+                content.content = it.html()
             }
             content.source = SourceType.X23US
         } catch (e: Exception) {
