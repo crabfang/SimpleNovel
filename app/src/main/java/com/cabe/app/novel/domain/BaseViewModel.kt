@@ -10,11 +10,11 @@ import com.cabe.lib.cache.interactor.impl.SimpleViewPresenter
 data class DataError(val source: CacheSource, val code: Int, val msg: String?): BaseObject()
 data class DataComplete(val source: CacheSource): BaseObject()
 abstract class BaseViewModel<T>: ViewModel() {
-    val liveResponse: MutableLiveData<T> = MutableLiveData()
-    val liveError: MutableLiveData<DataError> = MutableLiveData()
-    val liveNetError: MutableLiveData<DataError> = MutableLiveData()
-    val liveComplete: MutableLiveData<DataComplete> = MutableLiveData()
-    val liveNetComplete: MutableLiveData<BaseObject> = MutableLiveData()
+    val liveResponse: MutableLiveData<T?> = MutableLiveData()
+    val liveError: MutableLiveData<DataError?> = MutableLiveData()
+    val liveNetError: MutableLiveData<DataError?> = MutableLiveData()
+    val liveComplete: MutableLiveData<DataComplete?> = MutableLiveData()
+    val liveNetComplete: MutableLiveData<BaseObject?> = MutableLiveData()
 
     open fun createPresenter(): ViewPresenter<T> {
         return object : SimpleViewPresenter<T>() {

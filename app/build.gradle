@@ -10,7 +10,7 @@ android {
         minSdkVersion 23
         targetSdkVersion 32
         versionCode 33
-        versionName "4.0"
+        versionName "3.0"
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_11
@@ -40,6 +40,9 @@ android {
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-project.txt'
         }
+    }
+    lint {
+        baseline = file("lint-baseline.xml")
     }
 }
 
@@ -77,7 +80,7 @@ dependencies {
     implementation 'com.github.bumptech.glide:glide:4.13.1'
     implementation 'com.pgyer:analytics:4.2.2'
 
-    implementation "com.squareup.okhttp3:okhttp:3.12.0"
+    implementation "com.squareup.okhttp3:okhttp:3.14.9"
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
     implementation 'com.squareup.retrofit2:adapter-rxjava:2.1.0'
 }
