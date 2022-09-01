@@ -1,14 +1,21 @@
-package com.cabe.app.novel.activity
+package com.cabe.app.novel
 
 import android.app.Application
+import android.content.Context
 import com.cabe.lib.cache.disk.DiskCacheManager
 import com.pgyer.pgyersdk.PgyerSDKManager
 import com.pgyer.pgyersdk.pgyerenum.Features
 
-/**
- * 作者：沈建芳 on 2017/10/11 11:17
- */
-class MyApp : Application() {
+class MyApp: Application() {
+    companion object {
+        lateinit var instance: MyApp
+    }
+
+    override fun attachBaseContext(base: Context?) {
+        super.attachBaseContext(base)
+        instance = this
+    }
+
     override fun onCreate() {
         super.onCreate()
         val fileDir = getExternalFilesDir("configs")

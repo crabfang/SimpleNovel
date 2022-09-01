@@ -9,25 +9,44 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import android.widget.RadioGroup
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.appcompat.app.AlertDialog
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentPagerAdapter
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
+import com.cabe.app.novel.MyApp
 import com.cabe.app.novel.R
 import com.cabe.app.novel.activity.BaseActivity.Companion.KEY_EXTRA_GSON
-import com.cabe.app.novel.domain.fpzw.NovelDetail4FpzwUseCase
 import com.cabe.app.novel.domain.fpzw.Rank4FpzwUseCase
 import com.cabe.app.novel.model.NovelInfo
 import com.cabe.lib.cache.CacheSource
 import com.cabe.lib.cache.interactor.ViewPresenter
+import com.flyco.tablayout.listener.CustomTabEntity
+import com.flyco.tablayout.listener.OnTabSelectListener
 import kotlinx.android.synthetic.main.activity_rank_list.*
-import kotlinx.android.synthetic.main.include_rank_list_type.*
 
+data class RankTab(val title: String, val path: String): CustomTabEntity {
+    override fun getTabTitle(): String= title
+    override fun getTabSelectedIcon(): Int= 0
+    override fun getTabUnselectedIcon(): Int= 0
+}
+object RankCacheVM: AndroidViewModel(MyApp.instance) {
+    private var liveMap = mutableMapOf<RankTab, MutableLiveData<List<NovelInfo>?>>()
+    fun post(tab: RankTab, data: List<NovelInfo>?) {
+        getLive(tab).postValue(data)
+    }
+    fun getLive(tab: RankTab): MutableLiveData<List<NovelInfo>?> {
+        if(liveMap.contains(tab).not()) liveMap[tab] = MutableLiveData<List<NovelInfo>?>()
+        return liveMap[tab]!!
+    }
+}
 class RankActivity : BaseActivity() {
     private var myAdapter: MyAdapter? = null
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,63 +54,82 @@ class RankActivity : BaseActivity() {
         setContentView(R.layout.activity_rank_list)
         title = "排行榜"
         initView()
-        changeType(0)
     }
 
     private fun initView() {
-        activity_rank_list_type.setOnCheckedChangeListener { _: RadioGroup?, checkedId: Int -> changeType(checkedId) }
-        activity_rank_list_swipe.setOnRefreshListener { changeType(activity_rank_list_type.checkedRadioButtonId) }
-        activity_rank_list_recycler.layoutManager = GridLayoutManager(this, 3)
+        activity_rank_recycler.layoutManager = GridLayoutManager(this, 3)
         myAdapter = MyAdapter()
-        activity_rank_list_recycler.adapter = myAdapter
-    }
+        activity_rank_recycler.adapter = myAdapter
 
-    private fun changeType(checkedId: Int) {
-        var sort = "list/1-1.html"
-        when (checkedId) {
-            R.id.activity_rank_list_type_xh -> sort = "list/1-1.html"
-            R.id.activity_rank_list_type_wx -> sort = "list/2-1.html"
-            R.id.activity_rank_list_type_yq -> sort = "list/3-1.html"
-            R.id.activity_rank_list_type_ls -> sort = "list/4-1.html"
-            R.id.activity_rank_list_type_wy -> sort = "list/5-1.html"
-            R.id.activity_rank_list_type_kh -> sort = "list/6-1.html"
-            R.id.activity_rank_list_type_kb -> sort = "list/7-1.html"
-            R.id.activity_rank_list_type_qt -> sort = "list/8-1.html"
+        val tabList: ArrayList<RankTab> = arrayListOf(
+            RankTab("玄幻", "sort1/"),
+            RankTab("武侠", "sort2/"),
+            RankTab("都市", "sort3/"),
+            RankTab("言情", "sort4/"),
+            RankTab("历史", "sort5/"),
+            RankTab("网游", "sort6/"),
+            RankTab("科幻", "sort7/"),
+            RankTab("侦探", "sort8/"),
+            RankTab("同人", "sort9/"),
+            RankTab("悬疑", "sort10/"),
+        )
+        activity_rank_pager.adapter = object: FragmentPagerAdapter(supportFragmentManager) {
+            override fun getCount(): Int= tabList.size
+            override fun getItem(position: Int): Fragment= Fragment()
         }
-        loadRank(sort)
+        activity_rank_tab.setViewPager(activity_rank_pager, tabList.map { it.title }.toTypedArray())
+        activity_rank_tab.setOnTabSelectListener(object: OnTabSelectListener {
+            override fun onTabSelect(position: Int) {
+                myAdapter?.setData(null)
+                loadRank(tabList[position])
+            }
+            override fun onTabReselect(position: Int) {
+                loadRank(tabList[position])
+            }
+        })
+        loadRank(tabList[0])
+        activity_rank_swipe.setOnRefreshListener {
+            loadRank(tabList[activity_rank_tab.currentTab])
+        }
+
+        activity_rank_empty_btn.setOnClickListener {
+            loadRank(tabList[activity_rank_tab.currentTab])
+        }
     }
 
-    private fun loadRank(sort: String) {
-        activity_rank_list_recycler.scrollToPosition(0)
-        activity_rank_list_swipe.isRefreshing = true
-        val useCase = Rank4FpzwUseCase(sort)
+    private fun loadRank(tab: RankTab) {
+        RankCacheVM.getLive(tab).value?.let {
+            myAdapter?.setData(it)
+        }
+
+        activity_rank_swipe.isRefreshing = true
+        val useCase = Rank4FpzwUseCase(tab.path)
         useCase.execute(object : ViewPresenter<List<NovelInfo>> {
             override fun error(from: CacheSource, code: Int, info: String) {
                 toast(info)
+                activity_rank_empty_label.text = info
+                showEmpty(true)
             }
-            override fun load(from: CacheSource, data: List<NovelInfo>) {
+            override fun load(from: CacheSource, data: List<NovelInfo>?) {
                 myAdapter?.setData(data)
+                showEmpty(data.isNullOrEmpty())
+                activity_rank_recycler.scrollToPosition(0)
+                RankCacheVM.post(tab, data)
             }
             override fun complete(from: CacheSource) {
-                activity_rank_list_swipe.isRefreshing = false
+                activity_rank_swipe.isRefreshing = false
             }
         })
     }
 
-    private fun queryNovel(url: String?) {
-        waiting?.show()
-        val useCase = NovelDetail4FpzwUseCase(url)
-        useCase.execute(object : ViewPresenter<NovelInfo> {
-            override fun error(from: CacheSource, code: Int, info: String) {
-                toast(info)
-            }
-            override fun load(from: CacheSource, data: NovelInfo) {
-                operateNovel(data)
-            }
-            override fun complete(from: CacheSource) {
-                waiting!!.dismiss()
-            }
-        })
+    private fun showEmpty(show: Boolean) {
+        if(show) {
+            activity_rank_empty_group.visibility = View.VISIBLE
+            activity_rank_recycler.visibility = View.GONE
+        } else {
+            activity_rank_empty_group.visibility = View.GONE
+            activity_rank_recycler.visibility = View.VISIBLE
+        }
     }
 
     private fun operateNovel(novelInfo: NovelInfo) {
@@ -146,7 +184,10 @@ class RankActivity : BaseActivity() {
                     .into(holder.pic)
             holder.tvTitle.text = itemData.title
             holder.tvAuthor.text = "作者：${itemData.author}"
-            holder.itemView.setOnClickListener { queryNovel(itemData.url) }
+            holder.itemView.setOnClickListener {
+//                queryNovel(itemData.url)
+                operateNovel(itemData)
+            }
         }
     }
 

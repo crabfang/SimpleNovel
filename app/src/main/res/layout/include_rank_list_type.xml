@@ -21,31 +21,36 @@
     <RadioButton
         android:id="@+id/activity_rank_list_type_yq"
         style="@style/rank_type_text"
-        android:text="言情" />
+        android:text="都市" />
 
     <RadioButton
         android:id="@+id/activity_rank_list_type_ls"
         style="@style/rank_type_text"
-        android:text="历史" />
+        android:text="言情" />
 
     <RadioButton
         android:id="@+id/activity_rank_list_type_wy"
         style="@style/rank_type_text"
-        android:text="网游" />
+        android:text="历史" />
 
     <RadioButton
         android:id="@+id/activity_rank_list_type_kh"
         style="@style/rank_type_text"
-        android:text="科幻" />
+        android:text="网游" />
 
     <RadioButton
         android:id="@+id/activity_rank_list_type_kb"
         style="@style/rank_type_text"
-        android:text="恐怖" />
+        android:text="科幻" />
 
     <RadioButton
-        android:id="@+id/activity_rank_list_type_qt"
+        android:id="@+id/activity_rank_list_type_zt"
         style="@style/rank_type_text"
-        android:text="其他" />
+        android:text="侦探" />
+
+    <RadioButton
+        android:id="@+id/activity_rank_list_type_tr"
+        style="@style/rank_type_text"
+        android:text="同人" />
 
 </com.cabe.app.novel.widget.FlowRadioGroup>

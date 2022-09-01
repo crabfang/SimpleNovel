@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item android:id="@+id/menu_novel_home_rank"
         android:title="热门排行"
-        app:showAsAction="never"/>
+        android:titleCondensed="排行"
+        app:showAsAction="always"/>
     <item android:id="@+id/menu_novel_home_check_update"
         android:title="检测更新"
         app:showAsAction="never"/>

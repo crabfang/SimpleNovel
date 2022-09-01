@@ -14,7 +14,6 @@ import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import java.io.UnsupportedEncodingException
 import java.net.URLEncoder
-import java.util.*
 
 /**
  * 作者：沈建芳 on 2017/10/9 16:30
@@ -23,16 +22,12 @@ class Rank4FpzwUseCase(sort: String?) : HttpCacheUseCase<List<NovelInfo>>(object
     private fun parserHtmlForList(doc: Document): List<NovelInfo>? {
         var novelist: MutableList<NovelInfo>? = null
         try {
-            val dl = doc.select("div.media")
-            if (dl != null && dl.size > 0) {
-                novelist = ArrayList()
-                for (i in dl.indices) {
-                    val trItem = dl[i]
-                    val result = getRankResult(trItem)
-                    if (result != null) {
-                        result.source = SourceType.FPZW
-                        novelist.add(result)
-                    }
+            doc.select("dl.eachitem")?.forEach {
+                if(novelist == null) novelist = arrayListOf()
+                val result = getRankResult(it)
+                if (result != null) {
+                    result.source = SourceType.FPZW
+                    novelist?.add(result)
                 }
             }
         } catch (e: Exception) {
@@ -45,24 +40,29 @@ class Rank4FpzwUseCase(sort: String?) : HttpCacheUseCase<List<NovelInfo>>(object
         var novelInfo: NovelInfo? = null
         if (e != null) {
             novelInfo = NovelInfo()
-            val imgEs = e.select("img")
-            if (imgEs != null && imgEs.size > 0) {
-                val src = imgEs.first().attr("src")
+            e.selectFirst("dd.img > a > img")?.let {
+                val src = it.attr("src")
                 novelInfo.picUrl = SourceType.FPZW.host + src.substring(1)
             }
-            val titleEs = e.select("h4.book-title > a")
-            if (titleEs != null && titleEs.size > 0) {
-                novelInfo.title = titleEs.first().text()
-                val url = titleEs.first().attr("href")
-                novelInfo.url = url
+            e.selectFirst("dt > h3.xstl > a")?.let {
+                val src = it.attr("href")
+                novelInfo.url = src
+                novelInfo.title = it.text()
             }
-            val authorEs = e.select("div.book_author > a")
-            if (authorEs != null && authorEs.size > 0) {
-                novelInfo.author = authorEs.first().text()
+            e.selectFirst("dd.text > p")?.let {
+                val group = it.text().split(" ")
+                novelInfo.author = getSplitInfo(group[0])
+                novelInfo.update = getSplitInfo(group[1])
+                novelInfo.state = getSplitInfo(group[2])
+                novelInfo.lastChapter = "${group[3]}${if(group.size>4)group[4]else ""}"
             }
             novelInfo.source = SourceType.FPZW
         }
         return novelInfo
+    }
+
+    private fun getSplitInfo(str: String): String {
+        return if(str.contains("：")) str.split("：")[1] else str
     }
 
     init {
@@ -77,7 +77,7 @@ class Rank4FpzwUseCase(sort: String?) : HttpCacheUseCase<List<NovelInfo>>(object
         params.path = path
         params.requestMethod = RequestParams.REQUEST_METHOD_GET
         setRequestParams(params)
-        setHttpManager(MyHttpManager(typeToken).apply { setStringEncode("utf-8") })
+        setHttpManager(MyHttpManager(typeToken))
         httpRepository.setResponseTransformer(object : HttpStringTransformer<List<NovelInfo>>() {
             override fun buildData(responseStr: String): List<NovelInfo>? {
                 val docL = Jsoup.parse(responseStr)

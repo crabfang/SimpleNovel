@@ -214,6 +214,9 @@ class HomeActivity: BaseActivity() {
             } else if(it.source == SourceType.BQG && it.url?.contains(SourceType.BQG.host) == false) {
                 LocalNovelsUseCase.updateLocalHost(it.url, SourceType.BQG.host)
                 needReload = true
+            } else if(it.source == SourceType.X23US && it.url?.contains(SourceType.X23US.host) == false) {
+                LocalNovelsUseCase.updateLocalHost(it.url, SourceType.X23US.host)
+                needReload = true
             }
             val presenter: ViewPresenter<NovelList> = object : SimpleViewPresenter<NovelList>() {
                 override fun complete(from: CacheSource) {

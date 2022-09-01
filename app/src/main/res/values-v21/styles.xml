@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="OverflowMenuStyle" parent="Widget.AppCompat.PopupMenu.Overflow">
+        <!-- Api 21 -->
+        <item name="overlapAnchor">false</item>
+    </style>
+
+</resources>
