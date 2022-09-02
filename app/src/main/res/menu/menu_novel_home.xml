@@ -1,9 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:id="@+id/menu_novel_home_search"
+        android:title="搜索"
+        android:icon="@drawable/vector_menu_search"
+        app:showAsAction="always"/>
     <item android:id="@+id/menu_novel_home_rank"
         android:title="热门排行"
-        android:titleCondensed="排行"
+        android:icon="@drawable/vector_menu_rank"
         app:showAsAction="always"/>
     <item android:id="@+id/menu_novel_home_check_update"
         android:title="检测更新"

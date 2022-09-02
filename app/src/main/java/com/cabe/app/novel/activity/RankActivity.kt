@@ -208,5 +208,4 @@ class RankResultContract: ActivityResultContract<String?, String?>() {
             else -> null
         }
     }
-
 }

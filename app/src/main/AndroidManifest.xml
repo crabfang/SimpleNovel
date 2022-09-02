@@ -54,6 +54,9 @@
             android:name=".activity.RankActivity"
             android:screenOrientation="portrait" />
         <activity
+            android:name=".activity.SearchActivity"
+            android:screenOrientation="portrait" />
+        <activity
             android:name=".activity.NovelListActivity"
             android:screenOrientation="portrait" />
         <activity android:name=".activity.NovelContentActivity"

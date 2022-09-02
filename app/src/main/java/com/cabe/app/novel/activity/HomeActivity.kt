@@ -1,20 +1,13 @@
 package com.cabe.app.novel.activity
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.text.TextUtils
 import android.view.*
-import android.view.inputmethod.EditorInfo
-import android.view.inputmethod.InputMethodManager
-import android.widget.ImageView
-import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
-import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
@@ -22,21 +15,20 @@ import com.cabe.app.novel.R
 import com.cabe.app.novel.domain.BaseViewModel
 import com.cabe.app.novel.domain.LocalNovelsUseCase
 import com.cabe.app.novel.domain.bqg.NovelList4BqgUseCase
-import com.cabe.app.novel.domain.bqg.Search4BqgUseCase
 import com.cabe.app.novel.domain.ekxs.NovelList42KXSUseCase
-import com.cabe.app.novel.domain.ekxs.Search42kxsUseCase
 import com.cabe.app.novel.domain.fpzw.NovelList4FpzwUseCase
 import com.cabe.app.novel.domain.x23us.NovelList4X23USUseCase
-import com.cabe.app.novel.domain.x23us.Search4X23USUseCase
 import com.cabe.app.novel.model.*
 import com.cabe.app.novel.utils.DiskUtils
+import com.cabe.app.novel.widget.BaseAdapter
+import com.cabe.app.novel.widget.BaseViewHolder
 import com.cabe.lib.cache.CacheSource
 import com.cabe.lib.cache.interactor.ViewPresenter
 import com.cabe.lib.cache.interactor.impl.SimpleViewPresenter
 import com.google.gson.Gson
 import com.pgyer.pgyersdk.PgyerSDKManager
 import kotlinx.android.synthetic.main.activity_home.*
-import kotlinx.android.synthetic.main.item_home_local_novel.view.*
+import kotlinx.android.synthetic.main.item_home_novel.view.*
 
 class HomeViewModel: BaseViewModel<LocalNovelList>() {
     private var useCase: LocalNovelsUseCase? = null
@@ -57,10 +49,14 @@ class HomeActivity: BaseActivity() {
     private val viewModel: HomeViewModel by viewModels()
     private var localNovelList: LocalNovelList? = null
     private lateinit var localSwipe: SwipeRefreshLayout
-    private lateinit var recyclerSearch: RecyclerView
-    private val adapter = MyAdapter()
-    private val adapterSearch = MyAdapter()
+    private lateinit var adapter: HomeBookAdapter
     private var flagRemote = true
+    private val searchLauncher = registerForActivityResult(SearchResultContract()) { jsonStr ->
+        if (!TextUtils.isEmpty(jsonStr)) {
+            val novelInfo = Gson().fromJson(jsonStr, NovelInfo::class.java)
+            addLocalNovel(novelInfo)
+        }
+    }
     private val rankLauncher = registerForActivityResult(RankResultContract()) { jsonStr ->
         if (!TextUtils.isEmpty(jsonStr)) {
             val novelInfo = Gson().fromJson(jsonStr, NovelInfo::class.java)
@@ -91,6 +87,7 @@ class HomeActivity: BaseActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
+            R.id.menu_novel_home_search -> actionSearch()
             R.id.menu_novel_home_rank -> actionRank()
             R.id.menu_novel_home_check_update -> checkUpdate()
             R.id.menu_novel_home_about -> {
@@ -102,48 +99,32 @@ class HomeActivity: BaseActivity() {
     }
 
     private fun initView() {
-        activity_home_search_input.setOnEditorActionListener { input, actionId, _ ->
-            if (actionId == EditorInfo.IME_ACTION_DONE) {
-                onSearch(input)
-                true
-            } else false
-        }
         localSwipe = findViewById(R.id.activity_home_local_swipe)
         localSwipe.setOnRefreshListener {
             flagRemote = true
             loadLocal(false)
         }
-        activity_home_local_list.adapter = adapter
-        adapter.setItemClickListener(object : AdapterClickListener {
-            override fun itemOnClick(novelInfo: NovelInfo?) {
-                val intent = NovelListActivity.create(context, novelInfo)
-                startActivity(intent)
-            }
-            override fun itemOnLongClick(novelInfo: NovelInfo) {
-                val builder = AlertDialog.Builder(context!!)
-                builder.setTitle(novelInfo.title)
-                builder.setItems(arrayOf("置顶", "删除")
-                ) { dialog: DialogInterface, which: Int ->
-                    when (which) {
-                        0 -> setTopNovel(novelInfo)
-                        1 -> removeLocalNovel(novelInfo)
-                    }
-                    dialog.dismiss()
+
+        adapter = HomeBookAdapter(this)
+        adapter.onItemClick = {
+            val intent = NovelListActivity.create(context, it)
+            startActivity(intent)
+        }
+        adapter.onItemLongClick = {
+            val builder = AlertDialog.Builder(this@HomeActivity)
+            builder.setTitle(it.title)
+            builder.setItems(arrayOf("置顶", "删除")
+            ) { dialog: DialogInterface, which: Int ->
+                when (which) {
+                    0 -> setTopNovel(it)
+                    1 -> removeLocalNovel(it)
                 }
-                builder.create().show()
+                dialog.dismiss()
             }
-        })
-        recyclerSearch = findViewById(R.id.activity_home_search_list)
-        recyclerSearch.adapter = adapterSearch
-        adapterSearch.setItemClickListener(object : AdapterClickListener {
-            override fun itemOnClick(novelInfo: NovelInfo?) {
-                addLocalNovel(novelInfo)
-                recyclerSearch.smoothScrollToPosition(0)
-                showSearchView(false)
-                activity_home_search_input.setText("")
-            }
-            override fun itemOnLongClick(novelInfo: NovelInfo) {}
-        })
+            builder.create().show()
+            true
+        }
+        activity_home_local_list.adapter = adapter
     }
 
     private fun bindData() {
@@ -160,23 +141,16 @@ class HomeActivity: BaseActivity() {
         }
     }
 
+    private fun actionSearch() {
+        searchLauncher.launch(null)
+    }
+
     private fun actionRank() {
         rankLauncher.launch(null)
     }
 
     private fun checkUpdate() {
         PgyerSDKManager.checkSoftwareUpdate(this)
-    }
-
-    private fun showSearchView(show: Boolean) {
-        val visibility = if (show) View.VISIBLE else View.GONE
-        recyclerSearch.visibility = visibility
-        activity_home_search_btn_close.visibility = visibility
-    }
-
-    private fun hiddenKeyboard() {
-        val inputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        inputMethodManager.hideSoftInputFromWindow(activity_home_search_input.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
     }
 
     private fun loadLocal(silent: Boolean) {
@@ -261,167 +235,35 @@ class HomeActivity: BaseActivity() {
             updateLocalNovel()
         }
     }
+}
 
-    fun onClose(view: View?) {
-        activity_home_search_input.setText("")
-        adapterSearch.setData(null)
-        showSearchView(false)
+private class HomeBookAdapter(context: Context): BaseAdapter<NovelInfo>(context) {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BookVH {
+        val itemView = LayoutInflater.from(context).inflate(R.layout.item_home_novel, parent, false)
+        return BookVH(itemView)
     }
+}
 
-    fun onSearch(view: View?) {
-        waiting?.show()
-        hiddenKeyboard()
-        searchList.clear()
-        adapterSearch.setData(null)
-        val inputStr = activity_home_search_input.text.toString()
-        search42kxs(inputStr)
-    }
-
-    private var searchList = mutableListOf<NovelInfo>()
-    private fun search42kxs(keyWord: String) {
-        val searchUseCase = Search42kxsUseCase(keyWord)
-        searchUseCase.execute(object : ViewPresenter<List<NovelInfo>> {
-            override fun load(from: CacheSource, data: List<NovelInfo>?) {
-                if (data?.isNotEmpty() == true) {
-                    searchList.addAll(data)
-                    adapterSearch.addData(data)
-                    showSearchView(true)
-                }
-            }
-            override fun error(from: CacheSource, code: Int, info: String) {
-                toast(info)
-            }
-            override fun complete(from: CacheSource) {
-                search4Bqg(keyWord)
-            }
-        })
-    }
-
-    private fun search4Bqg(keyWord: String) {
-        val searchUseCase = Search4BqgUseCase(keyWord)
-        searchUseCase.execute(object : ViewPresenter<List<NovelInfo>> {
-            override fun load(from: CacheSource, data: List<NovelInfo>?) {
-                if (data?.isNotEmpty() == true) {
-                    searchList.addAll(data)
-                    adapterSearch.addData(data)
-                    showSearchView(true)
-                }
-            }
-            override fun error(from: CacheSource, code: Int, info: String) {
-                toast(info)
-            }
-            override fun complete(from: CacheSource) {
-                search4DD(keyWord)
-            }
-        })
-    }
-
-    private fun search4DD(keyWord: String) {
-        val searchUseCase = Search4X23USUseCase(keyWord)
-        searchUseCase.execute(object : ViewPresenter<List<NovelInfo>> {
-            override fun load(from: CacheSource, data: List<NovelInfo>?) {
-                if (data?.isNotEmpty() == true) {
-                    searchList.addAll(data)
-                    adapterSearch.addData(data)
-                    showSearchView(true)
-                }
-            }
-            override fun error(from: CacheSource, code: Int, info: String) {
-                toast(info)
-            }
-            override fun complete(from: CacheSource) {
-                handleSearchResult()
-            }
-        })
-    }
-
-    private fun handleSearchResult() {
-        waiting?.dismiss()
-        if(searchList.isEmpty()) {
-            toast("找不到相关小说")
+private class BookVH(itemView: View) : BaseViewHolder<NovelInfo>(itemView) {
+    override fun onBindData(data: NovelInfo) {
+        itemView.apply {
+            Glide.with(context)
+                .load(data.picUrl)
+                .apply(RequestOptions().apply{
+                    placeholder(R.drawable.pic_default_novel)
+                    error(R.drawable.pic_default_novel)
+                })
+                .into(novel_cover)
+            novel_title.text = "${data.title}(${data.source})"
+            novel_author.text = "作者：${data.author ?: "--"}"
+            novel_type.text = "类型：${data.type ?: "--"}"
+            novel_update.text = "更新：${data.update ?: "--"}"
+            novel_state.text = "(${data.state ?: "--"})"
+            novel_read.text = "已读：${data.readChapter ?: "--"}"
+            novel_chapter.text = "最新：${data.lastChapter ?: "--"}"
+            novel_read.visibility = if (TextUtils.isEmpty(data.readChapter)) View.GONE else View.VISIBLE
+            novel_state.visibility = if (TextUtils.isEmpty(data.state)) View.GONE else View.VISIBLE
+            novel_type.visibility = if (TextUtils.isEmpty(data.type)) View.GONE else View.VISIBLE
         }
-    }
-
-    private inner class MyAdapter : RecyclerView.Adapter<MyHolder>() {
-        private var listener: AdapterClickListener? = null
-        private var novelList: MutableList<NovelInfo>? = null
-        fun setItemClickListener(listener: AdapterClickListener) {
-            this.listener = listener
-        }
-        fun setData(list: List<NovelInfo>?) {
-            novelList?.clear()
-            list?.let {
-                novelList = it.toMutableList()
-            }
-            notifyDataSetChanged()
-        }
-        fun addData(list: List<NovelInfo>?) {
-            if (novelList == null) {
-                novelList = ArrayList()
-            }
-            if (list != null) {
-                novelList?.addAll(list)
-            }
-            notifyDataSetChanged()
-        }
-        override fun getItemCount(): Int {
-            return if (novelList == null || novelList!!.isEmpty()) 0 else novelList!!.size
-        }
-        private fun getItemData(index: Int): NovelInfo? {
-            if (novelList == null || novelList!!.isEmpty()) return null
-            return if (index < 0 || index >= novelList!!.size) null else novelList!![index]
-        }
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyHolder {
-            val itemView = LayoutInflater.from(context).inflate(R.layout.item_home_local_novel, parent, false)
-            return MyHolder(itemView)
-        }
-        @SuppressLint("SetTextI18n")
-        override fun onBindViewHolder(holder: MyHolder, position: Int) {
-            val itemData = getItemData(position) ?: return
-            Glide.with(holder.itemView.context)
-                    .load(itemData.picUrl)
-                    .apply(RequestOptions().apply{
-                        placeholder(R.drawable.pic_default_novel)
-                        error(R.drawable.pic_default_novel)
-                    })
-                    .into(holder.pic)
-            holder.tvTitle.text = "${itemData.title}(${itemData.source})"
-            holder.tvAuthor.text = "作者：${itemData.author ?: "--"}"
-            holder.tvType.text = "类型：${itemData.type ?: "--"}"
-            holder.tvUpdate.text = "更新：${itemData.update ?: "--"}"
-            holder.tvState.text = "(${itemData.state ?: "--"})"
-            holder.tvRead.text = "已读：${itemData.readChapter ?: "--"}"
-            holder.tvChapter.text = "最新：${itemData.lastChapter ?: "--"}"
-            holder.tvRead.visibility = if (TextUtils.isEmpty(itemData.readChapter)) View.GONE else View.VISIBLE
-            holder.tvState.visibility = if (TextUtils.isEmpty(itemData.state)) View.GONE else View.VISIBLE
-            holder.tvType.visibility = if (TextUtils.isEmpty(itemData.type)) View.GONE else View.VISIBLE
-            holder.itemView.setOnClickListener {
-                if (listener != null) {
-                    listener!!.itemOnClick(itemData)
-                }
-            }
-            holder.itemView.setOnLongClickListener {
-                if (listener != null) {
-                    listener!!.itemOnLongClick(itemData)
-                }
-                false
-            }
-        }
-    }
-
-    private class MyHolder(itemView: View) : ViewHolder(itemView) {
-        val pic: ImageView = itemView.item_home_local_novel_pic
-        val tvTitle: TextView = itemView.item_home_local_novel_title
-        val tvAuthor: TextView = itemView.item_home_local_novel_author
-        val tvType: TextView = itemView.item_home_local_novel_type
-        val tvState: TextView = itemView.item_home_local_novel_state
-        val tvRead: TextView = itemView.item_home_local_novel_read
-        val tvUpdate: TextView = itemView.item_home_local_novel_update
-        val tvChapter: TextView = itemView.item_home_local_novel_chapter
-    }
-
-    private interface AdapterClickListener {
-        fun itemOnClick(novelInfo: NovelInfo?)
-        fun itemOnLongClick(novelInfo: NovelInfo)
     }
 }
