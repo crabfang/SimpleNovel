@@ -8,7 +8,6 @@ import com.cabe.lib.cache.interactor.ViewPresenter
 import com.cabe.lib.cache.CacheSource
 import com.cabe.app.novel.model.SourceType
 import com.cabe.app.novel.domain.x23us.NovelContent4X23USUseCase
-import com.cabe.app.novel.domain.ekxs.NovelContent42kxsUseCase
 import com.cabe.app.novel.domain.fpzw.NovelContent4FpzwUseCase
 import com.cabe.app.novel.domain.bqg.NovelContent4BqgUseCase
 import android.text.TextUtils
@@ -57,10 +56,6 @@ class NovelContentView(context: Context?) : LinearLayout(context) {
                 val useCase = NovelContent4X23USUseCase(url)
                 useCase.execute(presenter)
             }
-            SourceType.EKXS -> {
-                val useCase = NovelContent42kxsUseCase(url)
-                useCase.execute(presenter)
-            }
             SourceType.FPZW -> {
                 val useCase = NovelContent4FpzwUseCase(url)
                 useCase.execute(presenter)
@@ -69,6 +64,7 @@ class NovelContentView(context: Context?) : LinearLayout(context) {
                 val useCase = NovelContent4BqgUseCase(url)
                 useCase.execute(presenter)
             }
+            else -> {}
         }
     }
 

@@ -25,7 +25,6 @@ import com.cabe.app.novel.domain.BaseViewModel
 import com.cabe.app.novel.domain.HotNovelUseCase
 import com.cabe.app.novel.domain.HotRank
 import com.cabe.app.novel.domain.bqg.Search4BqgUseCase
-import com.cabe.app.novel.domain.ekxs.Search42kxsUseCase
 import com.cabe.app.novel.domain.x23us.Search4X23USUseCase
 import com.cabe.app.novel.model.NovelInfo
 import com.cabe.app.novel.widget.BaseAdapter
@@ -40,16 +39,8 @@ import kotlinx.android.synthetic.main.layout_search_input.*
 class SearchVM: BaseViewModel<List<NovelInfo>>() {
     var liveHots= MutableLiveData<List<HotRank>?>()
     fun search(keyWord: String) {
-        search42kxs(keyWord)
+        search4Bqg(keyWord)
     }
-    private fun search42kxs(keyWord: String) {
-        val searchUseCase = Search42kxsUseCase(keyWord)
-        searchUseCase.execute(createPresenter {
-            search4Bqg(keyWord)
-            false
-        })
-    }
-
     private fun search4Bqg(keyWord: String) {
         val searchUseCase = Search4BqgUseCase(keyWord)
         searchUseCase.execute(createPresenter {
